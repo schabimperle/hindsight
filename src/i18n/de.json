@@ -1,0 +1,165 @@
+{
+  "app": {
+    "subtitle": "Was wäre, wenn jede Einzahlung ein einziges Asset gekauft und jede Auszahlung davon verkauft hätte?",
+    "loadFailed": "Laden fehlgeschlagen: {{error}}",
+    "loading": "Lade Daten",
+    "settingsSaveFailed": "Einstellungen konnten nicht gespeichert werden",
+    "viewLabel": "Ansicht",
+    "realUnavailable": "Keine Inflationsdaten, daher keine realen Werte.",
+    "howItWorks": "So funktioniert Hindsight",
+    "warnings_one": "{{count}} Hinweis",
+    "warnings_other": "{{count}} Hinweise",
+    "title": "Hindsight",
+    "deposits_one": "{{count}} Einzahlung",
+    "deposits_other": "{{count}} Einzahlungen",
+    "withdrawals_one": "{{count}} Auszahlung",
+    "withdrawals_other": "{{count}} Auszahlungen"
+  },
+  "view": {
+    "nominal": "Nominal",
+    "real": "Real"
+  },
+  "table": {
+    "variant": "Variante",
+    "value": "Wert",
+    "gain": "Gewinn",
+    "irr": "MWR p.a.",
+    "gainReal": "Gewinn real",
+    "irrReal": "MWR p.a. real",
+    "vsActual": "vs. deins",
+    "vsActualReal": "vs. deins (real)",
+    "vsShort": "{{diff}} vs. deins",
+    "yourPortfolio": "Dein Portfolio",
+    "notInvested": "Nicht angelegt",
+    "notComputable": "nicht berechenbar: {{reason}}",
+    "notes_one": "{{count}} Hinweis",
+    "notes_other": "{{count}} Hinweise",
+    "perYear": "p.a.",
+    "select": "{{name}} auswählen",
+    "mwr": "MWR",
+    "mwrReal": "MWR real"
+  },
+  "chart": {
+    "scale": "Chart-Skalierung",
+    "linear": "Linear",
+    "log": "Logarithmisch",
+    "logUnavailable": "Logarithmisch ist nur bei positiven Werten aller Linien verfügbar, einschließlich „Netto ein“.",
+    "netDeposited": "Netto ein",
+    "legend": "Legende",
+    "deposit_one": "Einzahlung",
+    "deposit_other": "{{count}} Einzahlungen",
+    "withdrawal_one": "Auszahlung",
+    "withdrawal_other": "{{count}} Auszahlungen",
+    "deposits": "Einzahlungen",
+    "withdrawals": "Auszahlungen",
+    "markers": "Markierungen",
+    "showMarkers": "Marker anzeigen",
+    "hideMarkers": "Marker ausblenden"
+  },
+  "comparison": {
+    "title": "Vergleich"
+  },
+  "assumptions": {
+    "title": "Annahmen",
+    "item1": "Vor Steuern und Gebühren: Die Alternativen zahlen keine; dein Portfolio enthält die tatsächlich gezahlten.",
+    "item2": "Eine Einzahlung kauft zum bereinigten Schlusskurs (Yahoo Finance) des Tages oder nächsten Handelstags, eine Auszahlung verkauft diesen Betrag. Ausschüttungen werden reinvestiert.",
+    "item3": "Eine Auszahlung über dem Wert der Alternative zählt nur in gedeckter Höhe.",
+    "item4": "Vor dem ersten Kurs eines Assets bleibt das Geld uninvestiert und wird an diesem Tag auf einmal gekauft.",
+    "item5": "Es zählt nur Geld, das von außen auf die gewählten Konten fließt, keine Umbuchungen dazwischen.",
+    "item6": "Sachübertragungen von außen zählen mit dem Preis der Buchung, sonst mit dem Wealthfolio-Kurs um diesen Tag. Wertlose (z. B. Spam-Token) werden ignoriert.",
+    "item7": "Real: Kaufkraft am Ende des Zeitraums, nach dem OECD-Verbraucherpreisindex des Landes deiner Zeitzone (sonst deiner Basiswährung).",
+    "item8": "Beginnt der Zeitraum nach deiner ersten Einzahlung, startet er mit dem Wert deines Portfolios an diesem Tag als Einzahlung."
+  },
+  "messages": {
+    "no_prices": "Es liegen keine Kurse vor.",
+    "prices_missing": "Die Kurshistorie hat Lücken von mehr als 10 Tagen.",
+    "prices_stale": "Der letzte Kurs ist älter als 10 Tage.",
+    "prices_unavailable": "Kurse konnten nicht geladen werden (Yahoo nicht erreichbar, kein Cache).",
+    "ticker_unknown": "Yahoo kennt diesen Ticker nicht.",
+    "currency_unknown": "Yahoo nennt für diesen Ticker keine Währung.",
+    "fx_rate_missing": "Es gibt keinen Wechselkurs in die Basiswährung.",
+    "inflation_missing": "Inflationsdaten für {{country}} beginnen erst mit {{month}}, nach der ersten Ein- oder Auszahlung ({{date}}); reale Werte entfallen.",
+    "inflation_gap_one": "Für {{months}} fehlen Inflationsdaten; verwendet wird der letzte veröffentlichte Monat davor.",
+    "inflation_gap_other": "Für {{months}} fehlen Inflationsdaten; verwendet wird jeweils der letzte veröffentlichte Monat davor.",
+    "inflation_unavailable": "Inflationsdaten (OECD) konnten nicht geladen werden.",
+    "inflation_stale": "Inflationsdaten reichen nur bis {{month}}; spätere Monate verwenden diesen Wert.",
+    "inflation_cache_stale": "Inflationsdaten aus dem Cache (Stand vor {{hours}} Std.), Abruf fehlgeschlagen.",
+    "fx_rates_cache_stale": "Wechselkurse aus dem Cache (Stand vor {{hours}} Std.), Abruf fehlgeschlagen.",
+    "cache_stale": "Kurse aus dem Cache (Stand vor {{hours}} Std.), Abruf fehlgeschlagen.",
+    "withdrawal_uncovered_one": "Eine Auszahlung am {{date}} überstieg den Wert dieser Alternative; {{amount}} waren nicht gedeckt und zählen nicht.",
+    "withdrawal_uncovered_other": "{{count}} Auszahlungen (zuerst am {{date}}) überstiegen den Wert dieser Alternative; {{amount}} waren nicht gedeckt und zählen nicht.",
+    "late_start": "Bis {{date}} nicht angelegt (erster Kurs); das Geld blieb bis dahin uninvestiert.",
+    "foreign_currency_no_rate_one": "Für diese Buchung in Fremdwährung gibt es keinen Wechselkurs nach {{currency}} (Yahoo nicht erreichbar oder Paar unbekannt); ohne sie wäre der Vergleich falsch. Später erneut versuchen oder den Wechselkurs der Buchung in Wealthfolio setzen:",
+    "foreign_currency_no_rate_other": "Für diese Buchungen in Fremdwährung gibt es keinen Wechselkurs nach {{currency}} (Yahoo nicht erreichbar oder Paar unbekannt); ohne sie wäre der Vergleich falsch. Später erneut versuchen oder den Wechselkurs der Buchungen in Wealthfolio setzen:",
+    "asset_transfer_unvalued_one": "Der Wert dieser Sachübertragung ist nicht ermittelbar. Setze ihren Preis in Wealthfolio:",
+    "asset_transfer_unvalued_other": "Der Wert dieser Sachübertragungen ist nicht ermittelbar. Setze ihren Preis in Wealthfolio:",
+    "asset_transfer_worthless_one": "{{count}} Übertragung eines Assets ohne jeden Wert (z. B. Spam-Token) wurde ignoriert.",
+    "asset_transfer_worthless_other": "{{count}} Übertragungen von Assets ohne jeden Wert (z. B. Spam-Token) wurden ignoriert.",
+    "transfers_unlinked_one": "{{count}} Übertragung zwischen gewählten Konten ist nicht verknüpft und zählt als Ein- und Auszahlung (Summe {{sum}}).",
+    "transfers_unlinked_other": "{{count}} Übertragungen zwischen gewählten Konten sind nicht verknüpft und zählen als Ein- und Auszahlungen (Summe {{sum}}).",
+    "no_deposits": "In den gewählten Konten wurden keine externen Einzahlungen gefunden.",
+    "no_accounts": "Keine Konten ausgewählt.",
+    "net_contribution_mismatch": "Abgleich: Summe der abgeleiteten Einzahlungen ({{flowsSum}}) weicht von den Netto-Einzahlungen in Wealthfolio ({{netContribution}}) ab.",
+    "unknown": "Unbekanntes Problem ({{code}}).",
+    "no_deposits_window": "Dein Portfolio hatte zu Beginn dieses Zeitraums keinen Wert und darin keine Einzahlungen. Wähle einen anderen Zeitraum.",
+    "window_empty": "Der gewählte Zeitraum ist leer: Er beginnt am oder nach seinem Ende bzw. der letzten Bewertung. Wähle einen anderen Zeitraum.",
+    "valuation_missing": "Wealthfolio hat für den {{date}} keinen aktuellen Portfoliowert (die Bewertungshistorie eines gewählten Kontos fehlt oder ist über 10 Tage älter). Berechne die Historie in Wealthfolio neu oder wähle einen anderen Zeitraum."
+  },
+  "info": {
+    "shortfall": {
+      "title": "Ungedeckte Auszahlung",
+      "p1": "Diese Alternative war weniger wert als eine Auszahlung; nur der gedeckte Teil zählt. Vergleiche den Gewinn, nicht den Endwert."
+    },
+    "lateStart": {
+      "title": "Später Start",
+      "p1": "Vor diesem Datum gibt es keine Kurse. Das Geld bleibt bis dahin uninvestiert und wird auf einmal gekauft."
+    },
+    "moreAbout": "Mehr Infos zu {{label}}"
+  },
+  "scope": {
+    "title": "Kontobereich auswählen",
+    "all": "Alle Konten",
+    "allHint": "Aktive, ohne Bargeldkonten",
+    "accounts": "Konten",
+    "search": "Konten durchsuchen…",
+    "noResults": "Keine Ergebnisse.",
+    "count_one": "{{count}} Konto",
+    "count_other": "{{count}} Konten"
+  },
+  "picker": {
+    "add": "Benchmark hinzufügen",
+    "placeholder": "Name, Ticker oder ISIN suchen…",
+    "searching": "Suche…",
+    "noResults": "Keine Treffer.",
+    "suggestions": "Vorschläge",
+    "results": "Suchergebnisse",
+    "manual": "Yahoo-Ticker",
+    "useTicker": "Ticker {{ticker}} verwenden",
+    "cashInfo": "Das Geld bleibt uninvestiert.",
+    "searchFailed": "Suche fehlgeschlagen. Ein Yahoo-Ticker lässt sich trotzdem eingeben."
+  },
+  "badges": {
+    "notPlotted": "Nicht dargestellt",
+    "remove": "{{name}} entfernen"
+  },
+  "strip": {
+    "return": "Rendite",
+    "capital": "Kapital",
+    "gain": "Gewinn",
+    "mwr": "MWR p.a.",
+    "vs": "vs. deins",
+    "value": "Wert",
+    "helpTitle": "Hindsight-Kennzahlen",
+    "info": {
+      "mwr": "Geldgewichtete Rendite pro Jahr (XIRR).",
+      "mwrPeriod": "Geldgewichtete Rendite über den Zeitraum (XIRR), nicht annualisiert.",
+      "depositsWindow": "Enthält {{value}}, den Wert deines Portfolios zu Beginn des Zeitraums.",
+      "bookings": "Gezählt werden die ursprünglichen Buchungen im Zeitraum, ohne Anfangswert. Beträge sind je Tag saldiert; bei Alternativen zählen nur gedeckte Auszahlungen."
+    },
+    "mwrPeriod": "MWR",
+    "deposits": "Einzahlungen",
+    "withdrawals": "Auszahlungen",
+    "bookings_one": "{{count}} Buchung",
+    "bookings_other": "{{count}} Buchungen"
+  }
+}

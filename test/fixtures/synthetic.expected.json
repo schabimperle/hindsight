@@ -1,0 +1,134 @@
+{
+ "investedNominal": 75200.0,
+ "investedReal": 96673.26310011484,
+ "cpiError": null,
+ "cpiFilled": [
+  "2025-10",
+  "2025-11"
+ ],
+ "mwrPeriodDays": null,
+ "variants": [
+  {
+   "name": "Rising",
+   "invested": 75200.0,
+   "deposits": 109200.0,
+   "withdrawals": 34000.0,
+   "value": 114579.89846358416,
+   "gain": 39379.89846358416,
+   "irr": 0.06185867877863804,
+   "gainReal": 17906.635363469322,
+   "irrReal": 0.024383132836605426,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "warnings": []
+  },
+  {
+   "name": "Falling",
+   "invested": 75200.0,
+   "deposits": 109200.0,
+   "withdrawals": 34000.0,
+   "value": 52710.40375288575,
+   "gain": -22489.59624711425,
+   "irr": -0.05057962245662734,
+   "gainReal": -43962.85934722909,
+   "irrReal": -0.08417528860425344,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "warnings": []
+  },
+  {
+   "name": "Volatile crypto",
+   "invested": 75200.0,
+   "deposits": 109200.0,
+   "withdrawals": 34000.0,
+   "value": 745071.0135606804,
+   "gain": 669871.0135606804,
+   "irr": 0.37532894927333416,
+   "gainReal": 648397.7504605656,
+   "irrReal": 0.32708148716118635,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "warnings": []
+  },
+  {
+   "name": "Late start",
+   "invested": 75200.0,
+   "deposits": 109200.0,
+   "withdrawals": 34000.0,
+   "value": 161110.80435194817,
+   "gain": 85910.80435194817,
+   "irr": 0.11385350554776175,
+   "gainReal": 64437.54125183333,
+   "irrReal": 0.07459130015909288,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": "2021-01-04",
+   "warnings": [
+    "late_start"
+   ]
+  },
+  {
+   "name": "Total loss",
+   "invested": 96061.03988427963,
+   "deposits": 109200.0,
+   "withdrawals": 13138.960115720376,
+   "value": 3903.5439485075335,
+   "gain": -92157.4959357721,
+   "irr": -0.698805788087798,
+   "gainReal": -115614.38977345059,
+   "irrReal": -0.7060801642780314,
+   "shortfall": 20861.039884279624,
+   "shortfalls": [
+    {
+     "date": "2023-07-15",
+     "amount": 20861.039884279624
+    }
+   ],
+   "uninvestedUntil": null,
+   "warnings": [
+    "withdrawal_uncovered"
+   ]
+  },
+  {
+   "name": "Stale",
+   "error": "prices_stale"
+  },
+  {
+   "name": "Gap",
+   "error": "prices_missing"
+  },
+  {
+   "name": "Cash",
+   "invested": 75200.0,
+   "deposits": 109200.0,
+   "withdrawals": 34000.0,
+   "value": 75200.0,
+   "gain": 0.0,
+   "irr": -5.551115123125783e-17,
+   "gainReal": -21473.26310011484,
+   "irrReal": -0.03534539312682311,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "warnings": []
+  }
+ ],
+ "actual": {
+  "name": "actual",
+  "invested": 75200.0,
+  "deposits": 109200.0,
+  "withdrawals": 34000.0,
+  "value": 101234.56,
+  "gain": 26034.559999999998,
+  "irr": 0.04341654406456896,
+  "gainReal": 4561.2968998851575,
+  "irrReal": 0.006575352242646715,
+  "shortfall": 0,
+  "shortfalls": [],
+  "uninvestedUntil": null,
+  "warnings": []
+ }
+}

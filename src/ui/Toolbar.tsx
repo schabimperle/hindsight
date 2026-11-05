@@ -1,0 +1,88 @@
+import {
+  Button,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  useIsMobile,
+} from '@wealthfolio/ui';
+import { Info, TriangleAlert } from 'lucide-react';
+import type { WarningItem } from '../core/types';
+import type { Fmt } from '../model/format';
+import { messageText } from '../model/messages';
+import { BookingList } from './Notice';
+import { ASSUMPTION_COUNT, useTexts } from './i18n';
+
+/** Small round icon button next to the card title, as the host's metric help button. */
+const ICON_BUTTON = 'text-muted-foreground hover:text-foreground h-7 w-7 shrink-0 rounded-full';
+const EYEBROW = 'text-muted-foreground text-2xs font-semibold tracking-wider uppercase';
+
+/** Non-blocking hints about the whole analysis; the button only exists when there are any. */
+export function WarningsButton({ warnings, fmt }: { warnings: WarningItem[]; fmt: Fmt }) {
+  const { t } = useTexts();
+  if (warnings.length === 0) return null;
+  const label = t('app.warnings', { count: warnings.length });
+  return (
+    <Popover>
+      <PopoverTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-warning hover:text-warning h-7 shrink-0 gap-1 rounded-full px-2 tabular-nums"
+            aria-label={label}
+          />
+        }
+      >
+        <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
+        {warnings.length}
+      </PopoverTrigger>
+      <PopoverContent className="max-h-[60vh] w-80 space-y-3 overflow-y-auto text-xs" align="start">
+        <div className={EYEBROW}>{label}</div>
+        <ul className="space-y-2.5">
+          {warnings.map((w, i) => (
+            <li key={`${w.code}-${i}`} className="flex items-start gap-2">
+              <TriangleAlert className="text-warning mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+              <div className="min-w-0">
+                {messageText(t, fmt, w)}
+                <BookingList w={w} fmt={fmt} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/** What Hindsight answers and every assumption behind it. */
+export function HowItWorks() {
+  const { t } = useTexts();
+  const items = Array.from({ length: ASSUMPTION_COUNT }, (_, i) => t(`assumptions.item${i + 1}`));
+  return (
+    <Dialog useIsMobile={useIsMobile}>
+      <DialogTrigger render={<Button variant="ghost" size="icon" className={ICON_BUTTON} aria-label={t('app.howItWorks')} />}>
+        <Info className="h-3.5 w-3.5" aria-hidden />
+      </DialogTrigger>
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg" mobileClassName="max-h-[85vh] overflow-y-auto p-6">
+        <DialogHeader className="text-start">
+          <DialogTitle>{t('app.howItWorks')}</DialogTitle>
+          <DialogDescription className="text-start">{t('app.subtitle')}</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2 pt-5 text-sm">
+          <div className={EYEBROW}>{t('assumptions.title')}</div>
+          <ul className="text-muted-foreground list-disc space-y-1.5 ps-4">
+            {items.map((x) => (
+              <li key={x}>{x}</li>
+            ))}
+          </ul>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

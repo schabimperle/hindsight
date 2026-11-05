@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.token
+.DS_Store
+*.log

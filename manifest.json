@@ -1,0 +1,125 @@
+{
+  "id": "hindsight",
+  "name": "Hindsight",
+  "version": "0.3.0",
+  "description": "What would your portfolio be worth if every deposit had bought a single asset instead? Replays your own deposits and withdrawals in BTC, an index ETF or any other ticker, nominal and in today's purchasing power.",
+  "sdkVersion": "3.12.0",
+  "main": "dist/addon.js",
+  "enabled": true,
+  "license": "MIT AND AGPL-3.0-only",
+  "minWealthfolioVersion": "3.12.0",
+  "keywords": [
+    "comparison",
+    "benchmark",
+    "inflation"
+  ],
+  "icon": "chart-line",
+  "network": {
+    "allowedHosts": [
+      "query1.finance.yahoo.com",
+      "sdmx.oecd.org"
+    ]
+  },
+  "hostDependencies": {
+    "@tanstack/react-query": "^5.90.0",
+    "@wealthfolio/addon-sdk": "^3.12.0",
+    "@wealthfolio/ui": "^3.12.0",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.561.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.7.0"
+  },
+  "permissions": [
+    {
+      "category": "accounts",
+      "functions": [
+        {
+          "name": "getAll",
+          "isDeclared": true,
+          "isDetected": false
+        }
+      ],
+      "purpose": "List accounts for selection"
+    },
+    {
+      "category": "portfolio",
+      "functions": [
+        {
+          "name": "getHoldings",
+          "isDeclared": true,
+          "isDetected": false
+        },
+        {
+          "name": "getLatestValuations",
+          "isDeclared": true,
+          "isDetected": false
+        },
+        {
+          "name": "getHistoricalValuations",
+          "isDeclared": true,
+          "isDetected": false
+        }
+      ],
+      "purpose": "Read current values and valuation history of the selected accounts"
+    },
+    {
+      "category": "activities",
+      "functions": [
+        {
+          "name": "search",
+          "isDeclared": true,
+          "isDetected": false
+        }
+      ],
+      "purpose": "Derive deposits, withdrawals and transfers as cash flows"
+    },
+    {
+      "category": "quotes",
+      "functions": [
+        {
+          "name": "getHistory",
+          "isDeclared": true,
+          "isDetected": false
+        }
+      ],
+      "purpose": "Value asset transfers at their date"
+    },
+    {
+      "category": "settings",
+      "functions": [
+        {
+          "name": "get",
+          "isDeclared": true,
+          "isDetected": false
+        }
+      ],
+      "purpose": "Read base currency and time zone"
+    },
+    {
+      "category": "market-data",
+      "functions": [
+        {
+          "name": "searchTicker",
+          "isDeclared": true,
+          "isDetected": false
+        }
+      ],
+      "purpose": "Search comparison assets by name or ticker"
+    },
+    {
+      "category": "network",
+      "functions": [
+        {
+          "name": "request",
+          "isDeclared": true,
+          "isDetected": false
+        }
+      ],
+      "purpose": "Fetch daily prices and exchange rates (Yahoo Finance) and consumer price indices (OECD)"
+    }
+  ],
+  "author": "schabimperle",
+  "repository": "https://github.com/schabimperle/hindsight",
+  "homepage": "https://github.com/schabimperle/hindsight"
+}

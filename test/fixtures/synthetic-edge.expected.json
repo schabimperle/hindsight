@@ -1,0 +1,138 @@
+{
+ "investedNominal": -3300.0,
+ "investedReal": null,
+ "cpiError": null,
+ "cpiFilled": [],
+ "mwrPeriodDays": 179,
+ "variants": [
+  {
+   "name": "Start March",
+   "invested": 680.8065087542002,
+   "deposits": 3200.0,
+   "withdrawals": 2519.1934912458,
+   "value": 700.0,
+   "gain": 19.193491245799805,
+   "irr": 0.05302167073919051,
+   "gainReal": null,
+   "irrReal": null,
+   "shortfall": 3980.8065087542,
+   "shortfalls": [
+    {
+     "date": "2024-01-20",
+     "amount": 500.0
+    },
+    {
+     "date": "2024-03-04",
+     "amount": 3480.8065087542
+    }
+   ],
+   "uninvestedUntil": "2024-03-01",
+   "warnings": [
+    "late_start",
+    "withdrawal_uncovered"
+   ]
+  },
+  {
+   "name": "Start June",
+   "invested": 700.0,
+   "deposits": 3200.0,
+   "withdrawals": 2500.0,
+   "value": 700.0,
+   "gain": 0.0,
+   "irr": -1.6653345369377348e-16,
+   "gainReal": null,
+   "irrReal": null,
+   "shortfall": 4000.0,
+   "shortfalls": [
+    {
+     "date": "2024-01-20",
+     "amount": 500.0
+    },
+    {
+     "date": "2024-03-04",
+     "amount": 3500.0
+    }
+   ],
+   "uninvestedUntil": "2024-06-03",
+   "warnings": [
+    "late_start",
+    "withdrawal_uncovered"
+   ]
+  },
+  {
+   "name": "Continuous",
+   "invested": 706.1776499332084,
+   "deposits": 3200.0,
+   "withdrawals": 2493.822350066792,
+   "value": 700.0,
+   "gain": -6.177649933208386,
+   "irr": -0.017181388909266737,
+   "gainReal": null,
+   "irrReal": null,
+   "shortfall": 4006.177649933208,
+   "shortfalls": [
+    {
+     "date": "2024-01-20",
+     "amount": 453.81564367360716
+    },
+    {
+     "date": "2024-03-04",
+     "amount": 3552.362006259601
+    }
+   ],
+   "uninvestedUntil": null,
+   "warnings": [
+    "withdrawal_uncovered"
+   ]
+  },
+  {
+   "name": "After today",
+   "error": "no_prices"
+  },
+  {
+   "name": "Empty",
+   "error": "no_prices"
+  },
+  {
+   "name": "Cash",
+   "invested": 700.0,
+   "deposits": 3200.0,
+   "withdrawals": 2500.0,
+   "value": 700.0,
+   "gain": 0.0,
+   "irr": -1.6653345369377348e-16,
+   "gainReal": null,
+   "irrReal": null,
+   "shortfall": 4000.0,
+   "shortfalls": [
+    {
+     "date": "2024-01-20",
+     "amount": 500.0
+    },
+    {
+     "date": "2024-03-04",
+     "amount": 3500.0
+    }
+   ],
+   "uninvestedUntil": null,
+   "warnings": [
+    "withdrawal_uncovered"
+   ]
+  }
+ ],
+ "actual": {
+  "name": "actual",
+  "invested": -3300.0,
+  "deposits": 3200.0,
+  "withdrawals": 6500.0,
+  "value": 0.0,
+  "gain": 3300.0,
+  "irr": -0.9413559394450222,
+  "gainReal": null,
+  "irrReal": null,
+  "shortfall": 0,
+  "shortfalls": [],
+  "uninvestedUntil": null,
+  "warnings": []
+ }
+}
