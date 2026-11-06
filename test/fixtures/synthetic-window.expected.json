@@ -21,6 +21,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.13687696005112227,
+    "peak": "2025-03-17",
+    "trough": "2025-12-31",
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -36,6 +42,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.22851965476764313,
+    "peak": "2023-03-15",
+    "trough": "2024-07-24",
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -51,6 +63,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.4840982428537952,
+    "peak": "2023-05-20",
+    "trough": "2024-03-10",
+    "recovery": "2024-08-24"
+   },
    "warnings": []
   },
   {
@@ -66,6 +84,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.35117049293390756,
+    "peak": "2023-08-07",
+    "trough": "2024-06-18",
+    "recovery": "2024-12-26"
+   },
    "warnings": []
   },
   {
@@ -81,6 +105,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.9651847651633704,
+    "peak": "2023-03-15",
+    "trough": "2025-12-31",
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -96,6 +126,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": 0.0,
+    "peak": null,
+    "trough": null,
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -111,6 +147,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": 0.0,
+    "peak": null,
+    "trough": null,
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -126,6 +168,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": 0.0,
+    "peak": null,
+    "trough": null,
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -141,6 +189,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": "2024-01-08",
+   "drawdown": {
+    "max": -0.2587256594751193,
+    "peak": "2024-06-12",
+    "trough": "2025-02-10",
+    "recovery": "2025-07-16"
+   },
    "warnings": [
     "late_start"
    ]
@@ -159,6 +213,12 @@
   "shortfall": 0,
   "shortfalls": [],
   "uninvestedUntil": null,
+  "drawdown": {
+   "max": -0.058452751039713036,
+   "peak": "2023-07-14",
+   "trough": "2024-05-02",
+   "recovery": "2024-09-25"
+  },
   "warnings": []
  }
 }

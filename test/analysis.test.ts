@@ -257,6 +257,39 @@ describe('analyze over a window', () => {
   });
 });
 
+const fxDaily = (fx.actual?.daily ?? []).map(([date, value]) => ({ date, value }));
+
+describe('drawdown', () => {
+  it('the real portfolio drawdown comes from its covered daily valuations and matches the oracle', () => {
+    const a = analyze(input({}, { daily: fxDaily }));
+    const actual = a.rows.find((r) => r.kind === 'actual')?.result as Report;
+    expect(want.actual && 'drawdown' in want.actual ? want.actual.drawdown : undefined).toBeTruthy();
+    expect(actual.drawdown?.max).toBeCloseTo((want.actual as Report).drawdown?.max as number, 9);
+    expect(actual.drawdown?.recovery).toBe((want.actual as Report).drawdown?.recovery);
+  });
+
+  it('days on which a started account has no valuation of its own do not count; a booking on one blocks it', () => {
+    const days = fxDaily.map((p) => p.date);
+    // Account B starts mid-way and misses one day: the total of that day carries B's older state forward.
+    const b = days.filter((d) => d >= '2022-01-01' && d !== '2023-07-15');
+    const a = analyze(input({}, { daily: fxDaily, valuationDays: [days, b] }));
+    // 2023-07-15 has a withdrawal, so the real portfolio's drawdown is unavailable.
+    expect((a.rows.find((r) => r.kind === 'actual')?.result as Report).drawdown).toBeNull();
+    const ok = analyze(input({}, { daily: fxDaily, valuationDays: [days, days.filter((d) => d !== '2022-02-02')] }));
+    expect((ok.rows.find((r) => r.kind === 'actual')?.result as Report).drawdown).not.toBeNull();
+  });
+
+  it('every alternative has its drawdown; uncomputable ones have none', () => {
+    const a = analyze(input());
+    for (const row of a.rows) {
+      if (row.kind === 'actual') continue;
+      if (isError(row.result)) continue;
+      const w = want.variants.find((v) => v.name === row.name) as Report;
+      expect(row.result.drawdown, row.name).toEqual(w.drawdown);
+    }
+  });
+});
+
 describe('gain chart', () => {
   const cumNaive = (day: string): number => fx.flows.filter((f) => f.date <= day).reduce((s, f) => s + f.amount, 0);
 
@@ -302,7 +335,9 @@ describe('gain chart', () => {
   });
 
   it('difference chart: the real portfolio is the zero line, every line ends at its nominal gain difference', () => {
-    const a = analyze(input());
+    // With the fixture's daily valuations, so the real portfolio's gain (and the subtraction) exists on past days too.
+    const a = analyze(input({}, { daily: fxDaily }));
+    expect(a.diffChart.filter((p) => typeof p.actual === 'number').length).toBeGreaterThan(50);
     expect(a.diffChart).toHaveLength(a.chart.length);
     const actual = a.rows.find((r) => r.kind === 'actual') as (typeof a.rows)[number];
     const actualGain = (actual.result as Report).gain;

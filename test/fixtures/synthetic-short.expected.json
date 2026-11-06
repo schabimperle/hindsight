@@ -18,6 +18,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.01290758698488026,
+    "peak": "2025-05-30",
+    "trough": "2025-06-30",
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -33,6 +39,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": 0.0,
+    "peak": null,
+    "trough": null,
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -48,6 +60,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.044636468881050884,
+    "peak": "2025-06-01",
+    "trough": "2025-06-30",
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -63,6 +81,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": 0.0,
+    "peak": null,
+    "trough": null,
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -78,6 +102,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.09087911549479644,
+    "peak": "2025-06-01",
+    "trough": "2025-06-30",
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -93,6 +123,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": 0.0,
+    "peak": null,
+    "trough": null,
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -108,6 +144,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": 0.0,
+    "peak": null,
+    "trough": null,
+    "recovery": null
+   },
    "warnings": []
   },
   {
@@ -123,6 +165,12 @@
    "shortfall": 0,
    "shortfalls": [],
    "uninvestedUntil": null,
+   "drawdown": {
+    "max": 0.0,
+    "peak": null,
+    "trough": null,
+    "recovery": null
+   },
    "warnings": []
   }
  ],
@@ -139,6 +187,12 @@
   "shortfall": 0,
   "shortfalls": [],
   "uninvestedUntil": null,
+  "drawdown": {
+   "max": 0.0,
+   "peak": null,
+   "trough": null,
+   "recovery": null
+  },
   "warnings": []
  }
 }

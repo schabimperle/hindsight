@@ -1,7 +1,8 @@
 import { daysBetween, pad2 } from './dates';
-import { PriceError } from './series';
+import { actualIndex, assetIndex, drawdown, NO_DRAWDOWN } from './drawdown';
+import { PriceError, Series } from './series';
 import { simulateSingle } from './simulate';
-import type { Fixture, Flow, PathPoint, Report, RunOutput, Shortfall } from './types';
+import type { Drawdown, Fixture, Flow, PathPoint, Report, RunOutput, Shortfall } from './types';
 import { xirr } from './xirr';
 
 const EPS = 1e-9;
@@ -74,6 +75,7 @@ export function report(
   today: string,
   cpi: Cpi | null,
   unit = 365.25,
+  dd: Drawdown | null = null,
 ): Report {
   const invested = executed.reduce((s, f) => s + f.amount, 0);
   // Executed flows are netted per day, so a deposit and a withdrawal on the same day count as one of them.
@@ -105,6 +107,7 @@ export function report(
     shortfall,
     shortfalls,
     uninvestedUntil,
+    drawdown: dd,
     warnings: warnings.sort(),
   };
 }
@@ -155,11 +158,12 @@ export function runDetailed(fx: Fixture, days?: (firstFlow: string) => string[])
       }
       throw e;
     }
-    out.variants.push(report(v.name, sim.value, sim.executed, sim.shortfalls, sim.uninvestedUntil, today, cpi, unit));
+    const dd = v.kind === 'cash' ? { ...NO_DRAWDOWN } : drawdown(assetIndex(new Series(v.points), flows, today, fx.start?.date));
+    out.variants.push(report(v.name, sim.value, sim.executed, sim.shortfalls, sim.uninvestedUntil, today, cpi, unit, dd));
     paths.push(sim.path);
     executed.push(sim.executed);
   }
-  if (fx.actual) out.actual = report('actual', fx.actual.value, flows, [], null, today, cpi, unit);
+  if (fx.actual) out.actual = report('actual', fx.actual.value, flows, [], null, today, cpi, unit, drawdown(actualIndex(fx)));
   return { out, paths, executed, flows };
 }
 

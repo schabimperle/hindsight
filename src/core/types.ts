@@ -21,7 +21,8 @@ export interface Fixture {
   variants: Variant[];
   /** {"YYYY-MM": index}; null = no real figures. */
   cpi?: Record<string, number> | null;
-  actual?: { value: number };
+  /** `daily`: the real portfolio's valuation on fully covered days (time-weighted drawdown). */
+  actual?: { value: number; daily?: [string, number][] };
   /** Window start: the real portfolio's value at the end of `date` counts as an opening deposit on that day;
    * flows up to and including `date` are dropped. Without it the window begins with the first flow. */
   start?: { date: string; value: number };
@@ -30,6 +31,16 @@ export interface Fixture {
 export interface Shortfall {
   date: string;
   amount: number;
+}
+
+/** Maximum drawdown of a time-weighted index (nominal). `max` 0 means none (all dates null); `recovery` null with
+ * `max` < 0: not recovered by the window end. */
+export interface Drawdown {
+  /** Lowest index level relative to its running peak, minus 1 (e.g. -0.25). */
+  max: number;
+  peak: string | null;
+  trough: string | null;
+  recovery: string | null;
 }
 
 export interface Report {
@@ -49,6 +60,8 @@ export interface Report {
   shortfalls: Shortfall[];
   /** First price day, if money was uninvested before it. */
   uninvestedUntil: string | null;
+  /** null: no usable time-weighted index (e.g. the real portfolio's valuation history has gaps). */
+  drawdown: Drawdown | null;
   warnings: string[];
 }
 

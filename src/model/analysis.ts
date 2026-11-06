@@ -126,6 +126,17 @@ export function benchKeys(defs: { ticker: string; name: string; kind: string }[]
   });
 }
 
+/** Total valuations on the days on which every account that has started its history has a valuation of its own:
+ * on other days the total carries an account's older state forward, which would turn into returns. Empty when an
+ * account has no history at all. */
+export function coveredDaily(real: RealPortfolio, today: string): [string, number][] {
+  if (real.historyMissing) return [];
+  const sets = real.valuationDays.filter((d) => d.length > 0).map((d) => ({ first: d[0], days: new Set(d) }));
+  return real.daily
+    .filter((p) => p.date < today && sets.every((s) => p.date < s.first || s.days.has(p.date)))
+    .map((p) => [p.date, p.value]);
+}
+
 /** Running sum of `flows` (sorted by date) on and before each of the sorted `days`. */
 export function cumulativeOn(flows: Flow[], days: string[]): number[] {
   let fi = 0;
@@ -230,7 +241,7 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
     flows,
     variants,
     cpi: input.cpi?.cpi ?? null,
-    actual: { value: actualValue },
+    actual: { value: actualValue, daily: coveredDaily(real, today) },
     ...(opening !== null && openingValue !== null ? { start: { date: opening, value: openingValue } } : {}),
   };
   // Keep booking dates even on weekly/monthly charts; markers must sit on their actual day.

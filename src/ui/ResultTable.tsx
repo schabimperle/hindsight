@@ -13,6 +13,7 @@ import {
 import { TriangleAlert } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { Analysis } from '../model/analysis';
+import { drawdownState, durationText } from '../model/drawdownText';
 import type { Fmt } from '../model/format';
 import { codeText, messageText } from '../model/messages';
 import { rowName, useTexts, type Texts } from './i18n';
@@ -54,7 +55,7 @@ export function ComparisonCard({
   const { t } = useTexts();
   const views = useMemo(() => ({ nominal: buildRowViews(a.rows, 'nominal'), real: buildRowViews(a.rows, 'real') }), [a.rows]);
   const rows = views[view];
-  const ctx: RowCtx = { colors, selected, onSelect, period: a.mwrPeriodDays !== null };
+  const ctx: RowCtx = { colors, selected, onSelect, period: a.mwrPeriodDays !== null, today: a.today };
   const [open, setOpen] = useState<Set<string>>(new Set());
   const toggle = (key: string): void =>
     setOpen((s) => {
@@ -110,6 +111,8 @@ interface RowCtx {
   onSelect: (key: string) => void;
   /** Money-weighted returns over the window instead of per year. */
   period: boolean;
+  /** Window end (an open drawdown lasts until then). */
+  today: string;
 }
 
 /** Warning marker of a row; it opens the row's notes. Rows without notes have nothing to expand. */
@@ -204,7 +207,7 @@ function MobileRow({ v, fmt, open, onToggle, ctx }: { v: RowView; fmt: Fmt; open
 
 const th = 'text-muted-foreground text-2xs h-9 font-medium tracking-wider whitespace-nowrap uppercase';
 const td = 'text-end tabular-nums whitespace-nowrap';
-const COLS = 5;
+const COLS = 6;
 
 /** Reserve both views' intrinsic text widths, including after fonts or locale change. */
 function ReservedText({ value, reserve }: { value: string; reserve: string }) {
@@ -255,6 +258,13 @@ function DesktopTable({
               <InfoPopover title={t('table.vsActual')} paragraphs={[t('strip.info.vs')]} compact />
             </span>
           </TableHead>
+          <TableHead className={cn(th, 'text-end')}>
+            {/* Nominal in both views, so no "(real)" suffix and nothing to reserve. */}
+            <span className="inline-flex items-center">
+              {t('table.maxDrawdown')}
+              <InfoPopover title={t('table.maxDrawdown')} paragraphs={[t('strip.info.maxDrawdown'), t('strip.info.recovery')]} compact />
+            </span>
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -291,6 +301,9 @@ function DesktopRow({ v, alternate, fmt, isOpen, onToggle, ctx }: { v: RowView; 
             <TableCell className={cn(td, 'text-muted-foreground')}>
               <ReservedText value={v.diff === null ? '–' : fmt.moneySigned(v.diff)} reserve={alternate.diff === null ? '–' : fmt.moneySigned(alternate.diff)} />
             </TableCell>
+            <TableCell className={td}>
+              <DrawdownCell v={v} fmt={fmt} today={ctx.today} />
+            </TableCell>
           </>
         ) : (
           <TableCell colSpan={COLS - 1} className="text-muted-foreground">
@@ -305,6 +318,23 @@ function DesktopRow({ v, alternate, fmt, isOpen, onToggle, ctx }: { v: RowView; 
           </TableCell>
         </TableRow>
       )}
+    </>
+  );
+}
+
+/** Max drawdown with its recovery time (or "not recovered") behind it. */
+function DrawdownCell({ v, fmt, today }: { v: RowView; fmt: Fmt; today: string }) {
+  const { t } = useTexts();
+  const dd = drawdownState(v.report?.drawdown ?? null, today);
+  if (dd.kind === 'unavailable') return <span className="text-muted-foreground">–</span>;
+  if (dd.kind === 'none') return <span className="text-muted-foreground">{fmt.pct(0)}</span>;
+  return (
+    <>
+      <span className={gainClass(dd.max)}>{fmt.pctSigned(dd.max)}</span>
+      <span className="text-muted-foreground">
+        {' · '}
+        {dd.kind === 'recovered' ? durationText(t, fmt, dd.days) : t('drawdown.notRecovered')}
+      </span>
     </>
   );
 }

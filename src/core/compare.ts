@@ -24,6 +24,14 @@ function compareResult(label: string, got: VariantResult | undefined, want: Vari
   }
   for (const k of MONEY_KEYS) if (!close(got[k], want[k], MONEY_TOL)) diffs.push(`${label}.${k}: ${got[k]} != ${want[k]}`);
   for (const k of RATE_KEYS) if (!close(got[k], want[k], RATE_TOL)) diffs.push(`${label}.${k}: ${got[k]} != ${want[k]}`);
+  const gd = got.drawdown;
+  const wd = want.drawdown;
+  if (
+    (gd === null) !== (wd === null) ||
+    (gd !== null && wd !== null && (!close(gd.max, wd.max, RATE_TOL) || gd.peak !== wd.peak || gd.trough !== wd.trough || gd.recovery !== wd.recovery))
+  ) {
+    diffs.push(`${label}.drawdown: ${JSON.stringify(gd)} != ${JSON.stringify(wd)}`);
+  }
   if (got.uninvestedUntil !== want.uninvestedUntil) {
     diffs.push(`${label}.uninvestedUntil: ${got.uninvestedUntil} != ${want.uninvestedUntil}`);
   }

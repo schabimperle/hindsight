@@ -11,7 +11,8 @@ Fixture (all amounts in the base currency):
    "variants": [{"name": str, "kind": "asset"|"cash",
                  "points": [["YYYY-MM-DD", price], ...]}],  # prices already in base currency
    "cpi": {"YYYY-MM": float} | null,                        # null: no real figures; gaps allowed
-   "actual": {"value": float},                              # optional: the real portfolio
+   "actual": {"value": float,                               # optional: the real portfolio
+              "daily": [["YYYY-MM-DD", float], ...]},       # optional: its valuation on fully covered days
    "start": {"date": "YYYY-MM-DD", "value": float}}         # optional: window start (see below)
 
 Model decisions (documented in the addon UI):
@@ -38,6 +39,25 @@ Model decisions (documented in the addon UI):
   power of `today`'s month (the last published month stands in for later months, the previous published
   month for a month missing inside the series; `cpiFilled` lists such months used by a flow).
   A flow before the first CPI month: no real figures (`cpiError`).
+- Maximum drawdown (`drawdown`, nominal) is measured on a time-weighted index, so deposits and
+  withdrawals are neither gains nor losses:
+  - An asset alternative's index is its price relative to the price the simulation first invests
+    at (the opening price rule in a window, the trade price of the first flow, or the first price
+    after a late start), over every later price point up to `today`: a single asset's
+    time-weighted return is its price return, whatever the simulated position holds.
+  - Cash ("Not invested") never falls: max 0.
+  - The real portfolio's index chains daily steps over `actual.daily` (only days on which every
+    started account has its own valuation) between the window start (the opening value, or the
+    first flow day) and `today` (`actual.value`), with Wealthfolio's convention: deposits at the
+    start of the day, withdrawals at its end, both from the original bookings (not netted):
+    r = (V_t + out_t - V_prev - in_t) / (V_prev + in_t). Before the chain starts, steps from a
+    non-positive value are skipped; a base below MIN_RETURN_BASE pauses the index; a negative
+    value or base after the start makes the drawdown unavailable (null), as does a booking on a
+    day without a valuation point or a missing daily series.
+  - On the index: running peak (a value at or above it, within a relative 1e-12, is a new peak),
+    drawdown = index / peak - 1; `max` is the lowest drawdown, `peak` the date of the peak before
+    it, `trough` the date of the lowest point, `recovery` the first later day back at that peak
+    (null: not recovered). Without any drawdown below -1e-12: max 0, all dates null.
 """
 
 import bisect
@@ -48,6 +68,9 @@ import sys
 D = dt.date.fromisoformat
 MAX_PRICE_GAP_DAYS = 10  # holidays plus the odd missing quote
 EPS = 1e-9
+MIN_RETURN_BASE = 1.0  # Wealthfolio's: a smaller day base pauses the time-weighted index
+PEAK_TOL = 1e-12
+NO_DRAWDOWN = {"max": 0.0, "peak": None, "trough": None, "recovery": None}
 
 
 class PriceError(Exception):
@@ -176,6 +199,86 @@ def simulate(flows, variant, today, opening_day=None):
     return units * series.last(today), executed, shortfalls, uninvested_until
 
 
+def entry_index(series, flows, opening_day):
+    """Index of the price the simulation first invests at (see `simulate`)."""
+    day = flows[0][0] if flows else series.d[0]
+    if day < series.d[0]:
+        return 0
+    if day == opening_day and series.opening_price(day) is not None:
+        return bisect.bisect_right(series.d, day) - 1
+    i = bisect.bisect_left(series.d, day)
+    return min(i, len(series.d) - 1)
+
+
+def asset_index(variant, flows, today, opening_day):
+    series = Series(variant["points"])
+    i = entry_index(series, flows, opening_day)
+    base = series.p[i]
+    return [(series.d[j], series.p[j] / base) for j in range(i, len(series.d)) if series.d[j] <= today]
+
+
+def actual_index(fx, today):
+    """Time-weighted index of the real portfolio, or None (see the model notes)."""
+    actual = fx["actual"]
+    if actual.get("daily") is None:
+        return None
+    start = fx.get("start")
+    lo = start["date"] if start else None
+    raw = [f for f in fx["flows"] if f["date"] <= today.isoformat() and (lo is None or f["date"] > lo)]
+    if not raw and not start:
+        return None
+    first = D(lo) if start else min(D(f["date"]) for f in raw)
+    daily = sorted((D(d), float(v)) for d, v in actual["daily"])
+    points = [(first, float(start["value"]))] if start else []
+    points += [(d, v) for d, v in daily if (first < d if start else first <= d) and d < today]
+    points.append((today, float(actual["value"])))
+    inflow, outflow = {}, {}
+    for f in raw:
+        book = inflow if f["amount"] > 0 else outflow
+        book[D(f["date"])] = book.get(D(f["date"]), 0.0) + abs(f["amount"])
+    covered = {d for d, _ in points}
+    if any(d not in covered for d in list(inflow) + list(outflow)):
+        return None
+    index, factor, started = [], 1.0, False
+    for (d0, v0), (d1, v1) in zip(points, points[1:]):
+        fin, fout = inflow.get(d1, 0.0), outflow.get(d1, 0.0)
+        if not started:
+            if v0 <= 0:
+                continue
+            started = True
+            index.append((d0, 1.0))
+        if v0 < 0 or v1 < 0:
+            return None
+        base = v0 + fin
+        if base < 0:
+            return None
+        if base >= MIN_RETURN_BASE:
+            factor *= 1 + (v1 + fout - v0 - fin) / base
+        index.append((d1, factor))
+    return index if started else None
+
+
+def drawdown(index):
+    """Maximum drawdown on an index [(day, level)], see the model notes."""
+    if not index:
+        return None
+    peak, peak_day = index[0][1], index[0][0]
+    worst, at_peak, trough, recovery = 0.0, None, None, None
+    for day, level in index:
+        if level >= peak * (1 - PEAK_TOL):
+            peak, peak_day = max(peak, level), day
+            if trough is not None and recovery is None:
+                recovery = day
+            continue
+        dd = level / peak - 1
+        if dd < worst:
+            worst, at_peak, trough, recovery = dd, peak_day, day, None
+    if trough is None:
+        return dict(NO_DRAWDOWN)
+    return {"max": worst, "peak": at_peak.isoformat(), "trough": trough.isoformat(),
+            "recovery": recovery.isoformat() if recovery else None}
+
+
 def xirr(cfs, unit=365.25):
     """Money-weighted return per `unit` days (default: per year); None without a sign change."""
     t0 = min(d for d, _ in cfs)
@@ -234,7 +337,7 @@ def make_cpi(cpi, flows, today):
     return cpi_at(today), cpi_at, filled
 
 
-def report(name, value, executed, shortfalls, uninvested_until, today, cpi, unit):
+def report(name, value, executed, shortfalls, uninvested_until, today, cpi, unit, dd):
     invested = sum(a for _, a in executed)
     cfs = [(d, -a) for d, a in executed]
     out = {
@@ -250,6 +353,7 @@ def report(name, value, executed, shortfalls, uninvested_until, today, cpi, unit
         "shortfall": sum(a for _, a in shortfalls),
         "shortfalls": [{"date": d.isoformat(), "amount": a} for d, a in shortfalls],
         "uninvestedUntil": uninvested_until,
+        "drawdown": dd,
     }
     if cpi is not None:
         cpi_now, cpi_at, _ = cpi
@@ -291,9 +395,14 @@ def run(fx):
         except PriceError as e:
             out["variants"].append({"name": v["name"], "error": str(e)})
             continue
-        out["variants"].append(report(v["name"], value, executed, shortfalls, until, today, cpi, unit))
+        if v["kind"] == "cash":
+            dd = dict(NO_DRAWDOWN)
+        else:
+            dd = drawdown(asset_index(v, flows, today, opening_day))
+        out["variants"].append(report(v["name"], value, executed, shortfalls, until, today, cpi, unit, dd))
     if "actual" in fx:
-        out["actual"] = report("actual", fx["actual"]["value"], flows, [], None, today, cpi, unit)
+        dd = drawdown(actual_index(fx, today))
+        out["actual"] = report("actual", fx["actual"]["value"], flows, [], None, today, cpi, unit, dd)
     return out
 
 

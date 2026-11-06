@@ -7,6 +7,8 @@ export interface Fmt {
   moneySigned(v: number): string;
   pct(v: number | null): string;
   pctSigned(v: number | null): string;
+  /** Plain number with one decimal (durations in years). */
+  num1(v: number): string;
   date(iso: string): string;
   /** "YYYY-MM" as month/year. */
   month(ym: string): string;
@@ -44,6 +46,7 @@ export function makeFormat(language: string, currency: string, locales?: { numbe
   const m0s = currencyFormat(money, currency, { maximumFractionDigits: 0, minimumFractionDigits: 0, signDisplay: 'exceptZero' });
   const pct = new Intl.NumberFormat(lang, { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const pctS = new Intl.NumberFormat(lang, { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: 'exceptZero' });
+  const n1 = new Intl.NumberFormat(lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const day = new Intl.DateTimeFormat(lang, { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' });
   const month = new Intl.DateTimeFormat(lang, { timeZone: 'UTC', month: '2-digit', year: 'numeric' });
   return {
@@ -51,6 +54,7 @@ export function makeFormat(language: string, currency: string, locales?: { numbe
     moneySigned: (v) => m0s.format(Math.abs(v) < 0.5 ? 0 : v),
     pct: (v) => (v === null ? '–' : pct.format(v)),
     pctSigned: (v) => (v === null ? '–' : pctS.format(Math.abs(v) < 0.0005 ? 0 : v)),
+    num1: (v) => n1.format(v),
     date: (iso) => (iso ? day.format(new Date(`${iso.slice(0, 10)}T00:00:00Z`)) : '–'),
     month: (ym) => (ym ? month.format(new Date(`${ym.slice(0, 7)}-01T00:00:00Z`)) : '–'),
     country: (id) => countryName(id, ui),

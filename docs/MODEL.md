@@ -22,6 +22,18 @@
   uncovered withdrawals only count up to the covered amount (gain and XIRR use the executed flows).
   “Gain difference” = alternative's gain minus your portfolio's gain; without an uncovered withdrawal it equals
   the difference in value, otherwise (nominal) it is lower by the uncovered amount.
+- Maximum drawdown (`src/core/drawdown.ts`, rules in `reference/oracle.py`): on a time-weighted index, nominal,
+  so it is the same in the nominal and real view. An asset's index is its price relative to the price the
+  simulation first invested at (a single asset's time-weighted return is its price return, so it measures the
+  asset's risk, not the simulated position's: a position emptied by an uncovered withdrawal still follows the
+  price); cash never falls. The real portfolio chains Wealthfolio's daily valuations with its original bookings
+  (deposits at the start of the day, withdrawals at its end, not netted; Wealthfolio's own convention and
+  thresholds in `crates/portfolio-engine/src/measure.rs`). Only days on which every started account has its own
+  valuation count (`coveredDaily`: the total carries an account's older state forward otherwise, which would turn
+  into returns); a booking on any other day makes it unavailable (“history incomplete”). Wealthfolio stores a
+  valuation per account and calendar day, so that only happens with real gaps. Recovery = first day back at the
+  peak before the deepest fall; the duration runs from that peak to the recovery, or to the period end while
+  open (Wealthfolio reports peak to trough for an open one; Hindsight shows how long it has lasted so far).
 - Period (`src/model/range.ts`, `analyze(input, window)`): a start after the first flow makes the real
   portfolio's value at the end of the start day (Wealthfolio's daily valuations, latest on or before the day,
   at most 10 days old, never negative, else the analysis blocks with `valuation_missing`) an opening deposit on

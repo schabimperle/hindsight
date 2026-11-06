@@ -33,6 +33,32 @@ def path(start, end, p0, drift, amp, period, weekdays_only):
     return out
 
 
+def with_daily(fx):
+    """Adds the real portfolio's daily valuation (every calendar day from the window start to the day
+    before `today`): money in the portfolio times a growth curve with swings, joined continuously to the
+    opening value and to `actual.value`, so the time-weighted index has a recovered and an open drawdown."""
+    today = dt.date.fromisoformat(fx["today"])
+    start = fx.get("start")
+    lo = start["date"] if start else None
+    raw = sorted((f for f in fx["flows"] if f["date"] <= fx["today"] and (lo is None or f["date"] > lo)),
+                 key=lambda f: f["date"])
+    first = dt.date.fromisoformat(lo) if start else dt.date.fromisoformat(raw[0]["date"])
+    base0 = start["value"] if start else 0.0
+
+    def money(d):
+        return base0 + sum(f["amount"] for f in raw if f["date"] <= d.isoformat())
+
+    span = (today - first).days / 365.25
+    swing = lambda t: 0.07 * math.sin(2 * math.pi * t / 1.7)
+    drift = (fx["actual"]["value"] / money(today) - 1 - swing(span)) / span
+    daily = []
+    for d in days(first, today - dt.timedelta(days=1), False):
+        t = (d - first).days / 365.25
+        daily.append([d.isoformat(), round(money(d) * (1 + drift * t + swing(t)), 2)])
+    fx["actual"]["daily"] = daily
+    return fx
+
+
 def cpi_table(first_year, today, missing_last, gaps=()):
     out = {}
     months = (today.year - first_year) * 12 + today.month - missing_last
@@ -46,7 +72,7 @@ def cpi_table(first_year, today, missing_last, gaps=()):
     return out
 
 
-def main():
+def base():
     start, today = dt.date(2019, 1, 2), dt.date(2026, 6, 15)
     flows = []
     for y in range(2019, 2026):
@@ -117,6 +143,10 @@ def main():
     }
 
 
+def main():
+    return with_daily(base())
+
+
 def edge():
     """Small cases: shortfall before the first price, cash shortfall, flows only before the
     first price, a deposit on today's Saturday after Friday's last price, no CPI."""
@@ -160,7 +190,7 @@ def edge():
 def window():
     """The main fixture over a window: opening value on a Wednesday mid-way, a custom end before
     the end of every price series and inside the CPI series, a series starting inside the window."""
-    fx = main()
+    fx = base()
     end = dt.date(2025, 12, 31)
     fx["today"] = end.isoformat()
     fx["start"] = {"date": "2023-03-15", "value": 83456.78}
@@ -172,18 +202,18 @@ def window():
             "points": path(dt.date(2024, 1, 8), dt.date(2026, 6, 15), 30, 0.15, 0.2, 1.5, True),
         }
     )
-    return fx
+    return with_daily(fx)
 
 
 def short():
     """A one-month window opening on a Sunday: weekday series buy at Friday's close, the money-weighted
     return is over the window (not annualised); a withdrawal right after the start."""
-    fx = main()
+    fx = base()
     fx["today"] = "2025-06-30"
     fx["start"] = {"date": "2025-06-01", "value": 91000.0}
     fx["actual"] = {"value": 92500.0}
     fx["flows"].append({"date": "2025-06-02", "amount": -3000.0})
-    return fx
+    return with_daily(fx)
 
 
 if __name__ == "__main__":

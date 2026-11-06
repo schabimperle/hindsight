@@ -18,6 +18,7 @@ const report = (name: string, value: number, invested: number, gainReal: number 
   shortfall: 0,
   shortfalls: [],
   uninvestedUntil: null,
+  drawdown: null,
   warnings: [],
 });
 const row = (key: string, kind: Row['kind'], result: Row['result']): Row => ({

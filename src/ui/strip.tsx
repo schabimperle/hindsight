@@ -1,5 +1,6 @@
 import type { Report } from '../core/types';
 import type { Analysis } from '../model/analysis';
+import { drawdownState, durationText } from '../model/drawdownText';
 import type { Fmt } from '../model/format';
 import type { Translate } from '../model/messages';
 import type { MetricSection } from './MetricStrip';
@@ -27,6 +28,7 @@ export function stripSections({
   const windowed = a.openingValue !== null;
   const period = a.mwrPeriodDays !== null;
   const vs = actual ? report.gain - actual.gain : null;
+  const dd = drawdownState(report.drawdown, a.today);
   // Same threshold as the core's `withdrawal_uncovered` warning.
   const uncovered = report.shortfall > 0.005 ? t('strip.uncovered', { amount: fmt.moneySigned(-report.shortfall) }) : undefined;
   return [
@@ -64,6 +66,37 @@ export function stripSections({
           label: t('strip.withdrawals'),
           value: fmt.money(report.withdrawals),
           detail: t('strip.bookings', { count: a.withdrawalCount }),
+        },
+      ],
+    },
+    {
+      key: 'risk',
+      title: t('strip.risk'),
+      metrics: [
+        {
+          key: 'maxDrawdown',
+          label: t('strip.maxDrawdown'),
+          info: [t('strip.info.maxDrawdown'), dd.kind === 'unavailable' ? t('strip.info.ddUnavailable') : ''].filter(Boolean).join(' '),
+          value: dd.kind === 'unavailable' ? '–' : pct(fmt, dd.kind === 'none' ? 0 : dd.max),
+          detail:
+            dd.kind === 'unavailable'
+              ? t('strip.ddUnavailable')
+              : dd.kind === 'none'
+                ? undefined
+                : `${fmt.date(dd.peak)} – ${fmt.date(dd.trough)}`,
+        },
+        {
+          key: 'recovery',
+          label: t('strip.recovery'),
+          info: t('strip.info.recovery'),
+          // The duration is the figure (short enough for the mono value); the state reads below it.
+          value: dd.kind === 'recovered' || dd.kind === 'open' ? durationText(t, fmt, dd.days) : '–',
+          detail:
+            dd.kind === 'recovered'
+              ? t('strip.backOn', { date: fmt.date(dd.recovery) })
+              : dd.kind === 'open'
+                ? t('strip.notRecovered')
+                : undefined,
         },
       ],
     },

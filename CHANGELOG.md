@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Maximum drawdown and recovery time per line, time-weighted so deposits and withdrawals do not count: a new
+  “Risk” section in the metrics and a “Max drawdown” column in the comparison. Alternatives use their price,
+  your portfolio Wealthfolio's daily valuations (with Wealthfolio's own day convention).
+
 - A third chart mode, “Difference”, shows each alternative's gain minus yours over time: your portfolio is the
   zero line, and the end point is the gain difference in the table. It shows when a lead or gap arose and whether
   it held.
