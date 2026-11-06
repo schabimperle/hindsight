@@ -52,7 +52,8 @@ export function ComparisonCard({
   onSelect: (key: string) => void;
 }) {
   const { t } = useTexts();
-  const rows = useMemo(() => buildRowViews(a.rows, view), [a.rows, view]);
+  const views = useMemo(() => ({ nominal: buildRowViews(a.rows, 'nominal'), real: buildRowViews(a.rows, 'real') }), [a.rows]);
+  const rows = views[view];
   const ctx: RowCtx = { colors, selected, onSelect, period: a.mwrPeriodDays !== null };
   const [open, setOpen] = useState<Set<string>>(new Set());
   const toggle = (key: string): void =>
@@ -84,7 +85,7 @@ export function ComparisonCard({
               ))}
             </div>
             <div className="hidden md:block">
-              <DesktopTable rows={rows} view={view} fmt={fmt} open={open} onToggle={toggle} ctx={ctx} />
+              <DesktopTable rows={rows} alternateRows={views[view === 'nominal' ? 'real' : 'nominal']} view={view} fmt={fmt} open={open} onToggle={toggle} ctx={ctx} />
             </div>
           </>
         )}
@@ -195,8 +196,19 @@ const th = 'text-muted-foreground text-2xs h-9 font-medium tracking-wider whites
 const td = 'text-end tabular-nums whitespace-nowrap';
 const COLS = 5;
 
+/** Reserve both views' intrinsic text widths, including after fonts or locale change. */
+function ReservedText({ value, reserve }: { value: string; reserve: string }) {
+  return (
+    <span className="grid">
+      <span style={{ gridArea: '1 / 1' }}>{value}</span>
+      <span aria-hidden="true" style={{ gridArea: '1 / 1', visibility: 'hidden' }}>{reserve}</span>
+    </span>
+  );
+}
+
 function DesktopTable({
   rows,
+  alternateRows,
   view,
   fmt,
   open,
@@ -204,6 +216,7 @@ function DesktopTable({
   ctx,
 }: {
   rows: RowView[];
+  alternateRows: RowView[];
   view: ViewMode;
   fmt: Fmt;
   open: Set<string>;
@@ -212,27 +225,34 @@ function DesktopTable({
 }) {
   const { t } = useTexts();
   const real = view === 'real';
+  const alternateByKey = useMemo(() => new Map(alternateRows.map((v) => [v.row.key, v])), [alternateRows]);
   return (
     <Table>
       <TableHeader>
         <TableRow className="hover:bg-transparent">
           <TableHead className={cn(th, 'ps-5')}>{t('table.variant')}</TableHead>
           <TableHead className={cn(th, 'text-end')}>{t('table.value')}</TableHead>
-          <TableHead className={cn(th, 'text-end')}>{real ? t('table.gainReal') : t('table.gain')}</TableHead>
-          <TableHead className={cn(th, 'text-end')}>{mwrLabel(t, ctx.period, real)}</TableHead>
-          <TableHead className={cn(th, 'text-end')}>{real ? t('table.vsActualReal') : t('table.vsActual')}</TableHead>
+          <TableHead className={cn(th, 'text-end')}>
+            <ReservedText value={real ? t('table.gainReal') : t('table.gain')} reserve={real ? t('table.gain') : t('table.gainReal')} />
+          </TableHead>
+          <TableHead className={cn(th, 'text-end')}>
+            <ReservedText value={mwrLabel(t, ctx.period, real)} reserve={mwrLabel(t, ctx.period, !real)} />
+          </TableHead>
+          <TableHead className={cn(th, 'text-end')}>
+            <ReservedText value={real ? t('table.vsActualReal') : t('table.vsActual')} reserve={real ? t('table.vsActual') : t('table.vsActualReal')} />
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {rows.map((v) => (
-          <DesktopRow key={v.row.key} v={v} fmt={fmt} isOpen={open.has(v.row.key)} onToggle={() => onToggle(v.row.key)} ctx={ctx} />
+          <DesktopRow key={v.row.key} v={v} alternate={alternateByKey.get(v.row.key)!} fmt={fmt} isOpen={open.has(v.row.key)} onToggle={() => onToggle(v.row.key)} ctx={ctx} />
         ))}
       </TableBody>
     </Table>
   );
 }
 
-function DesktopRow({ v, fmt, isOpen, onToggle, ctx }: { v: RowView; fmt: Fmt; isOpen: boolean; onToggle: () => void; ctx: RowCtx }) {
+function DesktopRow({ v, alternate, fmt, isOpen, onToggle, ctx }: { v: RowView; alternate: RowView; fmt: Fmt; isOpen: boolean; onToggle: () => void; ctx: RowCtx }) {
   const { t } = useTexts();
   const h = v.headline;
   return (
@@ -248,9 +268,15 @@ function DesktopRow({ v, fmt, isOpen, onToggle, ctx }: { v: RowView; fmt: Fmt; i
         {h ? (
           <>
             <TableCell className={cn(td, 'font-semibold')}>{fmt.money(h.value)}</TableCell>
-            <TableCell className={cn(td, gainClass(h.gain))}>{h.gain === null ? '–' : fmt.moneySigned(h.gain)}</TableCell>
-            <TableCell className={cn(td, gainClass(h.irr))}>{fmt.pctSigned(h.irr)}</TableCell>
-            <TableCell className={cn(td, 'text-muted-foreground')}>{v.diff === null ? '–' : fmt.moneySigned(v.diff)}</TableCell>
+            <TableCell className={cn(td, gainClass(h.gain))}>
+              <ReservedText value={h.gain === null ? '–' : fmt.moneySigned(h.gain)} reserve={alternate.headline?.gain == null ? '–' : fmt.moneySigned(alternate.headline.gain)} />
+            </TableCell>
+            <TableCell className={cn(td, gainClass(h.irr))}>
+              <ReservedText value={fmt.pctSigned(h.irr)} reserve={fmt.pctSigned(alternate.headline?.irr ?? null)} />
+            </TableCell>
+            <TableCell className={cn(td, 'text-muted-foreground')}>
+              <ReservedText value={v.diff === null ? '–' : fmt.moneySigned(v.diff)} reserve={alternate.diff === null ? '–' : fmt.moneySigned(alternate.diff)} />
+            </TableCell>
           </>
         ) : (
           <TableCell colSpan={COLS - 1} className="text-muted-foreground">
