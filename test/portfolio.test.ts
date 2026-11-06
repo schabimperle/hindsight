@@ -1,6 +1,6 @@
 import type { Account, AccountValuation, Holding, Quote } from '@wealthfolio/addon-sdk';
 import { describe, expect, it } from 'vitest';
-import { defaultAccountIds, fetchAllActivities, loadRealPortfolio, mapLimit, dailyTotals, totalsOn, valueOn, type PortfolioApi } from '../src/sources/portfolio';
+import { accountSupported, defaultAccountIds, unavailableSelection, fetchAllActivities, loadRealPortfolio, mapLimit, dailyTotals, totalsOn, valueOn, type PortfolioApi } from '../src/sources/portfolio';
 import type { FetchDeps } from '../src/sources/http';
 import { loadAll } from '../src/sources/load';
 
@@ -16,6 +16,26 @@ describe('accounts', () => {
       acc('e', { accountType: 'CRYPTOCURRENCY' }),
     ]);
     expect(ids).toEqual(['a', 'e']);
+  });
+
+  it('follows the host: credit cards and archived accounts are not eligible, cash is when chosen', () => {
+    expect(accountSupported(acc('a'))).toBe(true);
+    expect(accountSupported(acc('b', { accountType: 'CASH' }))).toBe(true);
+    expect(accountSupported(acc('c', { accountType: 'CRYPTOCURRENCY' }))).toBe(true);
+    expect(accountSupported(acc('d', { accountType: 'CREDIT_CARD' }))).toBe(false);
+    expect(accountSupported(acc('e', { isArchived: true }))).toBe(false);
+    expect(defaultAccountIds([acc('a'), acc('card', { accountType: 'CREDIT_CARD' })])).toEqual(['a']);
+  });
+
+  it('reports selected IDs that cannot be analysed, including ones that no longer exist', () => {
+    const accounts = [acc('a'), acc('card', { accountType: 'CREDIT_CARD', name: 'Card' }), acc('old', { isArchived: true, name: 'Old' })];
+    expect(unavailableSelection(accounts, null)).toEqual([]);
+    expect(unavailableSelection(accounts, ['a'])).toEqual([]);
+    expect(unavailableSelection(accounts, ['a', 'card', 'old', 'gone'])).toEqual([
+      { id: 'card', name: 'Card' },
+      { id: 'old', name: 'Old' },
+      { id: 'gone', name: null },
+    ]);
   });
 });
 
@@ -105,6 +125,12 @@ describe('loadRealPortfolio', () => {
     expect(r.quoteCurrencies.btc).toBe('GBp');
     expect(r.value).toBe(1500);
     expect(r.asOf).toBe('2026-06-12');
+  });
+
+  it('refuses a selection with unavailable or deleted accounts instead of silently dropping them', async () => {
+    const api = fakeApi(0);
+    await expect(loadRealPortfolio(api, ['A', 'gone'])).rejects.toThrow('scope_unavailable');
+    expect(api.calls).toEqual([]);
   });
 
   it('no further queries without accounts', async () => {

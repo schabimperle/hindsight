@@ -13,7 +13,9 @@
     "deposits_one": "{{count}} Einzahlung",
     "deposits_other": "{{count}} Einzahlungen",
     "withdrawals_one": "{{count}} Auszahlung",
-    "withdrawals_other": "{{count}} Auszahlungen"
+    "withdrawals_other": "{{count}} Auszahlungen",
+    "tagline": "Gleiche Geldflüsse. Andere Anlagen.",
+    "scopeBlocked": "Diese ausgewählten Konten lassen sich nicht auswerten: {{names}}. Wähle sie ab, um fortzufahren."
   },
   "view": {
     "nominal": "Nominal",
@@ -26,9 +28,9 @@
     "irr": "MWR p.a.",
     "gainReal": "Gewinn (real)",
     "irrReal": "MWR p.a. (real)",
-    "vsActual": "vs. deins",
-    "vsActualReal": "vs. deins (real)",
-    "vsShort": "{{diff}} vs. deins",
+    "vsActual": "Gewinn vs. deins",
+    "vsActualReal": "Gewinn vs. deins (real)",
+    "vsShort": "{{diff}} Gewinn vs. deins",
     "yourPortfolio": "Dein Portfolio",
     "notInvested": "Nicht angelegt",
     "notComputable": "nicht berechenbar: {{reason}}",
@@ -37,7 +39,8 @@
     "perYear": "p.a.",
     "select": "{{name}} auswählen",
     "mwr": "MWR",
-    "mwrReal": "MWR (real)"
+    "mwrReal": "MWR (real)",
+    "realNote": "Reale Werte nutzen die Kaufkraft am Ende des Zeitraums: Nur Gewinn, MWR und die Differenz ändern sich. Der Endwert bleibt gleich."
   },
   "chart": {
     "scale": "Chart-Skalierung",
@@ -54,7 +57,10 @@
     "withdrawals": "Auszahlungen",
     "markers": "Markierungen",
     "showMarkers": "Marker anzeigen",
-    "hideMarkers": "Marker ausblenden"
+    "hideMarkers": "Marker ausblenden",
+    "mode": "Chart-Wert",
+    "gain": "Gewinn",
+    "value": "Wert"
   },
   "comparison": {
     "title": "Vergleich"
@@ -68,7 +74,8 @@
     "item5": "Es zählt nur Geld, das von außen auf die gewählten Konten fließt, keine Umbuchungen dazwischen.",
     "item6": "Sachübertragungen von außen zählen mit dem Preis der Buchung, sonst mit dem Wealthfolio-Kurs um diesen Tag. Wertlose (z. B. Spam-Token) werden ignoriert.",
     "item7": "Real: Kaufkraft am Ende des Zeitraums, nach dem OECD-Verbraucherpreisindex des Landes deiner Zeitzone (sonst deiner Basiswährung).",
-    "item8": "Beginnt der Zeitraum nach deiner ersten Einzahlung, startet er mit dem Wert deines Portfolios an diesem Tag als Einzahlung."
+    "item8": "Beginnt der Zeitraum nach deiner ersten Einzahlung, startet er mit dem Wert deines Portfolios an diesem Tag als Einzahlung.",
+    "item9": "Der Chart zeigt den bisherigen Gewinn: Wert minus das Geld, das die jeweilige Linie bis zu diesem Tag selbst aufgenommen und ausgezahlt hat. Ein- und Auszahlungen erzeugen so keine Sprünge. „Wert“ zeigt stattdessen den Wert."
   },
   "messages": {
     "no_prices": "Es liegen keine Kurse vor.",
@@ -118,13 +125,16 @@
   },
   "scope": {
     "title": "Kontobereich auswählen",
-    "all": "Alle Konten",
-    "allHint": "Aktive, ohne Bargeldkonten",
+    "all": "Alle Anlagekonten",
+    "allHint": "Aktive, ohne Bargeldkonten. Diese separat auswählen.",
     "accounts": "Konten",
     "search": "Konten durchsuchen…",
     "noResults": "Keine Ergebnisse.",
     "count_one": "{{count}} Konto",
-    "count_other": "{{count}} Konten"
+    "count_other": "{{count}} Konten",
+    "unavailable": "Nicht verfügbar",
+    "unavailableHint": "Archiviert, nicht unterstützt oder gelöscht. Abwählen zum Entfernen.",
+    "deleted": "Gelöschtes Konto"
   },
   "picker": {
     "add": "Benchmark hinzufügen",
@@ -147,14 +157,15 @@
     "capital": "Kapital",
     "gain": "Gewinn",
     "mwr": "MWR p.a.",
-    "vs": "vs. deins",
+    "vs": "Gewinn vs. deins",
     "value": "Wert",
     "helpTitle": "Hindsight-Kennzahlen",
     "info": {
       "mwr": "Geldgewichtete Rendite pro Jahr (XIRR).",
       "mwrPeriod": "Geldgewichtete Rendite über den Zeitraum (XIRR), nicht annualisiert.",
       "depositsWindow": "Enthält {{value}}, den Wert deines Portfolios zu Beginn des Zeitraums.",
-      "bookings": "Gezählt werden die ursprünglichen Buchungen im Zeitraum, ohne Anfangswert. Beträge sind je Tag saldiert; bei Alternativen zählen nur gedeckte Auszahlungen."
+      "bookings": "Gezählt werden die ursprünglichen Buchungen im Zeitraum, ohne Anfangswert. Beträge sind je Tag saldiert; bei Alternativen zählen nur gedeckte Auszahlungen.",
+      "vs": "Gewinn dieser Alternative minus Gewinn deines Portfolios. Entspricht der Endwert-Differenz, solange keine Auszahlung ungedeckt blieb."
     },
     "mwrPeriod": "MWR",
     "deposits": "Einzahlungen",

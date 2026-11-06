@@ -78,7 +78,11 @@ export interface Analysis {
   country: string | null;
   rows: Row[];
   headerWarnings: WarningItem[];
+  /** Value per row key and day, plus the cumulative net deposits (`net`) and the booking counts. */
   chart: Record<string, number | string | null>[];
+  /** Same days and booking counts; per row key the gain so far (value minus the net of that row's own executed
+   * flows up to the day), `net` always 0. */
+  gainChart: Record<string, number | string | null>[];
 }
 
 /** A hint appears once the inflation data lag behind by this many months. */
@@ -101,6 +105,7 @@ const blank = (fatal: WarningItem | null, today: string, real: RealPortfolio, pa
   rows: [],
   headerWarnings: [],
   chart: [],
+  gainChart: [],
   ...partial,
 });
 
@@ -114,6 +119,16 @@ export function benchKeys(defs: { ticker: string; name: string; kind: string }[]
     const n = seen.get(base) ?? 0;
     seen.set(base, n + 1);
     return n === 0 ? base : `${base}#${n}`;
+  });
+}
+
+/** Running sum of `flows` (sorted by date) on and before each of the sorted `days`. */
+export function cumulativeOn(flows: Flow[], days: string[]): number[] {
+  let fi = 0;
+  let cum = 0;
+  return days.map((d) => {
+    while (fi < flows.length && flows[fi].date <= d) cum += flows[fi++].amount;
+    return cum;
   });
 }
 
@@ -230,6 +245,9 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
   }
 
   const rows: Row[] = [];
+  // Executed flows per row: gain so far must subtract what each alternative actually paid in and took out
+  // (an uncovered withdrawal never left it), not the real portfolio's flows.
+  const executedByKey = new Map<string, Flow[]>([['actual', det.flows]]);
   const actualRes = det.out.actual as VariantResult;
   rows.push({
     key: 'actual',
@@ -251,6 +269,7 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
     const warnings = isError(res) ? [] : rowWarnings(res);
     if (b.staleHours !== null) warnings.push({ code: 'cache_stale', params: { hours: Math.round(b.staleHours) } });
     rows.push({ ...base, result: res, warnings, path: det.paths[vi] });
+    executedByKey.set(keys[i], det.executed[vi]);
   });
 
   const ends = chartDays(det.flows[0]?.date ?? today);
@@ -285,6 +304,20 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
     const lookup = new Map(row.path.map((p) => [p.date, p.value]));
     for (const pt of chart) pt[row.key] = lookup.get(pt.date as string) ?? null;
   }
+  const gainChart = chart.map((pt) => {
+    const out: Record<string, number | string | null> = {};
+    for (const [k, v] of Object.entries(pt)) if (!executedByKey.has(k)) out[k] = v;
+    out.net = 0;
+    return out;
+  });
+  const chartDates = chart.map((pt) => pt.date as string);
+  for (const [key, executed] of executedByKey) {
+    const cum = cumulativeOn(executed, chartDates);
+    chart.forEach((pt, i) => {
+      const v = pt[key];
+      gainChart[i][key] = typeof v === 'number' ? v - cum[i] : null;
+    });
+  }
 
   return {
     fatal: null,
@@ -303,5 +336,6 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
     rows,
     headerWarnings,
     chart,
+    gainChart,
   };
 }

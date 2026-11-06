@@ -23,8 +23,27 @@ export interface PortfolioApi {
   quotes: { getHistory(assetId: string): Promise<Quote[]> };
 }
 
+/** Account types that Wealthfolio's Performance page accepts (not CREDIT_CARD) and that are not archived;
+ * the same eligibility rule, so Hindsight never analyses what the host would refuse. */
+export function accountSupported(a: Account): boolean {
+  return !a.isArchived && (a.accountType === 'SECURITIES' || a.accountType === 'CASH' || a.accountType === 'CRYPTOCURRENCY');
+}
+
+/** Default selection: eligible and active, without cash accounts of their own (cash held inside a depot counts
+ * anyway). A cash account can still be chosen explicitly. */
 export function defaultAccountIds(accounts: Account[]): string[] {
-  return accounts.filter((a) => a.isActive && !a.isArchived && a.accountType !== 'CASH').map((a) => a.id);
+  return accounts.filter((a) => accountSupported(a) && a.isActive && a.accountType !== 'CASH').map((a) => a.id);
+}
+
+/** Selected IDs that cannot be analysed: unsupported or archived accounts (`name` set) and IDs that no longer
+ * exist (`name` null). */
+export function unavailableSelection(accounts: Account[], selected: string[] | null): { id: string; name: string | null }[] {
+  if (selected === null) return [];
+  const byId = new Map(accounts.map((a) => [a.id, a]));
+  return selected.flatMap((id) => {
+    const a = byId.get(id);
+    return a && accountSupported(a) ? [] : [{ id, name: a?.name ?? null }];
+  });
 }
 
 export interface RealPortfolio {
@@ -144,6 +163,7 @@ export async function loadRealPortfolio(
   const base = settings.baseCurrency;
   const timeZone = settings.timezone || localTimeZone();
   const accounts = await api.accounts.getAll();
+  if (selectedIds !== null && unavailableSelection(accounts, selectedIds).length > 0) throw new Error('scope_unavailable');
   const accountIds = selectedIds ?? defaultAccountIds(accounts);
   const empty: RealPortfolio = {
     baseCurrency: base,

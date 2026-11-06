@@ -13,7 +13,9 @@
     "deposits_one": "{{count}} deposit",
     "deposits_other": "{{count}} deposits",
     "withdrawals_one": "{{count}} withdrawal",
-    "withdrawals_other": "{{count}} withdrawals"
+    "withdrawals_other": "{{count}} withdrawals",
+    "tagline": "Same cash flows. Different investments.",
+    "scopeBlocked": "These selected accounts cannot be analysed: {{names}}. Deselect them to continue."
   },
   "view": {
     "nominal": "Nominal",
@@ -26,9 +28,9 @@
     "irr": "MWR p.a.",
     "gainReal": "Gain (real)",
     "irrReal": "MWR p.a. (real)",
-    "vsActual": "vs. yours",
-    "vsActualReal": "vs. yours (real)",
-    "vsShort": "{{diff}} vs. yours",
+    "vsActual": "Gain vs. yours",
+    "vsActualReal": "Gain vs. yours (real)",
+    "vsShort": "{{diff}} gain vs. yours",
     "yourPortfolio": "Your portfolio",
     "notInvested": "Not invested",
     "notComputable": "not computable: {{reason}}",
@@ -37,7 +39,8 @@
     "perYear": "p.a.",
     "select": "Select {{name}}",
     "mwr": "MWR",
-    "mwrReal": "MWR (real)"
+    "mwrReal": "MWR (real)",
+    "realNote": "Real figures use purchasing power at the end of the period: only gain, MWR and the difference change. The end value stays the same."
   },
   "chart": {
     "scale": "Chart scale",
@@ -54,7 +57,10 @@
     "withdrawals": "Withdrawals",
     "markers": "Markers",
     "showMarkers": "Show markers",
-    "hideMarkers": "Hide markers"
+    "hideMarkers": "Hide markers",
+    "mode": "Chart value",
+    "gain": "Gain",
+    "value": "Value"
   },
   "comparison": {
     "title": "Comparison"
@@ -68,7 +74,8 @@
     "item5": "Only money flowing in from outside counts, not transfers between the selected accounts.",
     "item6": "Asset transfers from outside count at the booking's price, else at the Wealthfolio price around that day. Worthless ones (e.g. spam tokens) are ignored.",
     "item7": "Real: purchasing power at the end of the period, by the OECD consumer price index of your time zone's country (else your base currency's).",
-    "item8": "A period starting after your first deposit begins with your portfolio's value that day as a deposit."
+    "item8": "A period starting after your first deposit begins with your portfolio's value that day as a deposit.",
+    "item9": "The chart shows the gain so far: value minus the money each line itself took in and paid out up to that day, so deposits and withdrawals cause no jumps. “Value” shows the value instead."
   },
   "messages": {
     "no_prices": "No prices available.",
@@ -118,13 +125,16 @@
   },
   "scope": {
     "title": "Select account scope",
-    "all": "All accounts",
-    "allHint": "Active, except cash accounts",
+    "all": "All investment accounts",
+    "allHint": "Active, without cash accounts. Select those separately.",
     "accounts": "Accounts",
     "search": "Search accounts…",
     "noResults": "No results.",
     "count_one": "{{count}} account",
-    "count_other": "{{count}} accounts"
+    "count_other": "{{count}} accounts",
+    "unavailable": "Unavailable",
+    "unavailableHint": "Archived, unsupported or deleted. Deselect to remove.",
+    "deleted": "Deleted account"
   },
   "picker": {
     "add": "Add benchmark",
@@ -147,14 +157,15 @@
     "capital": "Capital",
     "gain": "Gain",
     "mwr": "MWR p.a.",
-    "vs": "vs. yours",
+    "vs": "Gain vs. yours",
     "value": "Value",
     "helpTitle": "Hindsight metrics",
     "info": {
       "mwr": "Money-weighted return per year (XIRR).",
       "mwrPeriod": "Money-weighted return over the period (XIRR), not annualised.",
       "depositsWindow": "Includes {{value}}, your portfolio's value at the start of the period.",
-      "bookings": "The count is original bookings in the period, excluding the opening value. Amounts are netted per day; alternatives only include covered withdrawals."
+      "bookings": "The count is original bookings in the period, excluding the opening value. Amounts are netted per day; alternatives only include covered withdrawals.",
+      "vs": "This alternative's gain minus your portfolio's gain. It equals the difference in end value unless a withdrawal was not fully covered."
     },
     "mwrPeriod": "MWR",
     "deposits": "Deposits",

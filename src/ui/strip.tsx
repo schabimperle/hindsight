@@ -39,7 +39,7 @@ export function stripSections({
           info: period ? t('strip.info.mwrPeriod') : t('strip.info.mwr'),
           value: pct(fmt, report.irr),
         },
-        ...(actual ? [{ key: 'vs', label: t('strip.vs'), value: signed(fmt, vs) }] : []),
+        ...(actual ? [{ key: 'vs', label: t('strip.vs'), info: t('strip.info.vs'), value: signed(fmt, vs) }] : []),
       ],
     },
     {

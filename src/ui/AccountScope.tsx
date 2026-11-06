@@ -18,11 +18,12 @@ import {
   cn,
   useIsMobile,
 } from '@wealthfolio/ui';
-import { Check, ChevronsUpDown, CreditCard, ListFilter, Wallet } from 'lucide-react';
+import { Check, ChevronsUpDown, CreditCard, ListFilter, TriangleAlert, Wallet } from 'lucide-react';
 import { forwardRef, useState, type ComponentPropsWithoutRef } from 'react';
+import { accountSupported, unavailableSelection } from '../sources/portfolio';
 import { useTexts } from './i18n';
 
-/** null = all accounts (the default selection: active, not archived, not of type cash). */
+/** null = all investment accounts (the default selection: eligible, active, not of type cash). */
 export type Scope = string[] | null;
 
 /** Toggles one account; an empty selection falls back to all accounts (as in the host). */
@@ -75,12 +76,15 @@ const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(function Trigger({ l
 
 function ScopeCommand({
   accounts,
+  unavailable,
   value,
   onAll,
   onToggle,
   mobile,
 }: {
   accounts: Account[];
+  /** Selected but not analysable (archived, unsupported type, deleted): listed so they can be removed. */
+  unavailable: { id: string; name: string | null }[];
   value: Scope;
   onAll: () => void;
   onToggle: (id: string) => void;
@@ -106,6 +110,20 @@ function ScopeCommand({
             <Check className={cn('ms-auto h-4 w-4', value === null ? 'opacity-100' : 'opacity-0')} />
           </CommandItem>
         </CommandGroup>
+        {unavailable.length > 0 && (
+          <CommandGroup heading={t('scope.unavailable')} className={group}>
+            {unavailable.map((u) => (
+              <CommandItem key={u.id} value={u.id} keywords={[u.name ?? '']} className={item} onSelect={() => onToggle(u.id)}>
+                <TriangleAlert className="text-warning me-1 h-4 w-4" />
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate">{u.name ?? t('scope.deleted')}</span>
+                  <span className="text-muted-foreground truncate text-xs">{t('scope.unavailableHint')}</span>
+                </span>
+                <Check className="ms-auto h-4 w-4" />
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
         {accounts.length > 0 && (
           <CommandGroup heading={t('scope.accounts')} className={group}>
             {accounts.map((a) => (
@@ -139,8 +157,9 @@ export function AccountScope({
   const { t } = useTexts();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
-  // Archived accounts only stay listed while selected (the host hides them as well).
-  const listed = accounts.filter((a) => !a.isArchived || value?.includes(a.id));
+  // Only accounts the host's Performance page would accept are offered; stale selections stay visible as such.
+  const listed = accounts.filter(accountSupported);
+  const unavailable = unavailableSelection(accounts, value);
   const label =
     value === null
       ? t('scope.all')
@@ -160,6 +179,7 @@ export function AccountScope({
   const command = (
     <ScopeCommand
       accounts={listed}
+      unavailable={unavailable}
       value={value}
       mobile={isMobile}
       onAll={() => {

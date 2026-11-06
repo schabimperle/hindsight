@@ -79,6 +79,7 @@ export function ComparisonCard({
           <p className="text-muted-foreground py-4 text-xs">{unavailable}</p>
         ) : (
           <>
+            {view === 'real' && <p className="text-muted-foreground mb-2 text-xs">{t('table.realNote')}</p>}
             <div className="md:hidden">
               {rows.map((v) => (
                 <MobileRow key={v.row.key} v={v} fmt={fmt} open={open.has(v.row.key)} onToggle={() => toggle(v.row.key)} ctx={ctx} />

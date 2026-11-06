@@ -43,18 +43,25 @@
 - Caches in the addon storage: `yahoo:v2:<ticker>` 12 h, `oecd:v1:<country>` 24 h; on a network error it falls
   back with a warning, but only to an entry that covers the required start (otherwise a series that is too
   short would look like a late start).
+- Account scope (`src/sources/portfolio.ts`): eligibility follows the host's Performance rule (not archived;
+  type SECURITIES, CASH or CRYPTOCURRENCY, so credit cards are out). The default selection (“All investment
+  accounts”) additionally needs `isActive` and no CASH type; uninvested balances inside a depot stay in. A stored
+  ID that is archived, unsupported or no longer returned by `accounts.getAll()` stays visible in the selector as
+  “Unavailable”, blocks the analysis with a notice and loads nothing until it is deselected. Changing the scope
+  drops the previous result at once (benchmark changes keep it while loading).
 - Settings, each saved immediately by its selector (no settings sheet): `settings:accounts` (account scope;
-  null = all active non-cash accounts), `settings:benchmarks` (`{name, ticker, kind}`, added with “Add
+  null = all investment accounts: active and eligible, without cash accounts of their own, which can still be
+  selected explicitly), `settings:benchmarks` (`{name, ticker, kind}`, added with “Add
   benchmark”, removed with the badge's X; old entries with `taxClass` are still read), `settings:range`
   (`{preset}` or `{from, to}`). `settings:inflation` and old tax keys are ignored.
 - UI (`src/ui/`) mirrors Insights > Performance of Wealthfolio 3.12: account scope selector and
   `DateRangeSelector` in a right-aligned row at the content padding (not `PageHeader`: its padding and empty
   title slot pushed the row inwards on phones), badge row with “Add benchmark” (badge click selects, X removes),
-  card with the host's metric strip (nominal only: gain, MWR, vs. yours; value, deposits, withdrawals; original booking counts in the deposit/withdrawal tiles; help popover; info button per tile on phones) and the chart with every
+  card with the host's metric strip (nominal only: gain, MWR, gain vs. yours; value, deposits, withdrawals; original booking counts in the deposit/withdrawal tiles; help popover; info button per tile on phones) and the chart with every
   computable asset in the host's `--series-1…8` colours, cycled. The host components themselves are not
   exported to addons (`AccountScopeSelector`, `BenchmarkSymbolSelector`, the strip), so `AccountScope.tsx`,
   `BenchmarkPicker.tsx`, `Badges.tsx` and `MetricStrip.tsx` are clones with the host's classes.
-  The comparison table below switches gain, MWR and "vs. yours" between nominal and real; the strip stays
+  The comparison table below switches gain, MWR and "gain vs. yours" between nominal and real (a note under the title says the end value stays the same); the strip stays
   nominal. Real amounts use end-period purchasing power: the end value stays unchanged, earlier payments
   are multiplied by CPI(end)/CPI(payment). Thus the gain gap also stays unchanged with identical executed
   payments, but can change with uncovered withdrawals. A row click selects the line (strip and chart), a row with notes (uncovered withdrawal, late start)
@@ -71,6 +78,13 @@
   skips nice/whole-unit ticks with explicit `scale="linear"`. `width="auto"` measures the labels on each
   range change: a fixed mobile width clipped German six-digit amounts and negative signs. Do not restore
   a fixed width or compact tick labels.
+  Gain is the default chart (`Analysis.gainChart`): per line the value minus the net of that line's own
+  executed flows up to the day (`DetailedRun.executed`), so deposits and withdrawals cause no jumps, a
+  withdrawal an alternative could not cover never counts as taken out, and a period starts at zero (the opening
+  deposit is a flow). Differences between lines equal the value differences only while all lines executed the
+  same flows. A zero line replaces the dashed "Net in" reference; a "Gain/Value" pill switch next to the markers
+  button toggles to the value chart. Value mode is the only one with the Logarithmic scale (gain starts at zero
+  and can be negative); the scale switch is hidden in gain mode.
   A shared pill control (same component as Nominal/Real) at the top right switches Linear/Logarithmic.
   Linear remains the default. Log uses Recharts `scale="log"`, the positive data extent (constant values
   get a nondegenerate domain), and D3 log ticks with distinct whole-currency labels. It keeps the same

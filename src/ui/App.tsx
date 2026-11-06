@@ -24,14 +24,16 @@ import { codeText } from '../model/messages';
 import { isoOfLocal, localOfIso, presetFrom, rangeFromDays, windowOf, type RangeSetting } from '../model/range';
 import { DEFAULT_SETTINGS, type AddonSettings, type BenchmarkDef } from '../model/settings';
 import { loadAll } from '../sources/load';
+import { unavailableSelection } from '../sources/portfolio';
 import { loadSettings, saveSettings } from '../sources/settingsStore';
 import { AccountScope, type Scope } from './AccountScope';
 import { BadgeRow, type BadgeItem } from './Badges';
 import { BenchmarkPicker } from './BenchmarkPicker';
-import { ComparisonChart, NET_KEY } from './ComparisonChart';
+import { ComparisonChart, NET_KEY, type ChartMode } from './ComparisonChart';
 import { ChartScaleSwitch } from './ChartScaleSwitch';
 import { logAxis, type ChartScale } from './logAxis';
 import { MarkerToggle } from './MarkerToggle';
+import { PillSwitch } from './PillSwitch';
 import { AddonCtx, useAddon } from './context';
 import { Notice } from './Notice';
 import { rowName, useFmt, useTexts } from './i18n';
@@ -78,6 +80,7 @@ function Comparison() {
   const [selected, setSelected] = useState('actual');
   const [markers, setMarkers] = useState(false);
   const [chartScale, setChartScale] = useState<ChartScale>('linear');
+  const [chartMode, setChartMode] = useState<ChartMode>('gain');
 
   // Every selector saves right away (as the host persists its selections); the page shows the new state at once.
   // Only once the stored settings are loaded (the selectors are disabled before), so a late load cannot overwrite
@@ -92,18 +95,26 @@ function Comparison() {
     });
   };
 
-  // Loading does not depend on the range: switching periods only recomputes.
-  const dataKey = settings ? JSON.stringify([settings.accounts, settings.benchmarks]) : null;
+  // Selected accounts that cannot be analysed (archived, unsupported type, deleted) block the analysis until
+  // they are deselected; the scope only counts as known once the account list has loaded.
+  const blocked = useMemo(
+    () => (accountsQ.data && settings ? unavailableSelection(accountsQ.data, settings.accounts) : []),
+    [accountsQ.data, settings],
+  );
+  // Loading does not depend on the range: switching periods only recomputes. A change of the account scope
+  // drops the previous result at once (it describes other accounts); benchmark changes keep it while loading.
+  const scopeKey = settings ? JSON.stringify(settings.accounts) : null;
+  const benchKey = settings ? JSON.stringify(settings.benchmarks) : null;
   const dataQ = useQuery({
-    queryKey: ['hindsight', 'data', dataKey],
-    enabled: !!settings,
+    queryKey: ['hindsight', 'data', scopeKey, benchKey],
+    enabled: !!settings && !!accountsQ.data && blocked.length === 0,
     staleTime: 5 * 60 * 1000,
     retry: false,
-    placeholderData: (prev) => prev,
+    placeholderData: (prev, prevQuery) => (prevQuery?.queryKey[2] === scopeKey ? prev : undefined),
     queryFn: () => loadAll(ctx.api, { net: ctx.api.network, storage: ctx.api.storage, nowMs: () => Date.now() }, settings as AddonSettings),
   });
 
-  const loaded = dataQ.data;
+  const loaded = blocked.length === 0 ? dataQ.data : undefined;
   const asOf = loaded?.real.asOf ?? todayIn(loaded?.real.timeZone);
   const range = settings?.range ?? DEFAULT_SETTINGS.range;
   const analysis = useMemo(() => {
@@ -159,8 +170,9 @@ function Comparison() {
   };
   const addBench = (b: BenchmarkDef): void => update({ benchmarks: [...benchmarks, b] });
 
-  const busy = settingsQ.isLoading || (dataQ.isLoading && !loaded);
-  const loadError = dataQ.isError ? (dataQ.error instanceof Error ? dataQ.error.message : String(dataQ.error)) : null;
+  const busy = settingsQ.isLoading || accountsQ.isLoading || (blocked.length === 0 && !loaded && dataQ.isFetching);
+  const failure = blocked.length === 0 && dataQ.isError ? dataQ.error : accountsQ.isError ? accountsQ.error : null;
+  const loadError = failure ? (failure instanceof Error ? failure.message : String(failure)) : null;
   const realMissing = view === 'real' && analysis !== null && analysis.investedReal === null;
   const unavailable = realMissing ? t('app.realUnavailable') : null;
 
@@ -223,6 +235,14 @@ function Comparison() {
                 <AlertDescription>{t('app.loadFailed', { error: loadError })}</AlertDescription>
               </Alert>
             )}
+            {blocked.length > 0 && (
+              <Alert variant="destructive">
+                <CircleAlert />
+                <AlertDescription>
+                  {t('app.scopeBlocked', { names: blocked.map((u) => u.name ?? t('scope.deleted')).join(', ') })}
+                </AlertDescription>
+              </Alert>
+            )}
             {settings && (
               <BadgeRow
                 items={badgeItems}
@@ -247,7 +267,8 @@ function Comparison() {
                             <WarningsButton warnings={warnings} fmt={fmt} />
                           </div>
                           <CardDescription className={cn('text-xs sm:text-sm', isMobile && 'text-2xs')}>
-                            {period}
+                            <span className="block">{t('app.tagline')}</span>
+                            {period && <span className="block tabular-nums opacity-70">{period}</span>}
                           </CardDescription>
                         </div>
                       </div>
@@ -257,9 +278,24 @@ function Comparison() {
                   <CardContent className={cn('min-h-0', isMobile ? 'p-2' : 'p-3 sm:p-6')}>
                     <div className="mb-1 flex flex-wrap items-start justify-end gap-2">
                       <MarkerToggle enabled={markers} onToggle={() => setMarkers((m) => !m)} />
-                      <ChartScaleSwitch scale={scale} onChange={setChartScale} available={logAvailable} />
+                      <PillSwitch
+                        label={t('chart.mode')}
+                        value={chartMode}
+                        onChange={setChartMode}
+                        options={(['gain', 'value'] as const).map((value) => ({ value, label: t(`chart.${value}`) }))}
+                      />
+                      {/* Gain starts at zero and can be negative, so only the value chart has a logarithmic scale. */}
+                      {chartMode === 'value' && <ChartScaleSwitch scale={scale} onChange={setChartScale} available={logAvailable} />}
                     </div>
-                    <ComparisonChart a={analysis} fmt={fmt} colors={colors} selected={selectedKey} markers={markers} scale={scale} />
+                    <ComparisonChart
+                      a={analysis}
+                      fmt={fmt}
+                      colors={colors}
+                      selected={selectedKey}
+                      markers={markers}
+                      mode={chartMode}
+                      scale={scale}
+                    />
                   </CardContent>
                 </Card>
                 <ComparisonCard

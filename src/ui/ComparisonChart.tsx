@@ -1,6 +1,6 @@
 import { useIsMobile } from '@wealthfolio/ui';
 import { useMemo } from 'react';
-import { CartesianGrid, Line, LineChart, ReferenceDot, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { CartesianGrid, Line, LineChart, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { isError } from '../core/types';
 import type { Analysis } from '../model/analysis';
 import type { Fmt } from '../model/format';
@@ -19,17 +19,20 @@ interface Series {
 }
 
 export const NET_KEY = 'net';
+export type ChartMode = 'gain' | 'value';
 const DEPOSIT_COLOR = 'var(--success)';
 const WITHDRAWAL_COLOR = 'var(--destructive)';
 
 /** Every computable row as a line in its badge colour (the host plots every added item); the selected line is
- * drawn last and thicker. "Net deposited" is the dashed reference. */
+ * drawn last and thicker. Gain mode plots the gain so far with a zero line; value mode the value with the dashed
+ * "Net in" reference. */
 export function ComparisonChart({
   a,
   fmt,
   colors,
   selected,
   markers,
+  mode = 'value',
   scale = 'linear',
 }: {
   a: Analysis;
@@ -38,13 +41,16 @@ export function ComparisonChart({
   selected: string;
   /** Wealthfolio activity markers on the selected line. */
   markers: boolean;
+  mode?: ChartMode;
+  /** Only meaningful for value mode: gain starts at zero and can be negative. */
   scale?: ChartScale;
 }) {
   const { t, language } = useTexts();
   const isMobile = useIsMobile();
 
   const series = useMemo<Series[]>(() => {
-    const out: Series[] = [{ key: NET_KEY, name: t('chart.netDeposited'), color: 'var(--muted-foreground)', width: 1.5, dash: '5 4' }];
+    const out: Series[] =
+      mode === 'value' ? [{ key: NET_KEY, name: t('chart.netDeposited'), color: 'var(--muted-foreground)', width: 1.5, dash: '5 4' }] : [];
     for (const r of a.rows) {
       const color = colors.get(r.key);
       if (isError(r.result) || !color) continue;
@@ -56,14 +62,15 @@ export function ComparisonChart({
       out.push({ ...s, width: s.width + 1 });
     }
     return out;
-  }, [a.rows, colors, selected, t]);
+  }, [a.rows, colors, selected, mode, t]);
 
+  const chart = mode === 'gain' ? a.gainChart : a.chart;
   const logarithmic = useMemo(
-    () => scale === 'log' ? logAxis(a.chart, series.map((s) => s.key), fmt.money) : null,
-    [a.chart, series, scale, fmt],
+    () => (mode === 'value' && scale === 'log' ? logAxis(a.chart, series.map((s) => s.key), fmt.money) : null),
+    [a.chart, series, mode, scale, fmt],
   );
-  const data = useMemo(() => a.chart.map((p) => ({ ...p, time: timeOfDay(String(p.date)) })), [a.chart]);
-  const points = useMemo(() => markers ? bookingMarkers(a.chart, selected) : [], [a.chart, selected, markers]);
+  const data = useMemo(() => chart.map((p) => ({ ...p, time: timeOfDay(String(p.date)) })), [chart]);
+  const points = useMemo(() => markers ? bookingMarkers(chart, selected) : [], [chart, selected, markers]);
   const dates = useMemo(() => a.chart.map((p) => String(p.date)), [a.chart]);
   const { ticks, label } = useMemo(() => axisTicks(dates, language), [dates, language]);
   const axis = { fontSize: 11, fill: 'var(--muted-foreground)' };
@@ -102,6 +109,7 @@ export function ComparisonChart({
               width="auto"
               scale={logarithmic ? 'log' : 'auto'}
             />
+            {mode === 'gain' && <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="5 4" strokeOpacity={0.6} ifOverflow="extendDomain" />}
             <Tooltip
               cursor={{ stroke: 'var(--muted-foreground)', strokeWidth: 1 }}
               content={({ active, payload, label: day }) => {

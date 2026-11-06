@@ -256,3 +256,81 @@ describe('analyze over a window', () => {
     expect(analyze(winput(), win).mwrPeriodDays).toBeNull();
   });
 });
+
+describe('gain chart', () => {
+  const cumNaive = (day: string): number => fx.flows.filter((f) => f.date <= day).reduce((s, f) => s + f.amount, 0);
+
+  it('has the same days and booking counts, a zero reference, and ends at every report gain', () => {
+    const a = analyze(input());
+    expect(a.gainChart).toHaveLength(a.chart.length);
+    a.gainChart.forEach((p, i) => {
+      expect(p.date).toBe(a.chart[i].date);
+      expect(p.depCount).toBe(a.chart[i].depCount);
+      expect(p.wdCount).toBe(a.chart[i].wdCount);
+      expect(p.net).toBe(0);
+    });
+    const last = a.gainChart.at(-1) as Record<string, number | string | null>;
+    for (const row of a.rows) {
+      if (!isError(row.result)) expect(last[row.key], row.name).toBeCloseTo(row.result.gain, 6);
+      else expect(last[row.key]).toBeNull();
+    }
+  });
+
+  it('subtracts the alternative\'s own executed flows, before and after a partly uncovered withdrawal', () => {
+    const a = analyze(input());
+    const loss = a.rows.find((r) => r.name === 'Total loss') as (typeof a.rows)[number];
+    const rep = loss.result as Report;
+    expect(rep.shortfalls).toHaveLength(1);
+    const miss = rep.shortfalls[0];
+    expect(miss.amount).toBeGreaterThan(1);
+    let before = 0;
+    let after = 0;
+    a.chart.forEach((p, i) => {
+      const v = p[loss.key];
+      if (typeof v !== 'number') return;
+      const day = p.date as string;
+      // The uncovered part never left the alternative, so only from the withdrawal on it differs from the real flows.
+      const executed = cumNaive(day) + (day >= miss.date ? miss.amount : 0);
+      expect(a.gainChart[i][loss.key], day).toBeCloseTo(v - executed, 6);
+      if (day >= miss.date) {
+        after++;
+        expect(v - executed).not.toBeCloseTo(v - cumNaive(day), 0);
+      } else before++;
+    });
+    expect(before).toBeGreaterThan(5);
+    expect(after).toBeGreaterThan(5);
+  });
+
+  it('starts a period at zero gain for every line', () => {
+    const wfx = read<Fixture>('synthetic-window.json');
+    const daily = [
+      { date: '2023-03-10', value: 83456.78 },
+      { date: '2025-12-29', value: 97000 },
+      { date: '2026-06-15', value: 101234.56 },
+    ];
+    const base = input({}, { asOf: '2026-06-15', value: 101234.56, daily });
+    const a = analyze(
+      {
+        ...base,
+        flows: wfx.flows,
+        benchmarks: wfx.variants.map((v) => ({
+          def: { name: v.name, ticker: v.kind === 'cash' ? '' : v.name, kind: v.kind },
+          points: v.kind === 'cash' ? null : v.points,
+          currency: 'EUR',
+          firstDay: v.points[0]?.[0] ?? null,
+          error: null,
+          staleHours: null,
+        })),
+      },
+      { from: '2023-03-15', to: '2025-12-31' },
+    );
+    expect(a.fatal).toBeNull();
+    const first = a.gainChart[0];
+    expect(first.date).toBe('2023-03-15');
+    const keys = a.rows.filter((r) => !isError(r.result)).map((r) => r.key);
+    expect(keys.length).toBeGreaterThan(2);
+    for (const k of keys) expect(first[k], k).toBeCloseTo(0, 6);
+    const last = a.gainChart.at(-1) as Record<string, number | string | null>;
+    for (const row of a.rows) if (!isError(row.result)) expect(last[row.key], row.name).toBeCloseTo(row.result.gain, 6);
+  });
+});

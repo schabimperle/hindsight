@@ -113,6 +113,8 @@ export interface DetailedRun {
   out: RunOutput;
   /** Value path per variant (same index as out.variants), display only. */
   paths: PathPoint[][];
+  /** Executed (covered, netted per day) flows per variant, same index as out.variants; empty for an error. */
+  executed: Flow[][];
   /** Netted flows the computation is based on. */
   flows: Flow[];
 }
@@ -138,6 +140,7 @@ export function runDetailed(fx: Fixture, days?: (firstFlow: string) => string[])
     out.investedReal = flows.reduce((s, f) => s + (f.amount * cpiNow) / cpiAt(f.date), 0);
   }
   const paths: PathPoint[][] = [];
+  const executed: Flow[][] = [];
   const chartDays = days && flows.length > 0 ? days(flows[0].date) : undefined;
   for (const v of fx.variants) {
     let sim;
@@ -147,15 +150,17 @@ export function runDetailed(fx: Fixture, days?: (firstFlow: string) => string[])
       if (e instanceof PriceError) {
         out.variants.push({ name: v.name, error: e.code });
         paths.push([]);
+        executed.push([]);
         continue;
       }
       throw e;
     }
     out.variants.push(report(v.name, sim.value, sim.executed, sim.shortfalls, sim.uninvestedUntil, today, cpi, unit));
     paths.push(sim.path);
+    executed.push(sim.executed);
   }
   if (fx.actual) out.actual = report('actual', fx.actual.value, flows, [], null, today, cpi, unit);
-  return { out, paths, flows };
+  return { out, paths, executed, flows };
 }
 
 /** Computes a fixture and returns the same JSON shape as reference/oracle.py. */
