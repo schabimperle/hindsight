@@ -9,7 +9,7 @@ const signed = (fmt: Fmt, v: number | null) => <span className={gainClass(v)}>{v
 const pct = (fmt: Fmt, v: number | null) => <span className={gainClass(v)}>{fmt.pctSigned(v)}</span>;
 
 /** Metrics of the selected item in the host's strip layout: return and capital (nominal; the real figures are in
- * the comparison table below); "vs. yours" only for
+ * the comparison table below); "Gain vs. yours" only for
  * an alternative (`actual` = the real portfolio's report to compare with). */
 export function stripSections({
   t,

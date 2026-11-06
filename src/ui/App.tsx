@@ -17,7 +17,7 @@ import {
   useIsMobile,
 } from '@wealthfolio/ui';
 import { CircleAlert } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { isError } from '../core/types';
 import { analyze, benchKeys } from '../model/analysis';
 import { codeText } from '../model/messages';
@@ -114,6 +114,12 @@ function Comparison() {
     queryFn: () => loadAll(ctx.api, { net: ctx.api.network, storage: ctx.api.storage, nowMs: () => Date.now() }, settings as AddonSettings),
   });
 
+  // The cached account list can be older than the loader's: if the loader refuses the scope, reload the list so
+  // `blocked` names the accounts instead of showing a raw error.
+  const staleScope = dataQ.isError && dataQ.error instanceof Error && dataQ.error.message === 'scope_unavailable';
+  useEffect(() => {
+    if (staleScope) void qc.invalidateQueries({ queryKey: ['hindsight', 'accounts'] });
+  }, [staleScope, qc]);
   const loaded = blocked.length === 0 ? dataQ.data : undefined;
   const asOf = loaded?.real.asOf ?? todayIn(loaded?.real.timeZone);
   const range = settings?.range ?? DEFAULT_SETTINGS.range;
@@ -171,7 +177,7 @@ function Comparison() {
   const addBench = (b: BenchmarkDef): void => update({ benchmarks: [...benchmarks, b] });
 
   const busy = settingsQ.isLoading || accountsQ.isLoading || (blocked.length === 0 && !loaded && dataQ.isFetching);
-  const failure = blocked.length === 0 && dataQ.isError ? dataQ.error : accountsQ.isError ? accountsQ.error : null;
+  const failure = blocked.length === 0 && dataQ.isError && !staleScope ? dataQ.error : accountsQ.isError ? accountsQ.error : null;
   const loadError = failure ? (failure instanceof Error ? failure.message : String(failure)) : null;
   const realMissing = view === 'real' && analysis !== null && analysis.investedReal === null;
   const unavailable = realMissing ? t('app.realUnavailable') : null;
@@ -193,6 +199,7 @@ function Comparison() {
     <>
       <AccountScope
         accounts={accountsQ.data ?? []}
+        unavailable={blocked}
         value={settings?.accounts ?? null}
         disabled={!settings}
         onChange={(v: Scope) => update({ accounts: v })}

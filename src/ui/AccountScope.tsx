@@ -20,7 +20,7 @@ import {
 } from '@wealthfolio/ui';
 import { Check, ChevronsUpDown, CreditCard, ListFilter, TriangleAlert, Wallet } from 'lucide-react';
 import { forwardRef, useState, type ComponentPropsWithoutRef } from 'react';
-import { accountSupported, unavailableSelection } from '../sources/portfolio';
+import { accountSupported } from '../sources/portfolio';
 import { useTexts } from './i18n';
 
 /** null = all investment accounts (the default selection: eligible, active, not of type cash). */
@@ -142,14 +142,17 @@ function ScopeCommand({
 }
 
 /** Account scope like the host's Insights > Performance page: popover on wide screens, bottom sheet on phones;
- * accounts toggle without closing, "All accounts" closes. */
+ * accounts toggle without closing, "All investment accounts" closes. */
 export function AccountScope({
   accounts,
   value,
+  unavailable = [],
   onChange,
   disabled = false,
 }: {
   accounts: Account[];
+  /** Selected accounts that cannot be analysed; only known once the account list has loaded. */
+  unavailable?: { id: string; name: string | null }[];
   value: Scope;
   onChange: (v: Scope) => void;
   disabled?: boolean;
@@ -159,7 +162,6 @@ export function AccountScope({
   const [open, setOpen] = useState(false);
   // Only accounts the host's Performance page would accept are offered; stale selections stay visible as such.
   const listed = accounts.filter(accountSupported);
-  const unavailable = unavailableSelection(accounts, value);
   const label =
     value === null
       ? t('scope.all')
