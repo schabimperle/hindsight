@@ -238,9 +238,6 @@ function Comparison() {
               <>
                 <Card className={cn('transition-opacity', dataQ.isFetching && 'opacity-60')}>
                   <CardHeader className={cn('pb-2', isMobile ? 'px-3 py-3' : 'px-6 pt-5 pb-2')}>
-                    <div className="flex justify-end">
-                      <ChartScaleSwitch scale={scale} onChange={setChartScale} available={logAvailable} />
-                    </div>
                     <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:justify-between">
                       <div className="flex min-w-0 items-start justify-between gap-3">
                         <div className="min-w-0">
@@ -258,8 +255,9 @@ function Comparison() {
                     </div>
                   </CardHeader>
                   <CardContent className={cn('min-h-0', isMobile ? 'p-2' : 'p-3 sm:p-6')}>
-                    <div className="mb-1 flex justify-end">
+                    <div className="mb-1 flex flex-wrap items-start justify-end gap-2">
                       <MarkerToggle enabled={markers} onToggle={() => setMarkers((m) => !m)} />
+                      <ChartScaleSwitch scale={scale} onChange={setChartScale} available={logAvailable} />
                     </div>
                     <ComparisonChart a={analysis} fmt={fmt} colors={colors} selected={selectedKey} markers={markers} scale={scale} />
                   </CardContent>
