@@ -4,12 +4,14 @@
 
 - The chart shows the gain so far by default (value minus each line's own executed flows); the value chart,
   with the logarithmic scale, is one switch away.
-- One line under the title states the idea (same cash flows, different investments), with the period on the
-  same line; the info dialog names the method (Public Market Equivalent, Long–Nickels) and drops its extra heading.
+- One line under the title states the idea (same cash flows, different investments); the period sits where
+  Wealthfolio's Performance card shows its date range (right of the title, below it beside the metrics and on
+  phones). The info dialog names the method (Public Market Equivalent, Long–Nickels) and drops its extra heading.
 - The scale switch sits left of the Gain/Value switch; the real-view note is an info button next to the
   Nominal/Real switch.
-- “vs. yours” is now “Gain vs. yours” with a short explanation; switching the table to real figures explains that
-  the end value stays the same.
+- “vs. yours” is now “Gain difference”, with an explanation at the table column; for an alternative that could
+  not cover a withdrawal, the metric strip shows the uncovered amount the difference includes. Switching the table
+  to real figures explains that the end value stays the same.
 - “All accounts” is now “All investment accounts”. Account eligibility follows Wealthfolio's Performance rule, so
   credit cards and archived accounts are excluded; stale selections are shown as unavailable and block the analysis
   until removed. A changed account scope no longer shows the previous accounts' results while loading.

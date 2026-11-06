@@ -28,9 +28,9 @@
     "irr": "MWR p.a.",
     "gainReal": "Gewinn (real)",
     "irrReal": "MWR p.a. (real)",
-    "vsActual": "Gewinn vs. deins",
-    "vsActualReal": "Gewinn vs. deins (real)",
-    "vsShort": "{{diff}} Gewinn vs. deins",
+    "vsActual": "Gewinndifferenz",
+    "vsActualReal": "Gewinndifferenz (real)",
+    "vsShort": "{{diff}} Gewinndifferenz",
     "yourPortfolio": "Dein Portfolio",
     "notInvested": "Nicht angelegt",
     "notComputable": "nicht berechenbar: {{reason}}",
@@ -92,8 +92,8 @@
     "inflation_cache_stale": "Inflationsdaten aus dem Cache (Stand vor {{hours}} Std.), Abruf fehlgeschlagen.",
     "fx_rates_cache_stale": "Wechselkurse aus dem Cache (Stand vor {{hours}} Std.), Abruf fehlgeschlagen.",
     "cache_stale": "Kurse aus dem Cache (Stand vor {{hours}} Std.), Abruf fehlgeschlagen.",
-    "withdrawal_uncovered_one": "Eine Auszahlung am {{date}} überstieg den Wert dieser Alternative; {{amount}} waren nicht gedeckt und zählen nicht.",
-    "withdrawal_uncovered_other": "{{count}} Auszahlungen (zuerst am {{date}}) überstiegen den Wert dieser Alternative; {{amount}} waren nicht gedeckt und zählen nicht.",
+    "withdrawal_uncovered_one": "Eine Auszahlung am {{date}} überstieg den Wert dieser Alternative; {{amount}} waren nicht gedeckt und zählen nicht; das senkt ihre Gewinndifferenz.",
+    "withdrawal_uncovered_other": "{{count}} Auszahlungen (zuerst am {{date}}) überstiegen den Wert dieser Alternative; {{amount}} waren nicht gedeckt und zählen nicht; das senkt ihre Gewinndifferenz.",
     "late_start": "Bis {{date}} nicht angelegt (erster Kurs); das Geld blieb bis dahin uninvestiert.",
     "foreign_currency_no_rate_one": "Für diese Buchung in Fremdwährung gibt es keinen Wechselkurs nach {{currency}} (Yahoo nicht erreichbar oder Paar unbekannt); ohne sie wäre der Vergleich falsch. Später erneut versuchen oder den Wechselkurs der Buchung in Wealthfolio setzen:",
     "foreign_currency_no_rate_other": "Für diese Buchungen in Fremdwährung gibt es keinen Wechselkurs nach {{currency}} (Yahoo nicht erreichbar oder Paar unbekannt); ohne sie wäre der Vergleich falsch. Später erneut versuchen oder den Wechselkurs der Buchungen in Wealthfolio setzen:",
@@ -156,7 +156,7 @@
     "capital": "Kapital",
     "gain": "Gewinn",
     "mwr": "MWR p.a.",
-    "vs": "Gewinn vs. deins",
+    "vs": "Gewinndifferenz",
     "value": "Wert",
     "helpTitle": "Hindsight-Kennzahlen",
     "info": {
@@ -164,12 +164,13 @@
       "mwrPeriod": "Geldgewichtete Rendite über den Zeitraum (XIRR), nicht annualisiert.",
       "depositsWindow": "Enthält {{value}}, den Wert deines Portfolios zu Beginn des Zeitraums.",
       "bookings": "Gezählt werden die ursprünglichen Buchungen im Zeitraum, ohne Anfangswert. Beträge sind je Tag saldiert; bei Alternativen zählen nur gedeckte Auszahlungen.",
-      "vs": "Gewinn dieser Alternative minus Gewinn deines Portfolios. Entspricht der Endwert-Differenz, solange keine Auszahlung ungedeckt blieb."
+      "vs": "Gewinn dieser Alternative minus Gewinn deines Portfolios, bei denselben Ein- und Auszahlungen an denselben Tagen. Entspricht der Endwert-Differenz, außer die Alternative konnte eine Auszahlung nicht voll decken: Dann ist sie um den ungedeckten Betrag niedriger."
     },
     "mwrPeriod": "MWR",
     "deposits": "Einzahlungen",
     "withdrawals": "Auszahlungen",
     "bookings_one": "{{count}} Buchung",
-    "bookings_other": "{{count}} Buchungen"
+    "bookings_other": "{{count}} Buchungen",
+    "uncovered": "Inkl. {{amount}} ungedeckt"
   }
 }

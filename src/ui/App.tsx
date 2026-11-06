@@ -266,27 +266,26 @@ function Comparison() {
                 <Card className={cn('transition-opacity', dataQ.isFetching && 'opacity-60')}>
                   <CardHeader className={cn('pb-2', isMobile ? 'px-3 py-3' : 'px-6 pt-5 pb-2')}>
                     <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:justify-between">
-                      <div className="flex min-w-0 items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1">
+                      {/* The period sits where the host's Performance card puts its date range: right of the title
+                          while the metrics are below (md to xl), under the title beside the metrics (2xl) and on
+                          phones. The tagline says what the page compares and stays directly under the title. */}
+                      <div className="min-w-0">
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex min-w-0 items-center gap-1">
                             <CardTitle className={cn('min-w-0 text-lg sm:text-xl', isMobile && 'text-sm')}>{t('app.title')}</CardTitle>
                             <HowItWorks />
                             <WarningsButton warnings={warnings} fmt={fmt} />
                           </div>
-                          <CardDescription className={cn('text-xs sm:text-sm', isMobile && 'text-2xs')}>
-                            {/* One line with a dot on wide screens; on phones the date would wrap with a leading dot. */}
-                            {t('app.tagline')}
-                            {period &&
-                              (isMobile ? (
-                                <span className="block tabular-nums">{period}</span>
-                              ) : (
-                                <>
-                                  {' '}
-                                  <span className="whitespace-nowrap tabular-nums">· {period}</span>
-                                </>
-                              ))}
-                          </CardDescription>
+                          {period && (
+                            <CardDescription className="hidden text-sm whitespace-nowrap tabular-nums md:block 2xl:hidden">{period}</CardDescription>
+                          )}
                         </div>
+                        <CardDescription className={cn('text-xs sm:text-sm', isMobile && 'text-2xs')}>{t('app.tagline')}</CardDescription>
+                        {period && (
+                          <CardDescription className={cn('mt-1 text-xs tabular-nums sm:text-sm md:hidden 2xl:block', isMobile && 'text-2xs')}>
+                            {period}
+                          </CardDescription>
+                        )}
                       </div>
                       {sections.length > 0 && <MetricStrip sections={sections} mobile={isMobile} />}
                     </div>

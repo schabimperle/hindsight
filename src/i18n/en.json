@@ -28,9 +28,9 @@
     "irr": "MWR p.a.",
     "gainReal": "Gain (real)",
     "irrReal": "MWR p.a. (real)",
-    "vsActual": "Gain vs. yours",
-    "vsActualReal": "Gain vs. yours (real)",
-    "vsShort": "{{diff}} gain vs. yours",
+    "vsActual": "Gain difference",
+    "vsActualReal": "Gain difference (real)",
+    "vsShort": "{{diff}} gain difference",
     "yourPortfolio": "Your portfolio",
     "notInvested": "Not invested",
     "notComputable": "not computable: {{reason}}",
@@ -92,8 +92,8 @@
     "inflation_cache_stale": "Inflation data from the cache ({{hours}} h old); loading failed.",
     "fx_rates_cache_stale": "Exchange rates from the cache ({{hours}} h old); loading failed.",
     "cache_stale": "Prices from the cache ({{hours}} h old); loading failed.",
-    "withdrawal_uncovered_one": "A withdrawal on {{date}} exceeded the value of this alternative; {{amount}} were not covered and do not count.",
-    "withdrawal_uncovered_other": "{{count}} withdrawals (first on {{date}}) exceeded the value of this alternative; {{amount}} were not covered and do not count.",
+    "withdrawal_uncovered_one": "A withdrawal on {{date}} exceeded the value of this alternative; {{amount}} were not covered and do not count, which lowers its gain difference.",
+    "withdrawal_uncovered_other": "{{count}} withdrawals (first on {{date}}) exceeded the value of this alternative; {{amount}} were not covered and do not count, which lowers its gain difference.",
     "late_start": "Not invested until {{date}} (first price); the money stayed uninvested until then.",
     "foreign_currency_no_rate_one": "No exchange rate into {{currency}} is available for this booking in a foreign currency (Yahoo unreachable or pair unknown), so the comparison would be wrong. Try again later, or set the booking's exchange rate in Wealthfolio:",
     "foreign_currency_no_rate_other": "No exchange rate into {{currency}} is available for these bookings in a foreign currency (Yahoo unreachable or pair unknown), so the comparison would be wrong. Try again later, or set the bookings' exchange rates in Wealthfolio:",
@@ -156,7 +156,7 @@
     "capital": "Capital",
     "gain": "Gain",
     "mwr": "MWR p.a.",
-    "vs": "Gain vs. yours",
+    "vs": "Gain difference",
     "value": "Value",
     "helpTitle": "Hindsight metrics",
     "info": {
@@ -164,12 +164,13 @@
       "mwrPeriod": "Money-weighted return over the period (XIRR), not annualised.",
       "depositsWindow": "Includes {{value}}, your portfolio's value at the start of the period.",
       "bookings": "The count is original bookings in the period, excluding the opening value. Amounts are netted per day; alternatives only include covered withdrawals.",
-      "vs": "This alternative's gain minus your portfolio's gain. It equals the difference in end value unless a withdrawal was not fully covered."
+      "vs": "This alternative's gain minus your portfolio's gain, with the same deposits and withdrawals on the same days. It equals the difference in end value unless the alternative could not fully cover a withdrawal: then it is lower by the uncovered amount."
     },
     "mwrPeriod": "MWR",
     "deposits": "Deposits",
     "withdrawals": "Withdrawals",
     "bookings_one": "{{count}} booking",
-    "bookings_other": "{{count}} bookings"
+    "bookings_other": "{{count}} bookings",
+    "uncovered": "Incl. {{amount}} uncovered"
   }
 }

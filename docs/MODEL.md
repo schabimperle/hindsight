@@ -20,7 +20,8 @@
   ticker before the market opens), at the last price before it if at most 10 days old (the same limit as for
   today's price); before the first price the money stays cash and is invested on the first price day;
   uncovered withdrawals only count up to the covered amount (gain and XIRR use the executed flows).
-  “vs. your portfolio” = difference in gain; without an uncovered withdrawal it equals the difference in value.
+  “Gain difference” = alternative's gain minus your portfolio's gain; without an uncovered withdrawal it equals
+  the difference in value, otherwise (nominal) it is lower by the uncovered amount.
 - Period (`src/model/range.ts`, `analyze(input, window)`): a start after the first flow makes the real
   portfolio's value at the end of the start day (Wealthfolio's daily valuations, latest on or before the day,
   at most 10 days old, never negative, else the analysis blocks with `valuation_missing`) an opening deposit on
@@ -59,11 +60,11 @@
 - UI (`src/ui/`) mirrors Insights > Performance of Wealthfolio 3.12: account scope selector and
   `DateRangeSelector` in a right-aligned row at the content padding (not `PageHeader`: its padding and empty
   title slot pushed the row inwards on phones), badge row with “Add benchmark” (badge click selects, X removes),
-  card with the host's metric strip (nominal only: gain, MWR, gain vs. yours; value, deposits, withdrawals; original booking counts in the deposit/withdrawal tiles; help popover; info button per tile on phones) and the chart with every
+  card with the host's metric strip (nominal only: gain, MWR, gain difference with the uncovered amount it includes as detail; value, deposits, withdrawals; original booking counts in the deposit/withdrawal tiles; help popover; info button per tile on phones) and the chart with every
   computable asset in the host's `--series-1…8` colours, cycled. The host components themselves are not
   exported to addons (`AccountScopeSelector`, `BenchmarkSymbolSelector`, the strip), so `AccountScope.tsx`,
   `BenchmarkPicker.tsx`, `Badges.tsx` and `MetricStrip.tsx` are clones with the host's classes.
-  The comparison table below switches gain, MWR and "gain vs. yours" between nominal and real (in real view an info button left of the switch says the end value stays the same); the strip stays
+  The comparison table below switches gain, MWR and gain difference between nominal and real (in real view an info button left of the switch says the end value stays the same; the gain difference column has its own info button); the strip stays
   nominal. Real amounts use end-period purchasing power: the end value stays unchanged, earlier payments
   are multiplied by CPI(end)/CPI(payment). Thus the gain gap also stays unchanged with identical executed
   payments, but can change with uncovered withdrawals. A row click selects the line (strip and chart), a row with notes (uncovered withdrawal, late start)

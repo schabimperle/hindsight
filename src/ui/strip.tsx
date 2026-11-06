@@ -9,8 +9,8 @@ const signed = (fmt: Fmt, v: number | null) => <span className={gainClass(v)}>{v
 const pct = (fmt: Fmt, v: number | null) => <span className={gainClass(v)}>{fmt.pctSigned(v)}</span>;
 
 /** Metrics of the selected item in the host's strip layout: return and capital (nominal; the real figures are in
- * the comparison table below); "Gain vs. yours" only for
- * an alternative (`actual` = the real portfolio's report to compare with). */
+ * the comparison table below); the gain difference only for an alternative (`actual` = the real portfolio's report
+ * to compare with), with the uncovered withdrawals it includes right below the figure. */
 export function stripSections({
   t,
   fmt,
@@ -27,6 +27,8 @@ export function stripSections({
   const windowed = a.openingValue !== null;
   const period = a.mwrPeriodDays !== null;
   const vs = actual ? report.gain - actual.gain : null;
+  // Same threshold as the core's `withdrawal_uncovered` warning.
+  const uncovered = report.shortfall > 0.005 ? t('strip.uncovered', { amount: fmt.moneySigned(-report.shortfall) }) : undefined;
   return [
     {
       key: 'return',
@@ -39,7 +41,7 @@ export function stripSections({
           info: period ? t('strip.info.mwrPeriod') : t('strip.info.mwr'),
           value: pct(fmt, report.irr),
         },
-        ...(actual ? [{ key: 'vs', label: t('strip.vs'), info: t('strip.info.vs'), value: signed(fmt, vs) }] : []),
+        ...(actual ? [{ key: 'vs', label: t('strip.vs'), info: t('strip.info.vs'), value: signed(fmt, vs), detail: uncovered }] : []),
       ],
     },
     {
