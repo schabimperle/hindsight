@@ -164,7 +164,7 @@
       "mwrPeriod": "Geldgewichtete Rendite über den Zeitraum (XIRR), nicht annualisiert.",
       "depositsWindow": "Enthält {{value}}, den Wert deines Portfolios zu Beginn des Zeitraums.",
       "bookings": "Gezählt werden die ursprünglichen Buchungen im Zeitraum, ohne Anfangswert. Beträge sind je Tag saldiert; bei Alternativen zählen nur gedeckte Auszahlungen.",
-      "vs": "Gewinn dieser Alternative minus Gewinn deines Portfolios, bei denselben Ein- und Auszahlungen an denselben Tagen. Entspricht der Endwert-Differenz, außer die Alternative konnte eine Auszahlung nicht voll decken: Dann ist sie um den ungedeckten Betrag niedriger."
+      "vs": "Gewinn dieser Alternative minus Gewinn deines Portfolios, bei denselben Ein- und Auszahlungen an denselben Tagen. Entspricht der Endwert-Differenz, außer die Alternative konnte eine Auszahlung nicht voll decken: Dann ist sie um den ungedeckten Betrag niedriger (real: diesen Betrag in Kaufkraft am Ende des Zeitraums)."
     },
     "mwrPeriod": "MWR",
     "deposits": "Einzahlungen",

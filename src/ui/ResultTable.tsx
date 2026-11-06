@@ -66,7 +66,13 @@ export function ComparisonCard({
   return (
     <Card>
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
-        <SectionTitle title={t('comparison.title')} />
+        <div className="flex items-center gap-1">
+          <SectionTitle title={t('comparison.title')} />
+          {/* Phones have no column titles, so the gain difference is explained at the card title there. */}
+          <span className="md:hidden">
+            <InfoPopover title={t('table.vsActual')} paragraphs={[t('strip.info.vs')]} />
+          </span>
+        </div>
         <div className="flex items-center gap-1">
           {/* Left of the switch, so the switch keeps its place when the button appears. */}
           {view === 'real' && !unavailable && <InfoPopover title={t('view.real')} paragraphs={[t('table.realNote')]} />}
