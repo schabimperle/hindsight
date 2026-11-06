@@ -1,0 +1,142 @@
+import { describe, expect, it } from 'vitest';
+import { drawdown } from '../src/core/drawdown';
+import { mixIndex, mixParts, mixValueOn, simulateMix } from '../src/core/mix';
+import type { PricePoint, Variant } from '../src/core/types';
+
+const mix = (rebalance: 'yearly' | 'none', ...comps: [number, PricePoint[]][]): Variant => ({
+  name: 'Mix',
+  kind: 'mix',
+  points: [],
+  rebalance,
+  components: comps.map(([weight, points]) => ({ weight, points })),
+});
+
+describe('fixed mix', () => {
+  const a: PricePoint[] = [
+    ['2024-03-01', 100],
+    ['2024-03-04', 200],
+  ];
+  const b: PricePoint[] = [
+    ['2024-03-01', 50],
+    ['2024-03-04', 50],
+  ];
+
+  it('splits a deposit by the weights and sells pro rata to current values', () => {
+    const v = mix('none', [70, a], [30, b]);
+    const r = simulateMix(
+      [
+        { date: '2024-03-01', amount: 100 },
+        { date: '2024-03-04', amount: -85 },
+      ],
+      v,
+      '2024-03-04',
+    );
+    // 0.7 units of A and 0.6 of B; on 03-04 worth 140 + 30 = 170, half of it is sold.
+    expect(r.history[0].units).toEqual([expect.closeTo(0.7, 12), expect.closeTo(0.6, 12)]);
+    expect(r.history[1].units).toEqual([expect.closeTo(0.35, 12), expect.closeTo(0.3, 12)]);
+    expect(r.value).toBeCloseTo(85, 9);
+    expect(r.shortfalls).toEqual([]);
+  });
+
+  it('normalises weights that do not sum to 100', () => {
+    const r = simulateMix([{ date: '2024-03-01', amount: 100 }], mix('none', [7, a], [3, b]), '2024-03-01');
+    expect(r.value).toBeCloseTo(100, 9);
+  });
+
+  it('a withdrawal larger than the mix sells everything; the rest is a shortfall', () => {
+    const r = simulateMix(
+      [
+        { date: '2024-03-01', amount: 100 },
+        { date: '2024-03-01', amount: 0 },
+        { date: '2024-03-04', amount: -300 },
+      ].filter((f) => f.amount !== 0),
+      mix('none', [70, a], [30, b]),
+      '2024-03-04',
+    );
+    expect(r.executed.at(-1)).toEqual({ date: '2024-03-04', amount: expect.closeTo(-170, 9) });
+    expect(r.shortfalls).toEqual([{ date: '2024-03-04', amount: expect.closeTo(130, 9) }]);
+    expect(r.value).toBe(0);
+  });
+
+  it('rebalances yearly on the first trading day, not before', () => {
+    const x: PricePoint[] = [
+      ['2023-12-29', 100],
+      ['2024-01-02', 200],
+      ['2024-01-03', 100],
+    ];
+    const y: PricePoint[] = [
+      ['2023-12-29', 100],
+      ['2024-01-02', 100],
+      ['2024-01-03', 100],
+    ];
+    const flows = [{ date: '2023-12-29', amount: 100 }];
+    const yearly = simulateMix(flows, mix('yearly', [50, x], [50, y]), '2024-01-03');
+    const never = simulateMix(flows, mix('none', [50, x], [50, y]), '2024-01-03');
+    const parts = mixParts(mix('yearly', [50, x], [50, y]));
+    // No new price yet on New Year's Day: the allocation is unchanged there.
+    expect(mixValueOn(parts, yearly.history, '2024-01-01')).toBeCloseTo(100, 9);
+    expect(yearly.history.map((h) => h.day)).toEqual(['2023-12-29', '2024-01-02']);
+    // On 01-02 worth 150, reset to 75/75: 0.375 units of x and 0.75 of y.
+    expect(yearly.history[1].units).toEqual([expect.closeTo(0.375, 12), expect.closeTo(0.75, 12)]);
+    expect(yearly.value).toBeCloseTo(112.5, 9);
+    expect(never.value).toBeCloseTo(100, 9);
+  });
+
+  it('a component without prices yet keeps its share as cash until its first price', () => {
+    const late: PricePoint[] = [
+      ['2024-03-10', 25],
+      ['2024-03-11', 50],
+    ];
+    const flat: PricePoint[] = [
+      ['2024-03-01', 100],
+      ['2024-03-11', 100],
+    ];
+    const r = simulateMix([{ date: '2024-03-02', amount: 100 }], mix('none', [50, flat], [50, late]), '2024-03-11');
+    expect(r.uninvestedUntil).toBe('2024-03-10');
+    expect(r.history.map((h) => [h.day, h.cash, h.units])).toEqual([
+      ['2024-03-02', [0, 50], [0.5, 0]],
+      ['2024-03-10', [0, 0], [0.5, 2]],
+    ]);
+    expect(r.value).toBeCloseTo(150, 9);
+  });
+
+  it('the strategy index starts at the entry; a weekend opening keeps Friday as base', () => {
+    const fri: PricePoint[] = [
+      ['2024-03-01', 100],
+      ['2024-03-04', 80],
+      ['2024-03-05', 80],
+    ];
+    const v = mix('yearly', [50, fri], [50, fri]);
+    const idx = mixIndex(v, [{ date: '2024-03-03', amount: 100 }], '2024-03-05', '2024-03-03');
+    expect(idx?.[0]).toEqual(['2024-03-03', 1]);
+    expect(drawdown(idx)).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-03-03', trough: '2024-03-04', recovery: null });
+  });
+
+  it('a component whose prices start after today makes the mix uncomputable', () => {
+    expect(() => simulateMix([{ date: '2024-03-01', amount: 100 }], mix('none', [50, a], [50, [['2024-04-01', 1]]]), '2024-03-04')).toThrow(
+      'no_prices',
+    );
+  });
+});
+
+describe('mix settings', () => {
+  it('reads valid mixes, recomputes the identity independent of order and case, and skips invalid ones', async () => {
+    const { parseBenchmarks, mixIdentity } = await import('../src/model/settings');
+    const comps = [
+      { name: 'World', ticker: 'urth', weight: 70 },
+      { name: 'Bonds', ticker: 'AGG', weight: 30 },
+    ];
+    const r = parseBenchmarks([
+      { name: 'A', kind: 'mix', ticker: 'stale', components: comps, rebalance: 'none' },
+      { name: 'B', kind: 'mix', components: [comps[1], comps[0]] },
+      { name: 'Sum 99', kind: 'mix', components: [{ ticker: 'X', weight: 60 }, { ticker: 'Y', weight: 39 }] },
+      { name: 'One', kind: 'mix', components: [{ ticker: 'X', weight: 100 }] },
+      { name: 'Twice', kind: 'mix', components: [{ ticker: 'X', weight: 50 }, { ticker: 'x', weight: 50 }] },
+      { name: 'Zero', kind: 'mix', components: [{ ticker: 'X', weight: 100 }, { ticker: 'Y', weight: 0 }] },
+    ]);
+    expect(r.map((b) => b.name)).toEqual(['A', 'B']);
+    expect(r[0].ticker).toBe('mix:AGG*30+URTH*70|none');
+    expect(r[1].rebalance).toBe('yearly');
+    expect(r[1].ticker).toBe(mixIdentity(comps, 'yearly'));
+  });
+});

@@ -22,6 +22,17 @@
   uncovered withdrawals only count up to the covered amount (gain and XIRR use the executed flows).
   “Gain difference” = alternative's gain minus your portfolio's gain; without an uncovered withdrawal it equals
   the difference in value, otherwise (nominal) it is lower by the uncovered amount.
+- Mix (`src/core/mix.ts`, rules in `reference/oracle.py`): 2 to 5 assets with weights (percent, two decimals,
+  sum 100; normalised internally). One state machine over date-ordered events (component starts, rebalances,
+  flows; on one day in that order) serves the simulation, the chart path and the drawdown's strategy run.
+  Deposits split by the weights, withdrawals sell pro rata to current values (cash of a component without prices
+  yet at face value), an uncovered withdrawal sells everything as for one asset. "Yearly" rebalances on the first
+  day of each year on which every component started before Jan 1 has a new-year price (valued at the last price on
+  or before that day), so the chart never shows a new allocation before new prices exist. Late components:
+  `late_start_partial` (“Partly uninvested until …”). Settings: kind `mix` with `components` and `rebalance`;
+  `ticker` is the identity `mix:<TICKER*weight sorted>|<rule>`, recomputed when read, so the same composition is
+  the same mix. Versions before mixes skip them when reading and drop them once they save the benchmark list.
+  Loading fetches each ticker once per load; any component error makes the mix uncomputable with that error.
 - Maximum drawdown (`src/core/drawdown.ts`, rules in `reference/oracle.py`): on a time-weighted index, nominal,
   so it is the same in the nominal and real view. An asset's index is its price relative to the price the
   simulation first invested at (a single asset's time-weighted return is its price return, so it measures the
@@ -32,7 +43,8 @@
   valuation count (`coveredDaily`: the total carries an account's older state forward otherwise, which would turn
   into returns); a booking on any other day makes it unavailable (“history incomplete”). Wealthfolio stores a
   valuation per account and calendar day, so that only happens with real gaps. Recovery = first day back at the
-  peak before the deepest fall; the duration runs from that peak to the recovery, or to the period end while
+  peak before the deepest fall; a mix uses the strategy's index (one unit from the first deposit, same
+  rebalancing), not the simulated position's; the duration runs from that peak to the recovery, or to the period end while
   open (Wealthfolio reports peak to trough for an open one; Hindsight shows how long it has lasted so far).
 - Period (`src/model/range.ts`, `analyze(input, window)`): a start after the first flow makes the real
   portfolio's value at the end of the start day (Wealthfolio's daily valuations, latest on or before the day,

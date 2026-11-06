@@ -4,7 +4,8 @@ A Wealthfolio addon that answers: **what would your portfolio be worth if every 
 had bought a single asset instead?** Replay the same deposits and withdrawals in an ETF,
 Bitcoin, another Yahoo Finance ticker, or cash, and compare the result with your portfolio.
 
-- Select accounts, benchmarks and a date range.
+- Select accounts, benchmarks and a date range; combine assets into a fixed mix (e.g. 70/30 with
+  yearly rebalancing).
 - Compare value, gain and money-weighted return, nominal or inflation-adjusted.
 - Chart the gain so far (default), each alternative's lead or gap over your portfolio, or the value,
   with a logarithmic scale for the value, and show deposit/withdrawal markers.

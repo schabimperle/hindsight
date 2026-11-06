@@ -17,10 +17,11 @@ import {
   cn,
   useIsMobile,
 } from '@wealthfolio/ui';
-import { Plus, TrendingUp } from 'lucide-react';
+import { Layers, Plus, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import { DEFAULT_BENCHMARKS, type BenchmarkDef } from '../model/settings';
 import { useTexts } from './i18n';
+import { MixDialog } from './MixDialog';
 import { useTickerSearch } from './useTickerSearch';
 
 const STICKY_HEADING =
@@ -32,7 +33,20 @@ const TICKER_RE = /^[A-Za-z0-9^][A-Za-z0-9.\-=^]{0,19}$/;
 const sameAsset = (a: BenchmarkDef, b: BenchmarkDef): boolean =>
   a.kind === b.kind && (a.kind === 'cash' || a.ticker.toUpperCase() === b.ticker.toUpperCase());
 
-function PickerCommand({ existing, onPick, mobile }: { existing: BenchmarkDef[]; onPick: (b: BenchmarkDef) => void; mobile: boolean }) {
+/** Search list of the picker. `onMix` adds the "Create a mix…" entry; `assetsOnly` (mix components) hides cash. */
+export function PickerCommand({
+  existing,
+  onPick,
+  mobile,
+  onMix,
+  assetsOnly = false,
+}: {
+  existing: BenchmarkDef[];
+  onPick: (b: BenchmarkDef) => void;
+  mobile: boolean;
+  onMix?: () => void;
+  assetsOnly?: boolean;
+}) {
   const { t } = useTexts();
   const [query, setQuery] = useState('');
   const search = useTickerSearch(query);
@@ -41,7 +55,7 @@ function PickerCommand({ existing, onPick, mobile }: { existing: BenchmarkDef[];
   const matches = (text: string): boolean => q === '' || text.toLowerCase().includes(q.toLowerCase());
   const cash: BenchmarkDef = { name: '', ticker: '', kind: 'cash' };
   const suggestions = [
-    ...(has(cash) || !matches(t('table.notInvested')) ? [] : [cash]),
+    ...(assetsOnly || has(cash) || !matches(t('table.notInvested')) ? [] : [cash]),
     ...DEFAULT_BENCHMARKS.filter((b) => b.kind === 'asset' && !has(b) && matches(`${b.name} ${b.ticker}`)),
   ];
   const suggested = new Set(suggestions.map((b) => b.ticker.toUpperCase()));
@@ -97,6 +111,17 @@ function PickerCommand({ existing, onPick, mobile }: { existing: BenchmarkDef[];
             ))}
           </CommandGroup>
         )}
+        {onMix && q === '' && (
+          <CommandGroup heading={t('mix.group')} className={STICKY_HEADING}>
+            <CommandItem value="mix:new" className={item} onSelect={onMix}>
+              <Layers className="me-1 h-4 w-4" />
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate font-medium">{t('mix.create')}</span>
+                <span className="text-muted-foreground text-xs">{t('mix.createInfo')}</span>
+              </div>
+            </CommandItem>
+          </CommandGroup>
+        )}
         {search.status === 'error' && <p className="text-destructive px-3 py-2 text-xs">{t('picker.searchFailed')}</p>}
         {manual && (
           <CommandGroup heading={t('picker.manual')} className={STICKY_HEADING}>
@@ -121,12 +146,20 @@ export function BenchmarkPicker({ existing, onAdd }: { existing: BenchmarkDef[];
   const { t } = useTexts();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  const [mixOpen, setMixOpen] = useState(false);
   const pick = (b: BenchmarkDef): void => {
     onAdd(b);
     setOpen(false);
   };
+  const startMix = (): void => {
+    setOpen(false);
+    setMixOpen(true);
+  };
+  const mixDialog = <MixDialog open={mixOpen} onOpenChange={setMixOpen} existing={existing} onAdd={onAdd} />;
   if (isMobile) {
     return (
+      <>
+      {mixDialog}
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger
           render={
@@ -144,12 +177,15 @@ export function BenchmarkPicker({ existing, onAdd }: { existing: BenchmarkDef[];
           <SheetHeader className="border-border border-b px-6 py-4">
             <SheetTitle>{t('picker.add')}</SheetTitle>
           </SheetHeader>
-          {open && <PickerCommand existing={existing} onPick={pick} mobile />}
+          {open && <PickerCommand existing={existing} onPick={pick} mobile onMix={startMix} />}
         </SheetContent>
       </Sheet>
+      </>
     );
   }
   return (
+    <>
+    {mixDialog}
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
@@ -168,8 +204,9 @@ export function BenchmarkPicker({ existing, onAdd }: { existing: BenchmarkDef[];
         {t('picker.add')}
       </PopoverTrigger>
       <PopoverContent className="w-87.5 p-0" align="start">
-        {open && <PickerCommand existing={existing} onPick={pick} mobile={false} />}
+        {open && <PickerCommand existing={existing} onPick={pick} mobile={false} onMix={startMix} />}
       </PopoverContent>
     </Popover>
+    </>
   );
 }

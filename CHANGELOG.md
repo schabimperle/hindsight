@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fixed mixes as alternatives: “Create a mix…” in “Add benchmark” combines 2 to 5 assets with weights, rebalanced
+  yearly (on the first trading day) or never. Deposits split by the weights, withdrawals sell pro rata; the mix
+  gets its line, row, metrics and drawdown like any alternative.
+
 - Maximum drawdown and recovery time per line, time-weighted so deposits and withdrawals do not count: a new
   “Risk” section in the metrics and a “Max drawdown” column in the comparison. Alternatives use their price,
   your portfolio Wealthfolio's daily valuations (with Wealthfolio's own day convention).

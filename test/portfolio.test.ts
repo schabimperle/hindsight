@@ -227,3 +227,55 @@ describe('totalsOn / dailyTotals / valueOn', () => {
     expect(valueOn(daily, '2030-01-01')).toBe(160);
   });
 });
+
+describe('loadAll: mix benchmark', () => {
+  it('fetches each ticker once and fails the whole mix when a component fails', async () => {
+    const api = fakeApi(0);
+    api.settings.get = async () => ({ baseCurrency: 'USD', timezone: 'America/New_York' });
+    api.activities.search = async () => ({
+      data: [{ id: 'd1', accountId: 'A', activityType: 'DEPOSIT', amount: '1000', currency: 'USD', date: '2024-01-02T15:00:00Z' }] as never,
+      meta: { totalRowCount: 1 },
+    });
+    api.portfolio.getLatestValuations = async () =>
+      [{ totalValueBase: 1000, netContributionBase: 1000, valuationDate: '2024-01-03' }] as unknown as AccountValuation[];
+    const body = JSON.stringify({
+      chart: {
+        result: [
+          {
+            meta: { currency: 'USD', exchangeTimezoneName: 'America/New_York' },
+            timestamp: [Date.parse('2024-01-02T14:30:00Z') / 1000],
+            indicators: { quote: [{ close: [10] }], adjclose: [{ adjclose: [10] }] },
+          },
+        ],
+      },
+    });
+    const urls: string[] = [];
+    const store = new Map<string, string>();
+    const deps: FetchDeps = {
+      net: {
+        request: async (r: { url: string }) => {
+          urls.push(r.url);
+          return r.url.includes('/chart/GONE') ? { status: 404, body: '', headers: {} } : { status: 200, body, headers: {} };
+        },
+      } as FetchDeps['net'],
+      storage: { get: async (k) => store.get(k) ?? null, set: async (k, v) => void store.set(k, v) },
+      nowMs: () => Date.parse('2024-01-03T12:00:00Z'),
+    };
+    const comps = (second: string) => [
+      { name: 'S&P', ticker: 'SPY', weight: 60 },
+      { name: second, ticker: second, weight: 40 },
+    ];
+    const r = await loadAll(api, deps, {
+      accounts: null,
+      benchmarks: [
+        { name: 'SPY', ticker: 'SPY', kind: 'asset' },
+        { name: 'Good', ticker: 'mix:a', kind: 'mix', rebalance: 'yearly', components: comps('GLD') },
+        { name: 'Bad', ticker: 'mix:b', kind: 'mix', rebalance: 'yearly', components: comps('GONE') },
+      ],
+    });
+    expect(urls.filter((u) => u.includes('/chart/SPY'))).toHaveLength(1);
+    expect(r.benchmarks[1].error).toBeNull();
+    expect(r.benchmarks[1].components?.map((c) => c.weight)).toEqual([60, 40]);
+    expect(r.benchmarks[2]).toMatchObject({ error: 'ticker_unknown', components: null });
+  });
+});

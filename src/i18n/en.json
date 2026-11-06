@@ -77,7 +77,8 @@
     "item7": "Real: purchasing power at the end of the period, by the OECD consumer price index of your time zone's country (else your base currency's).",
     "item8": "A period starting after your first deposit begins with your portfolio's value that day as a deposit.",
     "item9": "The chart shows the gain so far: value minus the money each line itself took in and paid out up to that day, so deposits and withdrawals cause no jumps. “Difference” shows each line's gain minus your portfolio's on that day (your portfolio is the zero line; today's point is the gain difference). “Value” shows the value instead.",
-    "item10": "Max drawdown is time-weighted, so deposits and withdrawals count as neither gain nor loss: for an alternative on its price, for your portfolio on Wealthfolio's daily valuations."
+    "item10": "Max drawdown is time-weighted, so deposits and withdrawals count as neither gain nor loss: for an alternative on its price, for your portfolio on Wealthfolio's daily valuations.",
+    "item11": "A mix splits each deposit by its weights and sells pro rata; “Yearly” resets the weights on the first day of the year on which every asset has a price. Its drawdown is the strategy's (one unit invested at the start), not the simulated position's."
   },
   "messages": {
     "no_prices": "No prices available.",
@@ -98,6 +99,7 @@
     "withdrawal_uncovered_one": "A withdrawal on {{date}} exceeded the value of this alternative; {{amount}} were not covered and do not count, which lowers its gain difference.",
     "withdrawal_uncovered_other": "{{count}} withdrawals (first on {{date}}) exceeded the value of this alternative; {{amount}} were not covered and do not count, which lowers its gain difference.",
     "late_start": "Not invested until {{date}} (first price); the money stayed uninvested until then.",
+    "late_start_partial": "Partly uninvested until {{date}}: a component has no earlier prices, so its share stayed uninvested until then.",
     "foreign_currency_no_rate_one": "No exchange rate into {{currency}} is available for this booking in a foreign currency (Yahoo unreachable or pair unknown), so the comparison would be wrong. Try again later, or set the booking's exchange rate in Wealthfolio:",
     "foreign_currency_no_rate_other": "No exchange rate into {{currency}} is available for these bookings in a foreign currency (Yahoo unreachable or pair unknown), so the comparison would be wrong. Try again later, or set the bookings' exchange rates in Wealthfolio:",
     "asset_transfer_unvalued_one": "The value of this asset transfer cannot be determined. Set its price in Wealthfolio:",
@@ -121,7 +123,8 @@
     },
     "lateStart": {
       "title": "Late start",
-      "p1": "No prices before this date. The money stays uninvested until then and is bought at once."
+      "p1": "No prices before this date. The money stays uninvested until then and is bought at once.",
+      "partial": "A component has no prices before this date. Its share of every deposit stays uninvested until then and is bought at once; the rest of the mix is invested as usual."
     },
     "moreAbout": "More info about {{label}}"
   },
@@ -193,5 +196,27 @@
     "years_one": "{{value}} year",
     "years_other": "{{value}} years",
     "notRecovered": "not recovered"
+  },
+  "mix": {
+    "group": "Mix",
+    "create": "Create a mix…",
+    "createInfo": "Several assets with fixed weights.",
+    "title": "Create a mix",
+    "description": "Each deposit is split by the weights, each withdrawal sells all assets pro rata. Yearly rebalancing resets the weights on the first trading day of each year.",
+    "chooseAsset": "Choose an asset",
+    "weight": "Weight in percent",
+    "remove": "Remove asset",
+    "addComponent": "Add asset",
+    "sum": "Total {{sum}} %",
+    "rebalance": "Rebalancing",
+    "rebalance_yearly": "Yearly",
+    "rebalance_none": "Never",
+    "name": "Name",
+    "add": "Add mix",
+    "hintAssets": "Choose an asset for every row.",
+    "hintSum": "The weights add up to {{sum}} %, not 100 %.",
+    "hintInvalid": "Every weight must be above 0 and every asset different.",
+    "hintDuplicate": "This mix is already in the list.",
+    "composition": "{{parts}} · rebalancing: {{rebalance}}"
   }
 }

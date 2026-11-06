@@ -1,11 +1,48 @@
-import type { VariantKind } from '../core/types';
+import type { Rebalance, VariantKind } from '../core/types';
 import { DEFAULT_RANGE, type RangeSetting } from './range';
+
+export interface MixComponent {
+  name: string;
+  /** Yahoo ticker. */
+  ticker: string;
+  /** Percent; the weights of a mix sum to 100. */
+  weight: number;
+}
 
 export interface BenchmarkDef {
   name: string;
-  /** Yahoo ticker; empty for “Not invested”. */
+  /** Yahoo ticker; empty for “Not invested”; for a mix its identity (`mixIdentity`, recomputed when read). */
   ticker: string;
   kind: VariantKind;
+  /** Mix only: 2 to 5 components with distinct tickers, and the rebalancing rule. */
+  components?: MixComponent[];
+  rebalance?: Rebalance;
+}
+
+export const MIX_MIN = 2;
+export const MIX_MAX = 5;
+/** Weights may be entered with two decimals; their sum must be 100 within this tolerance. */
+export const MIX_SUM_TOL = 0.005;
+
+/** Identity of a mix, independent of the component order and ticker case: same composition and rule = same mix. */
+export function mixIdentity(components: MixComponent[], rebalance: Rebalance): string {
+  const parts = components
+    .map((c) => `${c.ticker.trim().toUpperCase()}*${Math.round(c.weight * 100) / 100}`)
+    .sort();
+  return `mix:${parts.join('+')}|${rebalance}`;
+}
+
+/** Validated components (null if the mix is incomplete or invalid). */
+export function validMix(components: MixComponent[]): MixComponent[] | null {
+  if (components.length < MIX_MIN || components.length > MIX_MAX) return null;
+  const tickers = new Set<string>();
+  for (const c of components) {
+    const t = c.ticker.trim().toUpperCase();
+    if (t === '' || tickers.has(t) || !Number.isFinite(c.weight) || c.weight <= 0) return null;
+    tickers.add(t);
+  }
+  const sum = components.reduce((s, c) => s + c.weight, 0);
+  return Math.abs(sum - 100) <= MIX_SUM_TOL ? components.map((c) => ({ ...c, ticker: c.ticker.trim() })) : null;
 }
 
 export interface AddonSettings {
@@ -49,11 +86,31 @@ export function parseAccounts(v: unknown): string[] | null {
   return Array.isArray(v) && v.every((x) => typeof x === 'string') ? (v as string[]) : null;
 }
 
-/** Reads `{name, ticker, kind}`; older entries with `taxClass` are migrated (cash -> cash, else asset). */
+function parseMix(b: Record<string, unknown>): BenchmarkDef | null {
+  if (typeof b.name !== 'string' || !Array.isArray(b.components)) return null;
+  const raw = b.components.map((c) =>
+    isObj(c) && typeof c.ticker === 'string' && typeof c.weight === 'number'
+      ? { name: typeof c.name === 'string' ? c.name : c.ticker, ticker: c.ticker, weight: c.weight }
+      : null,
+  );
+  if (raw.includes(null)) return null;
+  const components = validMix(raw as MixComponent[]);
+  if (!components) return null;
+  const rebalance: Rebalance = b.rebalance === 'none' ? 'none' : 'yearly';
+  return { name: b.name, ticker: mixIdentity(components, rebalance), kind: 'mix', components, rebalance };
+}
+
+/** Reads `{name, ticker, kind}` and mixes; older entries with `taxClass` are migrated (cash -> cash, else asset).
+ * Note: versions before mixes skip them when reading and drop them for good once they save the list again. */
 export function parseBenchmarks(v: unknown): BenchmarkDef[] {
   if (!Array.isArray(v)) return DEFAULT_BENCHMARKS;
   const out: BenchmarkDef[] = [];
   for (const b of v) {
+    if (isObj(b) && b.kind === 'mix') {
+      const m = parseMix(b);
+      if (m) out.push(m);
+      continue;
+    }
     if (!isObj(b) || typeof b.name !== 'string') continue;
     let kind: VariantKind | null = b.kind === 'asset' || b.kind === 'cash' ? b.kind : null;
     if (kind === null && typeof b.taxClass === 'string') kind = b.taxClass === 'cash' ? 'cash' : 'asset';

@@ -1,4 +1,5 @@
-export type VariantKind = 'asset' | 'cash';
+export type VariantKind = 'asset' | 'cash' | 'mix';
+export type Rebalance = 'yearly' | 'none';
 
 /** Deposit (positive) or withdrawal (negative) in base currency. */
 export interface Flow {
@@ -11,8 +12,11 @@ export type PricePoint = [string, number | null];
 export interface Variant {
   name: string;
   kind: VariantKind;
-  /** Prices already in base currency. */
+  /** Prices already in base currency (empty for cash and mixes). */
   points: PricePoint[];
+  /** Mix only: components (weights in any unit, normalised to sum 1) and the rebalancing rule. */
+  components?: { weight: number; points: PricePoint[] }[];
+  rebalance?: Rebalance;
 }
 
 export interface Fixture {

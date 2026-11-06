@@ -12,10 +12,12 @@ expectations:
     python3 -I reference/make_fixture.py edge > test/fixtures/synthetic-edge.json
     python3 -I reference/make_fixture.py window > test/fixtures/synthetic-window.json
     python3 -I reference/make_fixture.py short > test/fixtures/synthetic-short.json
+    python3 -I reference/make_fixture.py mix > test/fixtures/synthetic-mix.json
     python3 -I reference/oracle.py test/fixtures/synthetic.json > test/fixtures/synthetic.expected.json
     python3 -I reference/oracle.py test/fixtures/synthetic-edge.json > test/fixtures/synthetic-edge.expected.json
     python3 -I reference/oracle.py test/fixtures/synthetic-window.json > test/fixtures/synthetic-window.expected.json
     python3 -I reference/oracle.py test/fixtures/synthetic-short.json > test/fixtures/synthetic-short.expected.json
+    python3 -I reference/oracle.py test/fixtures/synthetic-mix.json > test/fixtures/synthetic-mix.expected.json
 
 Tolerances: money +-0.01, rates +-1e-6.
 Compare against arbitrary fixtures:

@@ -1,0 +1,164 @@
+{
+ "investedNominal": 75700.0,
+ "investedReal": 97213.20436898248,
+ "cpiError": null,
+ "cpiFilled": [],
+ "mwrPeriodDays": null,
+ "variants": [
+  {
+   "name": "Stocks",
+   "invested": 75700.0,
+   "deposits": 110200.0,
+   "withdrawals": 34500.0,
+   "value": 115364.08296386657,
+   "gain": 39664.082963866575,
+   "irr": 0.06208166923692893,
+   "gainReal": 18150.878594884096,
+   "irrReal": 0.024632556171360176,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.17370564118243348,
+    "peak": "2019-10-23",
+    "trough": "2020-12-07",
+    "recovery": "2021-08-16"
+   },
+   "warnings": []
+  },
+  {
+   "name": "70/30 yearly",
+   "invested": 75700.0,
+   "deposits": 110200.0,
+   "withdrawals": 34500.0,
+   "value": 107744.28259052122,
+   "gain": 32044.282590521223,
+   "irr": 0.051846662724838954,
+   "gainReal": 10531.078221538744,
+   "irrReal": 0.01475082576559028,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.11591221199681401,
+    "peak": "2022-06-17",
+    "trough": "2023-09-13",
+    "recovery": "2024-04-01"
+   },
+   "warnings": []
+  },
+  {
+   "name": "70/30 never",
+   "invested": 75700.0,
+   "deposits": 110200.0,
+   "withdrawals": 34500.0,
+   "value": 105629.2615938672,
+   "gain": 29929.261593867195,
+   "irr": 0.048889996493566845,
+   "gainReal": 8416.057224884717,
+   "irrReal": 0.011896250224808447,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.13509087011524157,
+    "peak": "2025-03-26",
+    "trough": "2026-05-12",
+    "recovery": null
+   },
+   "warnings": []
+  },
+  {
+   "name": "With late crypto",
+   "invested": 75700.0,
+   "deposits": 110200.0,
+   "withdrawals": 34500.0,
+   "value": 117439.25022829985,
+   "gain": 41739.25022829985,
+   "irr": 0.06476347074268574,
+   "gainReal": 20226.045859317368,
+   "irrReal": 0.027221822182556088,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": "2021-01-04",
+   "drawdown": {
+    "max": -0.14908277791662672,
+    "peak": "2025-06-29",
+    "trough": "2026-05-31",
+    "recovery": null
+   },
+   "warnings": [
+    "late_start"
+   ]
+  },
+  {
+   "name": "Crash mix",
+   "invested": 96561.03988427963,
+   "deposits": 110200.0,
+   "withdrawals": 13638.960115720376,
+   "value": 3868.5639341040774,
+   "gain": -92692.47595017555,
+   "irr": -0.698805788087798,
+   "gainReal": -116189.31105672166,
+   "irrReal": -0.7059822208249689,
+   "shortfall": 20861.039884279624,
+   "shortfalls": [
+    {
+     "date": "2023-07-15",
+     "amount": 20861.039884279624
+    }
+   ],
+   "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.9998684791244083,
+    "peak": "2019-01-03",
+    "trough": "2026-06-15",
+    "recovery": null
+   },
+   "warnings": [
+    "withdrawal_uncovered"
+   ]
+  },
+  {
+   "name": "Stocks twice",
+   "invested": 75700.0,
+   "deposits": 110200.0,
+   "withdrawals": 34500.0,
+   "value": 115364.08296386647,
+   "gain": 39664.08296386647,
+   "irr": 0.06208166923692893,
+   "gainReal": 18150.878594883994,
+   "irrReal": 0.024632556171360176,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.1737056411824338,
+    "peak": "2019-10-23",
+    "trough": "2020-12-07",
+    "recovery": "2021-08-16"
+   },
+   "warnings": []
+  },
+  {
+   "name": "Gap mix",
+   "error": "prices_missing"
+  }
+ ],
+ "actual": {
+  "name": "actual",
+  "invested": 75700.0,
+  "deposits": 110200.0,
+  "withdrawals": 34500.0,
+  "value": 101234.56,
+  "gain": 25534.559999999998,
+  "irr": 0.0425713776712594,
+  "gainReal": 4021.355631017519,
+  "irrReal": 0.005795867305820379,
+  "shortfall": 0,
+  "shortfalls": [],
+  "uninvestedUntil": null,
+  "drawdown": null,
+  "warnings": []
+ }
+}

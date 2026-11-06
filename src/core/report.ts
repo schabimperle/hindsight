@@ -1,7 +1,8 @@
 import { daysBetween, pad2 } from './dates';
 import { actualIndex, assetIndex, drawdown, NO_DRAWDOWN } from './drawdown';
 import { PriceError, Series } from './series';
-import { simulateSingle } from './simulate';
+import { mixIndex, mixPath, simulateMix } from './mix';
+import { monthEnds, simulateSingle } from './simulate';
 import type { Drawdown, Fixture, Flow, PathPoint, Report, RunOutput, Shortfall } from './types';
 import { xirr } from './xirr';
 
@@ -147,8 +148,16 @@ export function runDetailed(fx: Fixture, days?: (firstFlow: string) => string[])
   const chartDays = days && flows.length > 0 ? days(flows[0].date) : undefined;
   for (const v of fx.variants) {
     let sim;
+    let dd: Drawdown | null;
     try {
-      sim = simulateSingle(flows, v, today, chartDays, fx.start?.date);
+      if (v.kind === 'mix') {
+        const m = simulateMix(flows, v, today, fx.start?.date);
+        sim = { ...m, path: mixPath(v, m.history, chartDays ?? (flows.length > 0 ? monthEnds(flows[0].date, today) : [])) };
+        dd = drawdown(mixIndex(v, flows, today, fx.start?.date));
+      } else {
+        sim = simulateSingle(flows, v, today, chartDays, fx.start?.date);
+        dd = v.kind === 'cash' ? { ...NO_DRAWDOWN } : drawdown(assetIndex(new Series(v.points), flows, today, fx.start?.date));
+      }
     } catch (e) {
       if (e instanceof PriceError) {
         out.variants.push({ name: v.name, error: e.code });
@@ -158,7 +167,6 @@ export function runDetailed(fx: Fixture, days?: (firstFlow: string) => string[])
       }
       throw e;
     }
-    const dd = v.kind === 'cash' ? { ...NO_DRAWDOWN } : drawdown(assetIndex(new Series(v.points), flows, today, fx.start?.date));
     out.variants.push(report(v.name, sim.value, sim.executed, sim.shortfalls, sim.uninvestedUntil, today, cpi, unit, dd));
     paths.push(sim.path);
     executed.push(sim.executed);

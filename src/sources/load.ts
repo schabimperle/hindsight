@@ -23,6 +23,8 @@ export interface BenchmarkData {
   error: string | null;
   /** Age of the cache in hours if the fetch failed. */
   staleHours: number | null;
+  /** Mix only: each component's prices in base currency with its weight (percent); null on an error. */
+  components?: { weight: number; points: PricePoint[] }[] | null;
 }
 
 export interface CpiData {
@@ -99,23 +101,47 @@ export async function loadAll(
   }
 
   onProgress?.('benchmarks');
+  // One fetch per ticker, shared by single assets and mix components.
+  const seriesMemo = new Map<string, Promise<Omit<BenchmarkData, 'def'>>>();
+  const tickerData = (ticker: string): Promise<Omit<BenchmarkData, 'def'>> => {
+    const key = ticker.toUpperCase();
+    let p = seriesMemo.get(key);
+    if (!p) {
+      p = (async () => {
+        try {
+          const r = await fetchYahooSeries(deps, ticker, first);
+          const conv = await toBase(fx, r.points, r.currency);
+          return {
+            points: conv.error ? null : conv.points,
+            currency: r.currency,
+            firstDay: r.points[0]?.[0] ?? null,
+            error: conv.error,
+            staleHours: staleOf(deps, r),
+          };
+        } catch (e) {
+          return { points: null, currency: null, firstDay: null, staleHours: null, error: e instanceof DataError ? e.code : 'prices_unavailable' };
+        }
+      })();
+      seriesMemo.set(key, p);
+    }
+    return p;
+  };
   const benchmarks = await mapLimit(settings.benchmarks, 3, async (def): Promise<BenchmarkData> => {
     const none = { def, points: null, currency: null, firstDay: null, staleHours: null };
     if (def.kind === 'cash') return { ...none, error: null };
-    try {
-      const r = await fetchYahooSeries(deps, def.ticker, first);
-      const conv = await toBase(fx, r.points, r.currency);
+    if (def.kind === 'mix') {
+      const parts = await Promise.all((def.components ?? []).map((c) => tickerData(c.ticker)));
+      const failed = parts.find((p) => p.error !== null || p.points === null);
+      if (failed) return { ...none, error: failed.error ?? 'prices_unavailable', components: null };
+      const stale = parts.map((p) => p.staleHours).filter((h): h is number => h !== null);
       return {
-        def,
-        points: conv.error ? null : conv.points,
-        currency: r.currency,
-        firstDay: r.points[0]?.[0] ?? null,
-        error: conv.error,
-        staleHours: staleOf(deps, r),
+        ...none,
+        error: null,
+        staleHours: stale.length > 0 ? Math.max(...stale) : null,
+        components: (def.components ?? []).map((c, i) => ({ weight: c.weight, points: parts[i].points as PricePoint[] })),
       };
-    } catch (e) {
-      return { ...none, error: e instanceof DataError ? e.code : 'prices_unavailable' };
     }
+    return { def, ...(await tickerData(def.ticker)) };
   });
 
   onProgress?.('inflation');

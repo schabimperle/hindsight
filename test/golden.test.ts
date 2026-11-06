@@ -6,7 +6,7 @@ import type { Fixture, RunOutput } from '../src/core/types';
 
 const read = <T>(name: string): T => JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8')) as T;
 
-describe.each(['synthetic', 'synthetic-edge', 'synthetic-window', 'synthetic-short'])('golden test %s against reference/oracle.py', (name) => {
+describe.each(['synthetic', 'synthetic-edge', 'synthetic-window', 'synthetic-short', 'synthetic-mix'])('golden test %s against reference/oracle.py', (name) => {
   const fx = read<Fixture>(`${name}.json`);
   const want = read<RunOutput>(`${name}.expected.json`);
   const got = run(fx);

@@ -5,7 +5,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-for case, suffix in [("main", ""), ("edge", "-edge"), ("window", "-window"), ("short", "-short")]:
+CASES = [("main", ""), ("edge", "-edge"), ("window", "-window"), ("short", "-short"), ("mix", "-mix")]
+for case, suffix in CASES:
     fixture = ROOT / f"test/fixtures/synthetic{suffix}.json"
     expected = fixture.with_suffix(".expected.json")
     generated = subprocess.check_output(
@@ -18,4 +19,4 @@ for case, suffix in [("main", ""), ("edge", "-edge"), ("window", "-window"), ("s
         sys.exit(f"Synthetic fixture drift: {fixture.name}")
     if json.loads(actual) != json.loads(expected.read_text()):
         sys.exit(f"Oracle drift: {expected.name}")
-print("All four synthetic fixtures and oracle expectations match.")
+print(f"All {len(CASES)} synthetic fixtures and oracle expectations match.")

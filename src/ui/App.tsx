@@ -165,7 +165,14 @@ function Comparison() {
         key: keys[i],
         label: r ? rowName(t, r) : b.kind === 'cash' && b.name.trim() === '' ? t('table.notInvested') : b.name,
         color: r && !err ? (colors.get(keys[i]) ?? null) : null,
-        reason: err ? t('table.notComputable', { reason: codeText(t, fmt, err) }) : undefined,
+        reason: err
+          ? t('table.notComputable', { reason: codeText(t, fmt, err) })
+          : b.kind === 'mix'
+            ? t('mix.composition', {
+                parts: (b.components ?? []).map((c) => `${c.weight}% ${c.name || c.ticker}`).join(' / '),
+                rebalance: t(`mix.rebalance_${b.rebalance ?? 'yearly'}`),
+              })
+            : undefined,
         removable: true,
       };
     }),

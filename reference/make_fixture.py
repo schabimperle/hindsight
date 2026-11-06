@@ -4,6 +4,7 @@ Usage: python3 -I make_fixture.py main > synthetic.json
        python3 -I make_fixture.py edge > synthetic-edge.json
        python3 -I make_fixture.py window > synthetic-window.json
        python3 -I make_fixture.py short > synthetic-short.json
+       python3 -I make_fixture.py mix > synthetic-mix.json
 """
 
 import datetime as dt
@@ -216,5 +217,37 @@ def short():
     return with_daily(fx)
 
 
+def mix():
+    """Fixed mixes over the main flows plus a deposit on New Year's Day and a withdrawal on the next:
+    yearly and never rebalanced, a component starting late (daily series), a mix that cannot cover a
+    withdrawal, two identical components (must equal the single asset) and a component with a gap."""
+    fx = base()
+    start, today = dt.date(2019, 1, 2), dt.date(2026, 6, 15)
+    fx["flows"] += [{"date": "2024-01-01", "amount": 1000.0}, {"date": "2025-01-01", "amount": -500.0}]
+    stocks = path(start, today, 50, 0.09, 0.15, 2.7, True)
+    bonds = path(start, today, 100, 0.02, 0.04, 1.3, True)
+    crypto = path(dt.date(2021, 1, 4), today, 10, 0.2, 0.3, 2.0, False)
+    crash = path(start, today, 100, -1.2, 0.0, 1.0, False)
+    gap = [p for p in bonds if not ("2022-03-01" <= p[0] <= "2022-04-30")]
+    fx["variants"] = [
+        {"name": "Stocks", "kind": "asset", "points": stocks},
+        {"name": "70/30 yearly", "kind": "mix", "rebalance": "yearly",
+         "components": [{"weight": 70, "points": stocks}, {"weight": 30, "points": bonds}]},
+        {"name": "70/30 never", "kind": "mix", "rebalance": "none",
+         "components": [{"weight": 70, "points": stocks}, {"weight": 30, "points": bonds}]},
+        {"name": "With late crypto", "kind": "mix", "rebalance": "yearly",
+         "components": [{"weight": 60, "points": stocks}, {"weight": 25, "points": bonds},
+                        {"weight": 15, "points": crypto}]},
+        {"name": "Crash mix", "kind": "mix", "rebalance": "yearly",
+         "components": [{"weight": 50, "points": crash}, {"weight": 50, "points": crash}]},
+        {"name": "Stocks twice", "kind": "mix", "rebalance": "yearly",
+         "components": [{"weight": 40, "points": stocks}, {"weight": 60, "points": stocks}]},
+        {"name": "Gap mix", "kind": "mix", "rebalance": "yearly",
+         "components": [{"weight": 50, "points": stocks}, {"weight": 50, "points": gap}]},
+    ]
+    fx["cpi"] = cpi_table(2019, today, 1)
+    return fx
+
+
 if __name__ == "__main__":
-    print(json.dumps({"main": main, "edge": edge, "window": window, "short": short}[sys.argv[1]]()))
+    print(json.dumps({"main": main, "edge": edge, "window": window, "short": short, "mix": mix}[sys.argv[1]]()))

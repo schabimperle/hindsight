@@ -6,7 +6,7 @@ import type { Translate } from '../model/messages';
 import type { Row } from '../model/analysis';
 
 /** Keys assumptions.item1 … itemN in src/i18n. */
-export const ASSUMPTION_COUNT = 10;
+export const ASSUMPTION_COUNT = 11;
 
 export interface Texts {
   t: Translate;

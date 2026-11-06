@@ -407,3 +407,50 @@ describe('gain chart', () => {
     for (const row of a.rows) if (!isError(row.result)) expect(last[row.key], row.name).toBeCloseTo(row.result.gain, 6);
   });
 });
+
+describe('mix benchmark', () => {
+  it('runs a mix from its loaded components and marks a late component as partly uninvested', () => {
+    const rising = fx.variants.find((v) => v.name === 'Rising') as Fixture['variants'][number];
+    const late = fx.variants.find((v) => v.name === 'Late start') as Fixture['variants'][number];
+    const def = {
+      name: 'Rising/Late',
+      ticker: 'mix:LATE*20+RISING*80|yearly',
+      kind: 'mix' as const,
+      rebalance: 'yearly' as const,
+      components: [
+        { name: 'Rising', ticker: 'RISING', weight: 80 },
+        { name: 'Late', ticker: 'LATE', weight: 20 },
+      ],
+    };
+    const base = input();
+    const a = analyze({
+      ...base,
+      benchmarks: [
+        ...base.benchmarks,
+        {
+          def,
+          points: null,
+          currency: null,
+          firstDay: null,
+          error: null,
+          staleHours: null,
+          components: [
+            { weight: 80, points: rising.points },
+            { weight: 20, points: late.points },
+          ],
+        },
+      ],
+    });
+    const row = a.rows.find((r) => r.name === 'Rising/Late') as (typeof a.rows)[number];
+    expect(isError(row.result)).toBe(false);
+    expect(row.variantKind).toBe('mix');
+    expect(row.warnings.map((w) => w.code)).toEqual(['late_start_partial']);
+    expect((row.result as Report).drawdown?.max).toBeLessThan(0);
+    expect(row.path.length).toBeGreaterThan(50);
+    const failed = analyze({
+      ...base,
+      benchmarks: [{ def, points: null, currency: null, firstDay: null, error: 'ticker_unknown', staleHours: null, components: null }],
+    });
+    expect(failed.rows[1].result).toEqual({ name: 'Rising/Late', error: 'ticker_unknown' });
+  });
+});

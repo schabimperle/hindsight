@@ -77,7 +77,8 @@
     "item7": "Real: Kaufkraft am Ende des Zeitraums, nach dem OECD-Verbraucherpreisindex des Landes deiner Zeitzone (sonst deiner Basiswährung).",
     "item8": "Beginnt der Zeitraum nach deiner ersten Einzahlung, startet er mit dem Wert deines Portfolios an diesem Tag als Einzahlung.",
     "item9": "Der Chart zeigt den bisherigen Gewinn: Wert minus das Geld, das die jeweilige Linie bis zu diesem Tag selbst aufgenommen und ausgezahlt hat. Ein- und Auszahlungen erzeugen so keine Sprünge. „Differenz“ zeigt den Gewinn jeder Linie minus den deines Portfolios an diesem Tag (dein Portfolio ist die Nulllinie, der heutige Punkt die Gewinndifferenz). „Wert“ zeigt stattdessen den Wert.",
-    "item10": "Der maximale Drawdown ist zeitgewichtet, Ein- und Auszahlungen zählen also weder als Gewinn noch als Verlust: bei einer Alternative auf ihrem Kurs, bei deinem Portfolio auf Wealthfolios täglichen Bewertungen."
+    "item10": "Der maximale Drawdown ist zeitgewichtet, Ein- und Auszahlungen zählen also weder als Gewinn noch als Verlust: bei einer Alternative auf ihrem Kurs, bei deinem Portfolio auf Wealthfolios täglichen Bewertungen.",
+    "item11": "Eine Mischung teilt jede Einzahlung nach den Gewichten auf und verkauft anteilig; „Jährlich“ setzt die Gewichte am ersten Tag des Jahres zurück, an dem jede Anlage einen Kurs hat. Ihr Drawdown ist der der Strategie (eine Einheit ab Beginn angelegt), nicht der simulierten Position."
   },
   "messages": {
     "no_prices": "Es liegen keine Kurse vor.",
@@ -98,6 +99,7 @@
     "withdrawal_uncovered_one": "Eine Auszahlung am {{date}} überstieg den Wert dieser Alternative; {{amount}} waren nicht gedeckt und zählen nicht; das senkt ihre Gewinndifferenz.",
     "withdrawal_uncovered_other": "{{count}} Auszahlungen (zuerst am {{date}}) überstiegen den Wert dieser Alternative; {{amount}} waren nicht gedeckt und zählen nicht; das senkt ihre Gewinndifferenz.",
     "late_start": "Bis {{date}} nicht angelegt (erster Kurs); das Geld blieb bis dahin uninvestiert.",
+    "late_start_partial": "Teilweise uninvestiert bis {{date}}: Ein Bestandteil hat keine früheren Kurse, sein Anteil blieb bis dahin uninvestiert.",
     "foreign_currency_no_rate_one": "Für diese Buchung in Fremdwährung gibt es keinen Wechselkurs nach {{currency}} (Yahoo nicht erreichbar oder Paar unbekannt); ohne sie wäre der Vergleich falsch. Später erneut versuchen oder den Wechselkurs der Buchung in Wealthfolio setzen:",
     "foreign_currency_no_rate_other": "Für diese Buchungen in Fremdwährung gibt es keinen Wechselkurs nach {{currency}} (Yahoo nicht erreichbar oder Paar unbekannt); ohne sie wäre der Vergleich falsch. Später erneut versuchen oder den Wechselkurs der Buchungen in Wealthfolio setzen:",
     "asset_transfer_unvalued_one": "Der Wert dieser Sachübertragung ist nicht ermittelbar. Setze ihren Preis in Wealthfolio:",
@@ -121,7 +123,8 @@
     },
     "lateStart": {
       "title": "Später Start",
-      "p1": "Vor diesem Datum gibt es keine Kurse. Das Geld bleibt bis dahin uninvestiert und wird auf einmal gekauft."
+      "p1": "Vor diesem Datum gibt es keine Kurse. Das Geld bleibt bis dahin uninvestiert und wird auf einmal gekauft.",
+      "partial": "Ein Bestandteil hat vor diesem Datum keine Kurse. Sein Anteil an jeder Einzahlung bleibt bis dahin uninvestiert und wird dann auf einmal gekauft; der Rest der Mischung wird normal angelegt."
     },
     "moreAbout": "Mehr Infos zu {{label}}"
   },
@@ -193,5 +196,27 @@
     "years_one": "{{value}} Jahr",
     "years_other": "{{value}} Jahre",
     "notRecovered": "nicht erholt"
+  },
+  "mix": {
+    "group": "Mischung",
+    "create": "Mischung erstellen…",
+    "createInfo": "Mehrere Anlagen mit festen Gewichten.",
+    "title": "Mischung erstellen",
+    "description": "Jede Einzahlung wird nach den Gewichten aufgeteilt, jede Auszahlung verkauft alle Anlagen anteilig. Jährliches Rebalancing setzt die Gewichte am ersten Handelstag jedes Jahres zurück.",
+    "chooseAsset": "Anlage wählen",
+    "weight": "Gewicht in Prozent",
+    "remove": "Anlage entfernen",
+    "addComponent": "Anlage hinzufügen",
+    "sum": "Summe {{sum}} %",
+    "rebalance": "Rebalancing",
+    "rebalance_yearly": "Jährlich",
+    "rebalance_none": "Nie",
+    "name": "Name",
+    "add": "Mischung hinzufügen",
+    "hintAssets": "Wähle für jede Zeile eine Anlage.",
+    "hintSum": "Die Gewichte ergeben {{sum}} %, nicht 100 %.",
+    "hintInvalid": "Jedes Gewicht muss über 0 liegen und jede Anlage verschieden sein.",
+    "hintDuplicate": "Diese Mischung ist schon in der Liste.",
+    "composition": "{{parts}} · Rebalancing: {{rebalance}}"
   }
 }

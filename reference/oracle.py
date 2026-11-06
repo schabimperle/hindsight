@@ -9,7 +9,9 @@ Fixture (all amounts in the base currency):
   {"today": "YYYY-MM-DD",
    "flows": [{"date": "YYYY-MM-DD", "amount": float}],    # + into the portfolio, - out of it
    "variants": [{"name": str, "kind": "asset"|"cash",
-                 "points": [["YYYY-MM-DD", price], ...]}],  # prices already in base currency
+                 "points": [["YYYY-MM-DD", price], ...]}    # prices already in base currency
+                | {"name": str, "kind": "mix", "rebalance": "yearly"|"none",
+                   "components": [{"weight": float, "points": [...]}, ...]}],
    "cpi": {"YYYY-MM": float} | null,                        # null: no real figures; gaps allowed
    "actual": {"value": float,                               # optional: the real portfolio
               "daily": [["YYYY-MM-DD", float], ...]},       # optional: its valuation on fully covered days
@@ -39,6 +41,22 @@ Model decisions (documented in the addon UI):
   power of `today`'s month (the last published month stands in for later months, the previous published
   month for a month missing inside the series; `cpiFilled` lists such months used by a flow).
   A flow before the first CPI month: no real figures (`cpiError`).
+- Mix (fixed weights): weights are normalised to sum 1. Events are processed in date order;
+  on one day first component starts, then a rebalance, then the flows:
+  - a deposit is split by the weights; a started component buys at its price for the day (the
+    single-asset rules: opening price on the opening day, else trade price), a component before
+    its first price keeps its share as cash (`uninvestedUntil`: latest such first price);
+  - a withdrawal sells every component pro rata to its value at those prices (cash at face value);
+    if it exceeds the total, everything is sold and the rest is a shortfall, as for one asset;
+  - a component whose first price comes after the first flow starts on that day: its cash buys at
+    its first price;
+  - "yearly": for every year after the first flow's, on the first day on which every component
+    started before Jan 1 has a price on or after Jan 1 (each at most MAX_PRICE_GAP_DAYS after it,
+    else prices_missing; not yet happened if that day is after `today`), all components are
+    valued at their last price on or before that day and reset to the weights (not started ones
+    as cash). "none": never.
+  - Value: units at each component's last price, plus cash; a component whose prices start after
+    `today` makes the mix uncomputable (no_prices), as does any price error of a component.
 - Maximum drawdown (`drawdown`, nominal) is measured on a time-weighted index, so deposits and
   withdrawals are neither gains nor losses:
   - An asset alternative's index is its price relative to the price the simulation first invests
@@ -47,6 +65,11 @@ Model decisions (documented in the addon UI):
     that investment: a single asset's time-weighted return is its price return, whatever the
     simulated position holds.
   - Cash ("Not invested") never falls: max 0.
+  - A mix's index is the strategy's: one unit deposited on the first deposit day (opening rule in a
+    window) and run with the same rebalancing, valued on every price day of any component from the
+    day all components bought (or on the entry day itself, level 1) up to `today`. It is the
+    strategy's risk, not the simulated position's (deposits at target weights shift a drifted
+    position slightly).
   - The real portfolio's index chains daily steps over `actual.daily` (only days on which every
     started account has its own valuation) between the window start (the opening value, or the
     first flow day) and `today` (`actual.value`; the caller only passes `daily` when both ends are
@@ -283,6 +306,138 @@ def drawdown(index):
             "recovery": recovery.isoformat() if recovery else None}
 
 
+def mix_parts(variant):
+    total = sum(float(c["weight"]) for c in variant["components"])
+    return [(Series(c["points"]), float(c["weight"]) / total) for c in variant["components"]]
+
+
+def mix_price(series, day, opening_day):
+    """(price, price day) a mix component trades at on `day` (the single-asset rules)."""
+    if day == opening_day and series.opening_price(day) is not None:
+        return series.opening_price(day), day
+    p = series.trade_price(day)
+    i = bisect.bisect_left(series.d, day)
+    return p, series.d[min(i, len(series.d) - 1)] if i < len(series.d) else day
+
+
+def rebalance_days(parts, first_flow, today):
+    out = []
+    for y in range(first_flow.year + 1, today.year + 1):
+        jan1 = dt.date(y, 1, 1)
+        due = []
+        for s, _ in parts:
+            if s.d[0] >= jan1:
+                continue
+            k = bisect.bisect_left(s.d, jan1)
+            if k < len(s.d) and (s.d[k] - jan1).days > MAX_PRICE_GAP_DAYS:
+                raise PriceError("prices_missing")
+            due.append(s.d[k] if k < len(s.d) else None)
+        if not due:
+            continue
+        if None in due or max(due) > today:
+            continue
+        out.append(max(due))
+    return out
+
+
+def simulate_mix(flows, variant, today, opening_day=None):
+    """-> (value, executed, shortfalls, uninvested_until, history [(day, cash[], units[])])."""
+    parts = mix_parts(variant)
+    n = len(parts)
+    if any(s.d[0] > today for s, _ in parts):
+        raise PriceError("no_prices")
+    if not flows:
+        return 0.0, [], [], None, []
+    first_flow = flows[0][0]
+    cash, units = [0.0] * n, [0.0] * n
+    started = [s.d[0] <= first_flow for s, _ in parts]
+    events = [(s.d[0], 0, i) for i, (s, _) in enumerate(parts) if s.d[0] > first_flow]
+    if variant.get("rebalance") == "yearly":
+        events += [(d, 1, None) for d in rebalance_days(parts, first_flow, today)]
+    events += [(d, 2, a) for d, a in flows]
+    events.sort(key=lambda e: (e[0], e[1]))
+    executed, shortfalls, history = [], [], []
+    uninvested_until = None
+    for day, order, data in events:
+        if order == 0:
+            s = parts[data][0]
+            units[data] += cash[data] / s.p[0]
+            cash[data] = 0.0
+            started[data] = True
+        elif order == 1:
+            prices = [parts[i][0].opening_price(day) if started[i] else None for i in range(n)]
+            vals = [units[i] * prices[i] if started[i] else cash[i] for i in range(n)]
+            total = sum(vals)
+            if total > EPS:
+                for i, (_, w) in enumerate(parts):
+                    if started[i]:
+                        units[i] = total * w / prices[i]
+                    else:
+                        cash[i] = total * w
+        elif data > 0:
+            executed.append((day, data))
+            for i, (s, w) in enumerate(parts):
+                if started[i]:
+                    units[i] += data * w / mix_price(s, day, opening_day)[0]
+                else:
+                    cash[i] += data * w
+                    first = s.d[0].isoformat()
+                    uninvested_until = max(uninvested_until or first, first)
+        else:
+            vals = [units[i] * mix_price(s, day, opening_day)[0] if started[i] else cash[i]
+                    for i, (s, _) in enumerate(parts)]
+            total = sum(vals)
+            if total > 0 and -data <= total * (1 + 1e-12):
+                keep = max(0.0, 1 - (-data) / total)
+                units = [u * keep for u in units]
+                cash = [c * keep for c in cash]
+                executed.append((day, data))
+            else:
+                units, cash = [0.0] * n, [0.0] * n
+                if total > EPS:
+                    executed.append((day, -total))
+                shortfalls.append((day, -data - total))
+        history.append((day, list(cash), list(units)))
+    value = sum(units[i] * s.last(today) for i, (s, _) in enumerate(parts) if units[i] > 0) + sum(cash)
+    return value, executed, shortfalls, uninvested_until, history
+
+
+def mix_value_on(parts, history, day):
+    """Value of the latest state on or before `day`; None if a held component has no price then."""
+    state = None
+    for h in history:
+        if h[0] > day:
+            break
+        state = h
+    if state is None:
+        return 0.0
+    _, cash, units = state
+    total = sum(cash)
+    for (s, _), u in zip(parts, units):
+        if u > 1e-12:
+            p = s.opening_price(day)
+            if p is None:
+                return None
+            total += u * p
+    return total
+
+
+def mix_index(variant, flows, today, opening_day):
+    parts = mix_parts(variant)
+    entry = next((d for d, a in flows if a > 0), None)
+    if entry is None:
+        return None
+    _, _, _, _, history = simulate_mix([(entry, 1.0)], variant, today, opening_day)
+    bought = max((mix_price(s, entry, opening_day)[1] for s, _ in parts if s.d[0] <= entry), default=entry)
+    days = sorted({d for s, _ in parts for d in s.d if d > entry and bought <= d <= today})
+    index = [(entry, 1.0)]
+    for d in days:
+        v = mix_value_on(parts, history, d)
+        if v is not None:
+            index.append((d, v))
+    return index
+
+
 def xirr(cfs, unit=365.25):
     """Money-weighted return per `unit` days (default: per year); None without a sign change."""
     t0 = min(d for d, _ in cfs)
@@ -395,12 +550,18 @@ def run(fx):
         out["investedReal"] = sum(a * cpi_now / cpi_at(d) for d, a in flows)
     for v in fx["variants"]:
         try:
-            value, executed, shortfalls, until = simulate(flows, v, today, opening_day)
+            if v["kind"] == "mix":
+                value, executed, shortfalls, until, _ = simulate_mix(flows, v, today, opening_day)
+                mix_dd = drawdown(mix_index(v, flows, today, opening_day))
+            else:
+                value, executed, shortfalls, until = simulate(flows, v, today, opening_day)
         except PriceError as e:
             out["variants"].append({"name": v["name"], "error": str(e)})
             continue
         if v["kind"] == "cash":
             dd = dict(NO_DRAWDOWN)
+        elif v["kind"] == "mix":
+            dd = mix_dd
         else:
             dd = drawdown(asset_index(v, flows, today, opening_day))
         out["variants"].append(report(v["name"], value, executed, shortfalls, until, today, cpi, unit, dd))

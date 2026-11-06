@@ -158,8 +158,8 @@ export function cumulativeOn(flows: Flow[], days: string[]): number[] {
 
 const monthIndex = (ym: string): number => Number(ym.slice(0, 4)) * 12 + Number(ym.slice(5, 7)) - 1;
 
-/** Warnings of a variant with parameters (shortfall, late start). */
-function rowWarnings(r: Report): WarningItem[] {
+/** Warnings of a variant with parameters (shortfall, late start; for a mix only some of the money waited). */
+function rowWarnings(r: Report, kind: VariantKind): WarningItem[] {
   const out: WarningItem[] = [];
   if (r.warnings.includes('withdrawal_uncovered')) {
     out.push({
@@ -168,7 +168,7 @@ function rowWarnings(r: Report): WarningItem[] {
     });
   }
   if (r.warnings.includes('late_start') && r.uninvestedUntil) {
-    out.push({ code: 'late_start', params: { date: { date: r.uninvestedUntil } } });
+    out.push({ code: kind === 'mix' ? 'late_start_partial' : 'late_start', params: { date: { date: r.uninvestedUntil } } });
   }
   return out;
 }
@@ -236,11 +236,22 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
   const variants: Variant[] = [];
   const variantOf: (number | null)[] = [];
   input.benchmarks.forEach((b) => {
-    if (b.error || (b.def.kind !== 'cash' && !b.points)) {
+    const missing = b.def.kind === 'mix' ? !b.components : b.def.kind !== 'cash' && !b.points;
+    if (b.error || missing) {
       variantOf.push(null);
       return;
     }
     variantOf.push(variants.length);
+    if (b.def.kind === 'mix') {
+      variants.push({
+        name: b.def.name,
+        kind: 'mix',
+        points: [],
+        rebalance: b.def.rebalance ?? 'yearly',
+        components: (b.components ?? []).map((c) => ({ weight: c.weight, points: c.points.filter(([d]) => d <= today) })),
+      });
+      return;
+    }
     variants.push({ name: b.def.name, kind: b.def.kind, points: (b.points ?? []).filter(([d]) => d <= today) });
   });
 
@@ -291,7 +302,7 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
       return;
     }
     const res = det.out.variants[vi];
-    const warnings = isError(res) ? [] : rowWarnings(res);
+    const warnings = isError(res) ? [] : rowWarnings(res, b.def.kind);
     if (b.staleHours !== null) warnings.push({ code: 'cache_stale', params: { hours: Math.round(b.staleHours) } });
     rows.push({ ...base, result: res, warnings, path: det.paths[vi] });
     executedByKey.set(keys[i], det.executed[vi]);

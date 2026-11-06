@@ -52,5 +52,6 @@ export function infoFor(t: Translate, code: string): { title: string; paragraphs
     return { title: t('info.shortfall.title'), paragraphs: [t('info.shortfall.p1')] };
   }
   if (code === 'late_start') return { title: t('info.lateStart.title'), paragraphs: [t('info.lateStart.p1')] };
+  if (code === 'late_start_partial') return { title: t('info.lateStart.title'), paragraphs: [t('info.lateStart.partial')] };
   return null;
 }

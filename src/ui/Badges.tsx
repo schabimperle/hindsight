@@ -8,7 +8,7 @@ export interface BadgeItem {
   label: string;
   /** Line colour; null = not plotted (uncomputable). */
   color: string | null;
-  /** Why it is not plotted (title of the badge). */
+  /** Title of the badge: why it is not plotted, or a mix's composition. */
   reason?: string;
   removable: boolean;
 }

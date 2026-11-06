@@ -19,6 +19,7 @@ export const MESSAGE_CODES = [
   'cache_stale',
   'withdrawal_uncovered',
   'late_start',
+  'late_start_partial',
   'foreign_currency_no_rate',
   'asset_transfer_unvalued',
   'asset_transfer_worthless',
