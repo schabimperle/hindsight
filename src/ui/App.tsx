@@ -268,8 +268,9 @@ function Comparison() {
                     <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-start 2xl:justify-between">
                       {/* The period sits where the host's Performance card puts its date range: right of the title
                           while the metrics are below (md to xl), under the title beside the metrics (2xl) and on
-                          phones. The tagline says what the page compares and stays directly under the title. */}
-                      <div className="min-w-0">
+                          phones. The tagline says what the page compares and stays directly under the title. Even
+                          gaps as the host's title grid (gap-y-1); the title row's icon buttons set its height. */}
+                      <div className="flex min-w-0 flex-col gap-1">
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex min-w-0 items-center gap-1">
                             <CardTitle className={cn('min-w-0 text-lg sm:text-xl', isMobile && 'text-sm')}>{t('app.title')}</CardTitle>
@@ -282,7 +283,7 @@ function Comparison() {
                         </div>
                         <CardDescription className={cn('text-xs sm:text-sm', isMobile && 'text-2xs')}>{t('app.tagline')}</CardDescription>
                         {period && (
-                          <CardDescription className={cn('mt-1 text-xs tabular-nums sm:text-sm md:hidden 2xl:block', isMobile && 'text-2xs')}>
+                          <CardDescription className={cn('text-xs tabular-nums sm:text-sm md:hidden 2xl:block', isMobile && 'text-2xs')}>
                             {period}
                           </CardDescription>
                         )}

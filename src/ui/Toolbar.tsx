@@ -74,7 +74,7 @@ export function HowItWorks() {
           <DialogTitle>{t('app.howItWorks')}</DialogTitle>
           <DialogDescription className="text-start">{t('app.subtitle')}</DialogDescription>
         </DialogHeader>
-        <div className="pt-5 text-sm">
+        <div className="text-sm">
           <ul className="text-muted-foreground list-disc space-y-1.5 ps-4">
             {items.map((x) => (
               <li key={x}>{x}</li>
