@@ -285,14 +285,15 @@ function Comparison() {
                   <CardContent className={cn('min-h-0', isMobile ? 'p-2' : 'p-3 sm:p-6')}>
                     <div className="mb-1 flex flex-wrap items-start justify-end gap-2">
                       <MarkerToggle enabled={markers} onToggle={() => setMarkers((m) => !m)} />
+                      {/* Gain starts at zero and can be negative, so only the value chart has a logarithmic scale.
+                          It sits left of the mode switch, which keeps its place when it appears. */}
+                      {chartMode === 'value' && <ChartScaleSwitch scale={scale} onChange={setChartScale} available={logAvailable} />}
                       <PillSwitch
                         label={t('chart.mode')}
                         value={chartMode}
                         onChange={setChartMode}
                         options={(['gain', 'value'] as const).map((value) => ({ value, label: t(`chart.${value}`) }))}
                       />
-                      {/* Gain starts at zero and can be negative, so only the value chart has a logarithmic scale. */}
-                      {chartMode === 'value' && <ChartScaleSwitch scale={scale} onChange={setChartScale} available={logAvailable} />}
                     </div>
                     <ComparisonChart
                       a={analysis}
