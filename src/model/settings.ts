@@ -38,7 +38,9 @@ export function validMix(components: MixComponent[]): MixComponent[] | null {
   const tickers = new Set<string>();
   for (const c of components) {
     const t = c.ticker.trim().toUpperCase();
-    if (t === '' || tickers.has(t) || !Number.isFinite(c.weight) || c.weight <= 0) return null;
+    // At most two decimals, so the identity, the name and the simulation see the same weights.
+    const twoDecimals = Number.isFinite(c.weight) && Math.abs(c.weight * 100 - Math.round(c.weight * 100)) < 1e-6;
+    if (t === '' || tickers.has(t) || !twoDecimals || c.weight <= 0) return null;
     tickers.add(t);
   }
   const sum = components.reduce((s, c) => s + c.weight, 0);

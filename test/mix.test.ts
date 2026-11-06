@@ -133,8 +133,10 @@ describe('mix settings', () => {
       { name: 'One', kind: 'mix', components: [{ ticker: 'X', weight: 100 }] },
       { name: 'Twice', kind: 'mix', components: [{ ticker: 'X', weight: 50 }, { ticker: 'x', weight: 50 }] },
       { name: 'Zero', kind: 'mix', components: [{ ticker: 'X', weight: 100 }, { ticker: 'Y', weight: 0 }] },
+      { name: 'Three decimals', kind: 'mix', components: [{ ticker: 'X', weight: 70.004 }, { ticker: 'Y', weight: 29.996 }] },
+      { name: 'Two decimals', kind: 'mix', components: [{ ticker: 'X', weight: 33.33 }, { ticker: 'Y', weight: 66.67 }] },
     ]);
-    expect(r.map((b) => b.name)).toEqual(['A', 'B']);
+    expect(r.map((b) => b.name)).toEqual(['A', 'B', 'Two decimals']);
     expect(r[0].ticker).toBe('mix:AGG*30+URTH*70|none');
     expect(r[1].rebalance).toBe('yearly');
     expect(r[1].ticker).toBe(mixIdentity(comps, 'yearly'));

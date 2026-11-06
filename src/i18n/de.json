@@ -215,7 +215,7 @@
     "add": "Mischung hinzufügen",
     "hintAssets": "Wähle für jede Zeile eine Anlage.",
     "hintSum": "Die Gewichte ergeben {{sum}} %, nicht 100 %.",
-    "hintInvalid": "Jedes Gewicht muss über 0 liegen und jede Anlage verschieden sein.",
+    "hintInvalid": "Jedes Gewicht muss über 0 liegen und höchstens zwei Nachkommastellen haben, jede Anlage verschieden sein.",
     "hintDuplicate": "Diese Mischung ist schon in der Liste.",
     "composition": "{{parts}} · Rebalancing: {{rebalance}}"
   }

@@ -215,7 +215,7 @@
     "add": "Add mix",
     "hintAssets": "Choose an asset for every row.",
     "hintSum": "The weights add up to {{sum}} %, not 100 %.",
-    "hintInvalid": "Every weight must be above 0 and every asset different.",
+    "hintInvalid": "Every weight must be above 0 with at most two decimals, and every asset different.",
     "hintDuplicate": "This mix is already in the list.",
     "composition": "{{parts}} · rebalancing: {{rebalance}}"
   }
