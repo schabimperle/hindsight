@@ -4,7 +4,10 @@
 
 - The chart shows the gain so far by default (value minus each line's own executed flows); the value chart,
   with the logarithmic scale, is one switch away.
-- One line under the title states the idea: same cash flows, different investments.
+- One line under the title states the idea (same cash flows, different investments), with the period on the
+  same line; the info dialog names the method (Public Market Equivalent, Long–Nickels) and drops its extra heading.
+- The scale switch sits left of the Gain/Value switch; the real-view note is an info button next to the
+  Nominal/Real switch.
 - “vs. yours” is now “Gain vs. yours” with a short explanation; switching the table to real figures explains that
   the end value stays the same.
 - “All accounts” is now “All investment accounts”. Account eligibility follows Wealthfolio's Performance rule, so

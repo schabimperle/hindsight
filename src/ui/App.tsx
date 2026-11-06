@@ -274,8 +274,17 @@ function Comparison() {
                             <WarningsButton warnings={warnings} fmt={fmt} />
                           </div>
                           <CardDescription className={cn('text-xs sm:text-sm', isMobile && 'text-2xs')}>
-                            <span className="block">{t('app.tagline')}</span>
-                            {period && <span className="block tabular-nums opacity-70">{period}</span>}
+                            {/* One line with a dot on wide screens; on phones the date would wrap with a leading dot. */}
+                            {t('app.tagline')}
+                            {period &&
+                              (isMobile ? (
+                                <span className="block tabular-nums">{period}</span>
+                              ) : (
+                                <>
+                                  {' '}
+                                  <span className="whitespace-nowrap tabular-nums">· {period}</span>
+                                </>
+                              ))}
                           </CardDescription>
                         </div>
                       </div>

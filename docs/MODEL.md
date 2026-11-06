@@ -13,7 +13,9 @@
   up as gain of the real portfolio (the sale is not a flow). Foreign-currency deposits/withdrawals and cash
   transfers without an exchange rate also block with a booking list (leaving them out would distort the
   comparison).
-- Simulation (`reference/oracle.py`): flows are netted per day; a purchase happens at the adjusted close of
+- Simulation (`reference/oracle.py`): this is a Public Market Equivalent in the Long–Nickels sense (index
+  comparison method; the dialog names it), except that the position never goes negative (see uncovered
+  withdrawals below). Flows are netted per day; a purchase happens at the adjusted close of
   the day or the next trading day (at most 10 days); if there is no later price (flow on today's Saturday, US
   ticker before the market opens), at the last price before it if at most 10 days old (the same limit as for
   today's price); before the first price the money stays cash and is invested on the first price day;
@@ -61,7 +63,7 @@
   computable asset in the host's `--series-1…8` colours, cycled. The host components themselves are not
   exported to addons (`AccountScopeSelector`, `BenchmarkSymbolSelector`, the strip), so `AccountScope.tsx`,
   `BenchmarkPicker.tsx`, `Badges.tsx` and `MetricStrip.tsx` are clones with the host's classes.
-  The comparison table below switches gain, MWR and "gain vs. yours" between nominal and real (a note under the title says the end value stays the same); the strip stays
+  The comparison table below switches gain, MWR and "gain vs. yours" between nominal and real (in real view an info button left of the switch says the end value stays the same); the strip stays
   nominal. Real amounts use end-period purchasing power: the end value stays unchanged, earlier payments
   are multiplied by CPI(end)/CPI(payment). Thus the gain gap also stays unchanged with identical executed
   payments, but can change with uncovered withdrawals. A row click selects the line (strip and chart), a row with notes (uncovered withdrawal, late start)

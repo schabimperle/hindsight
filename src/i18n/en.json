@@ -1,6 +1,6 @@
 {
   "app": {
-    "subtitle": "What if every deposit had bought a single asset, and every withdrawal had sold some of it?",
+    "subtitle": "Hindsight replays your deposits and withdrawals into one asset at a time: every deposit buys it, every withdrawal sells some of it, and the position can never go negative. This is a Public Market Equivalent (PME) in the Long–Nickels sense (index comparison method), applied to your own portfolio.",
     "loadFailed": "Loading failed: {{error}}",
     "loading": "Loading data",
     "settingsSaveFailed": "Settings could not be saved",
@@ -66,7 +66,6 @@
     "title": "Comparison"
   },
   "assumptions": {
-    "title": "Assumptions",
     "item1": "Before taxes and fees: the alternatives pay none; your portfolio includes those actually paid.",
     "item2": "A deposit buys at the adjusted closing price (Yahoo Finance) of its day or the next trading day, a withdrawal sells that amount. Distributions are reinvested.",
     "item3": "A withdrawal larger than the alternative's value only counts as far as it was covered.",

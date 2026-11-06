@@ -1,6 +1,6 @@
 {
   "app": {
-    "subtitle": "Was wäre, wenn jede Einzahlung ein einziges Asset gekauft und jede Auszahlung davon verkauft hätte?",
+    "subtitle": "Hindsight spielt deine Ein- und Auszahlungen für jeweils ein Asset nach: Jede Einzahlung kauft es, jede Auszahlung verkauft davon, und die Position kann nie negativ werden. Das ist ein Public Market Equivalent (PME) nach Long und Nickels (Index-Vergleichsmethode), angewendet auf dein eigenes Portfolio.",
     "loadFailed": "Laden fehlgeschlagen: {{error}}",
     "loading": "Lade Daten",
     "settingsSaveFailed": "Einstellungen konnten nicht gespeichert werden",
@@ -66,7 +66,6 @@
     "title": "Vergleich"
   },
   "assumptions": {
-    "title": "Annahmen",
     "item1": "Vor Steuern und Gebühren: Die Alternativen zahlen keine; dein Portfolio enthält die tatsächlich gezahlten.",
     "item2": "Eine Einzahlung kauft zum bereinigten Schlusskurs (Yahoo Finance) des Tages oder nächsten Handelstags, eine Auszahlung verkauft diesen Betrag. Ausschüttungen werden reinvestiert.",
     "item3": "Eine Auszahlung über dem Wert der Alternative zählt nur in gedeckter Höhe.",

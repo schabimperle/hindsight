@@ -6,7 +6,8 @@ Bitcoin, another Yahoo Finance ticker, or cash, and compare the result with your
 
 - Select accounts, benchmarks and a date range.
 - Compare value, gain and money-weighted return, nominal or inflation-adjusted.
-- Switch between linear and logarithmic charts and show deposit/withdrawal markers.
+- Chart the gain so far (default) or the value, with a logarithmic scale for the value, and show
+  deposit/withdrawal markers.
 - Follows Wealthfolio's language and number formatting; English and German are included.
 
 ## Install
@@ -38,7 +39,11 @@ country code; account identifiers and transaction amounts are not sent to those 
 
 ## Method and limits
 
-Each alternative receives the same cash flows as the selected portfolio. Internal transfers
+Hindsight is a Public Market Equivalent (PME) in the Long–Nickels sense (index comparison
+method) applied to your own portfolio: each alternative receives the same cash flows as the
+selected portfolio, every deposit buys it and every withdrawal sells some of it. Unlike the
+textbook method, its position never goes negative; a withdrawal it cannot cover is not counted
+and is flagged. Internal transfers
 within the selection are excluded. Prices use adjusted daily closes; inflation uses monthly
 OECD CPI inferred from Wealthfolio's time zone or base currency. Missing data and withdrawals
 an alternative cannot cover are shown as warnings. This is a historical comparison before

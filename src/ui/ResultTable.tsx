@@ -67,19 +67,22 @@ export function ComparisonCard({
     <Card>
       <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
         <SectionTitle title={t('comparison.title')} />
-        <PillSwitch
-          label={t('app.viewLabel')}
-          value={view}
-          onChange={onViewChange}
-          options={(['nominal', 'real'] as const).map((value) => ({ value, label: t(`view.${value}`) }))}
-        />
+        <div className="flex items-center gap-1">
+          {/* Left of the switch, so the switch keeps its place when the button appears. */}
+          {view === 'real' && !unavailable && <InfoPopover title={t('view.real')} paragraphs={[t('table.realNote')]} />}
+          <PillSwitch
+            label={t('app.viewLabel')}
+            value={view}
+            onChange={onViewChange}
+            options={(['nominal', 'real'] as const).map((value) => ({ value, label: t(`view.${value}`) }))}
+          />
+        </div>
       </CardHeader>
       <CardContent className={cn('transition-opacity', fetching && 'opacity-60')}>
         {unavailable ? (
           <p className="text-muted-foreground py-4 text-xs">{unavailable}</p>
         ) : (
           <>
-            {view === 'real' && <p className="text-muted-foreground mb-2 text-xs">{t('table.realNote')}</p>}
             <div className="md:hidden">
               {rows.map((v) => (
                 <MobileRow key={v.row.key} v={v} fmt={fmt} open={open.has(v.row.key)} onToggle={() => toggle(v.row.key)} ctx={ctx} />
