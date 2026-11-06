@@ -19,13 +19,13 @@ interface Series {
 }
 
 export const NET_KEY = 'net';
-export type ChartMode = 'gain' | 'value';
+export type ChartMode = 'gain' | 'difference' | 'value';
 const DEPOSIT_COLOR = 'var(--success)';
 const WITHDRAWAL_COLOR = 'var(--destructive)';
 
 /** Every computable row as a line in its badge colour (the host plots every added item); the selected line is
- * drawn last and thicker. Gain mode plots the gain so far with a zero line; value mode the value with the dashed
- * "Net in" reference. */
+ * drawn last and thicker. Gain mode plots the gain so far with a zero line; difference mode each gain minus the
+ * real portfolio's, whose own line is then the zero line; value mode the value with the dashed "Net in" reference. */
 export function ComparisonChart({
   a,
   fmt,
@@ -64,7 +64,7 @@ export function ComparisonChart({
     return out;
   }, [a.rows, colors, selected, mode, t]);
 
-  const chart = mode === 'gain' ? a.gainChart : a.chart;
+  const chart = mode === 'gain' ? a.gainChart : mode === 'difference' ? a.diffChart : a.chart;
   const logarithmic = useMemo(
     () => (mode === 'value' && scale === 'log' ? logAxis(a.chart, series.map((s) => s.key), fmt.money) : null),
     [a.chart, series, mode, scale, fmt],
@@ -109,7 +109,7 @@ export function ComparisonChart({
               width="auto"
               scale={logarithmic ? 'log' : 'auto'}
             />
-            {mode === 'gain' && <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="5 4" strokeOpacity={0.6} ifOverflow="extendDomain" />}
+            {mode !== 'value' && <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="5 4" strokeOpacity={0.6} ifOverflow="extendDomain" />}
             <Tooltip
               cursor={{ stroke: 'var(--muted-foreground)', strokeWidth: 1 }}
               content={({ active, payload, label: day }) => {
@@ -141,7 +141,9 @@ export function ComparisonChart({
                       {rows.map((p) => (
                         <div key={String(p.dataKey)} className="flex items-center gap-2">
                           <span className="inline-block h-0.5 w-3 shrink-0" style={{ background: String(p.color) }} />
-                          <span className="font-medium tabular-nums">{typeof p.value === 'number' ? fmt.money(p.value) : '–'}</span>
+                          <span className="font-medium tabular-nums">
+                            {typeof p.value !== 'number' ? '–' : mode === 'difference' ? fmt.moneySigned(p.value) : fmt.money(p.value)}
+                          </span>
                           <span className="text-muted-foreground">{p.name}</span>
                         </div>
                       ))}

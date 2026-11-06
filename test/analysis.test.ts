@@ -301,6 +301,34 @@ describe('gain chart', () => {
     expect(after).toBeGreaterThan(5);
   });
 
+  it('difference chart: the real portfolio is the zero line, every line ends at its nominal gain difference', () => {
+    const a = analyze(input());
+    expect(a.diffChart).toHaveLength(a.chart.length);
+    const actual = a.rows.find((r) => r.kind === 'actual') as (typeof a.rows)[number];
+    const actualGain = (actual.result as Report).gain;
+    a.diffChart.forEach((p, i) => {
+      const g = a.gainChart[i];
+      expect(p.date).toBe(g.date);
+      expect(p.depCount).toBe(g.depCount);
+      expect(p.wdCount).toBe(g.wdCount);
+      expect(p.net).toBe(0);
+      for (const row of a.rows) {
+        const v = g[row.key];
+        const base = g.actual;
+        if (typeof v === 'number' && typeof base === 'number') expect(p[row.key], row.name).toBeCloseTo(v - base, 6);
+        else expect(p[row.key], row.name).toBeNull();
+      }
+    });
+    const last = a.diffChart.at(-1) as Record<string, number | string | null>;
+    expect(last.actual).toBe(0);
+    for (const row of a.rows) {
+      if (row.kind === 'actual') continue;
+      if (isError(row.result)) expect(last[row.key]).toBeNull();
+      // Includes the uncovered withdrawal of "Total loss": the end point is the gain difference, not the value one.
+      else expect(last[row.key], row.name).toBeCloseTo(row.result.gain - actualGain, 6);
+    }
+  });
+
   it('starts a period at zero gain for every line', () => {
     const wfx = read<Fixture>('synthetic-window.json');
     const daily = [

@@ -83,6 +83,9 @@ export interface Analysis {
   /** Same days and booking counts; per row key the gain so far (value minus the net of that row's own executed
    * flows up to the day), `net` always 0. */
   gainChart: Record<string, number | string | null>[];
+  /** Same days and booking counts; per row key its gain so far minus the real portfolio's (null where either is
+   * missing), so the real portfolio is the zero line; `net` always 0. Today's point is the nominal gain difference. */
+  diffChart: Record<string, number | string | null>[];
 }
 
 /** A hint appears once the inflation data lag behind by this many months. */
@@ -106,6 +109,7 @@ const blank = (fatal: WarningItem | null, today: string, real: RealPortfolio, pa
   headerWarnings: [],
   chart: [],
   gainChart: [],
+  diffChart: [],
   ...partial,
 });
 
@@ -319,6 +323,16 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
     });
   }
 
+  const diffChart = gainChart.map((pt) => {
+    const out = { ...pt };
+    const base = pt.actual;
+    for (const key of executedByKey.keys()) {
+      const v = pt[key];
+      out[key] = typeof v === 'number' && typeof base === 'number' ? v - base : null;
+    }
+    return out;
+  });
+
   return {
     fatal: null,
     moreFatal: [],
@@ -337,5 +351,6 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
     headerWarnings,
     chart,
     gainChart,
+    diffChart,
   };
 }

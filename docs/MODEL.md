@@ -85,10 +85,12 @@
   executed flows up to the day (`DetailedRun.executed`), so deposits and withdrawals cause no jumps, a
   withdrawal an alternative could not cover never counts as taken out, and a period starts at zero (the opening
   deposit is a flow). Differences between lines equal the value differences only while all lines executed the
-  same flows. A zero line replaces the dashed "Net in" reference; a "Gain/Value" pill switch next to the markers
-  button toggles to the value chart. Value mode is the only one with the Logarithmic scale (gain starts at zero
-  and can be negative); the scale switch is hidden in gain mode and appears left of the Gain/Value switch, so that one stays
-  under the pointer when toggling.
+  same flows. A zero line replaces the dashed "Net in" reference; a "Gain/Difference/Value" pill switch next to
+  the markers button toggles the chart. Difference (`Analysis.diffChart`) plots every line's gain so far minus the
+  real portfolio's on the same day, so the real portfolio is the zero line and today's point is the nominal gain
+  difference (uncovered withdrawals included); a day where either gain is missing has no point. Value mode is the
+  only one with the Logarithmic scale (gain starts at zero and can be negative); the scale switch is hidden in the
+  other modes and appears left of the mode switch, so that one stays under the pointer when toggling.
   A shared pill control (same component as Nominal/Real) at the top right switches Linear/Logarithmic.
   Linear remains the default. Log uses Recharts `scale="log"`, the positive data extent (constant values
   get a nondegenerate domain), and D3 log ticks with distinct whole-currency labels. It keeps the same

@@ -301,7 +301,7 @@ function Comparison() {
                         label={t('chart.mode')}
                         value={chartMode}
                         onChange={setChartMode}
-                        options={(['gain', 'value'] as const).map((value) => ({ value, label: t(`chart.${value}`) }))}
+                        options={(['gain', 'difference', 'value'] as const).map((value) => ({ value, label: t(`chart.${value}`) }))}
                       />
                     </div>
                     <ComparisonChart

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- A third chart mode, “Difference”, shows each alternative's gain minus yours over time: your portfolio is the
+  zero line, and the end point is the gain difference in the table. It shows when a lead or gap arose and whether
+  it held.
+
 - The chart shows the gain so far by default (value minus each line's own executed flows); the value chart,
   with the logarithmic scale, is one switch away.
 - One line under the title states the idea (same cash flows, different investments); the period sits where
