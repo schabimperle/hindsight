@@ -279,6 +279,16 @@ describe('drawdown', () => {
     expect((ok.rows.find((r) => r.kind === 'actual')?.result as Report).drawdown).not.toBeNull();
   });
 
+  it('a custom end or an opening day without full coverage gives no drawdown', () => {
+    const days = fxDaily.map((p) => p.date);
+    const actualDd = (a: ReturnType<typeof analyze>): unknown => (a.rows.find((r) => r.kind === 'actual')?.result as Report).drawdown;
+    const gapAt = (day: string) => ({ daily: fxDaily, valuationDays: [days, days.filter((d) => d !== day)] });
+    expect(actualDd(analyze(input({}, { daily: fxDaily, valuationDays: [days, days] }), { from: null, to: '2025-12-31' }))).not.toBeNull();
+    expect(actualDd(analyze(input({}, gapAt('2025-12-31')), { from: null, to: '2025-12-31' }))).toBeNull();
+    expect(actualDd(analyze(input({}, { daily: fxDaily, valuationDays: [days, days] }), { from: '2023-03-15', to: null }))).not.toBeNull();
+    expect(actualDd(analyze(input({}, gapAt('2023-03-15')), { from: '2023-03-15', to: null }))).toBeNull();
+  });
+
   it('every alternative has its drawdown; uncomputable ones have none', () => {
     const a = analyze(input());
     for (const row of a.rows) {

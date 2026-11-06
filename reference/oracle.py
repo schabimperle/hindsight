@@ -42,13 +42,15 @@ Model decisions (documented in the addon UI):
 - Maximum drawdown (`drawdown`, nominal) is measured on a time-weighted index, so deposits and
   withdrawals are neither gains nor losses:
   - An asset alternative's index is its price relative to the price the simulation first invests
-    at (the opening price rule in a window, the trade price of the first flow, or the first price
-    after a late start), over every later price point up to `today`: a single asset's
-    time-weighted return is its price return, whatever the simulated position holds.
+    at (the opening price rule in a window, the trade price of the first deposit, or the first
+    price after a late start), over every later price point up to `today`, starting on the day of
+    that investment: a single asset's time-weighted return is its price return, whatever the
+    simulated position holds.
   - Cash ("Not invested") never falls: max 0.
   - The real portfolio's index chains daily steps over `actual.daily` (only days on which every
     started account has its own valuation) between the window start (the opening value, or the
-    first flow day) and `today` (`actual.value`), with Wealthfolio's convention: deposits at the
+    first flow day) and `today` (`actual.value`; the caller only passes `daily` when both ends are
+    fully covered as well), with Wealthfolio's convention: deposits at the
     start of the day, withdrawals at its end, both from the original bookings (not netted):
     r = (V_t + out_t - V_prev - in_t) / (V_prev + in_t). Before the chain starts, steps from a
     non-positive value are skipped; a base below MIN_RETURN_BASE pauses the index; a negative
@@ -200,21 +202,23 @@ def simulate(flows, variant, today, opening_day=None):
 
 
 def entry_index(series, flows, opening_day):
-    """Index of the price the simulation first invests at (see `simulate`)."""
-    day = flows[0][0] if flows else series.d[0]
+    """(index of the price the simulation first invests at, day of that investment); see `simulate`.
+    The first deposit counts: a withdrawal before it buys nothing."""
+    day = next((d for d, a in flows if a > 0), series.d[0])
     if day < series.d[0]:
-        return 0
+        return 0, series.d[0]
     if day == opening_day and series.opening_price(day) is not None:
-        return bisect.bisect_right(series.d, day) - 1
+        return bisect.bisect_right(series.d, day) - 1, day
     i = bisect.bisect_left(series.d, day)
-    return min(i, len(series.d) - 1)
+    return min(i, len(series.d) - 1), max(day, series.d[min(i, len(series.d) - 1)])
 
 
 def asset_index(variant, flows, today, opening_day):
+    """The index starts on the day of the first investment (a weekend opening keeps Friday's price as base)."""
     series = Series(variant["points"])
-    i = entry_index(series, flows, opening_day)
+    i, day = entry_index(series, flows, opening_day)
     base = series.p[i]
-    return [(series.d[j], series.p[j] / base) for j in range(i, len(series.d)) if series.d[j] <= today]
+    return [(day, 1.0)] + [(series.d[j], series.p[j] / base) for j in range(i + 1, len(series.d)) if series.d[j] <= today]
 
 
 def actual_index(fx, today):

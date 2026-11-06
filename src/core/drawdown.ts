@@ -31,20 +31,23 @@ function bisectRight(a: readonly string[], x: string): number {
   return lo;
 }
 
-/** Index of the price the simulation first invests at (see `simulateSingle`). */
-export function entryIndex(series: Series, flows: Flow[], openingDay?: string): number {
-  const day = flows.length > 0 ? flows[0].date : series.d[0];
-  if (day < series.d[0]) return 0;
-  if (day === openingDay && series.onOrBeforeWithin(day) !== null) return bisectRight(series.d, day) - 1;
-  return Math.min(bisectLeft(series.d, day), series.d.length - 1);
+/** [index of the price the simulation first invests at, day of that investment] (see `simulateSingle`). The first
+ * deposit counts: a withdrawal before it buys nothing. */
+export function entryIndex(series: Series, flows: Flow[], openingDay?: string): [number, string] {
+  const day = flows.find((f) => f.amount > 0)?.date ?? series.d[0];
+  if (day < series.d[0]) return [0, series.d[0]];
+  if (day === openingDay && series.onOrBeforeWithin(day) !== null) return [bisectRight(series.d, day) - 1, day];
+  const i = Math.min(bisectLeft(series.d, day), series.d.length - 1);
+  return [i, series.d[i] > day ? series.d[i] : day];
 }
 
-/** An asset's time-weighted index: its price relative to the entry price, on every later price day up to `today`. */
+/** An asset's time-weighted index: its price relative to the entry price, from the day of the first investment (a
+ * weekend opening keeps Friday's price as base) over every later price day up to `today`. */
 export function assetIndex(series: Series, flows: Flow[], today: string, openingDay?: string): IndexPoint[] {
-  const i = entryIndex(series, flows, openingDay);
+  const [i, day] = entryIndex(series, flows, openingDay);
   const base = series.p[i];
-  const out: IndexPoint[] = [];
-  for (let j = i; j < series.d.length && series.d[j] <= today; j++) out.push([series.d[j], series.p[j] / base]);
+  const out: IndexPoint[] = [[day, 1]];
+  for (let j = i + 1; j < series.d.length && series.d[j] <= today; j++) out.push([series.d[j], series.p[j] / base]);
   return out;
 }
 

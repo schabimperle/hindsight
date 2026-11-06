@@ -14,7 +14,7 @@ import {
   type WarningItem,
 } from '../core/types';
 import type { BenchmarkData, CpiData } from '../sources/load';
-import { daysBetween } from '../core/dates';
+import { addDays, daysBetween } from '../core/dates';
 import { MAX_PRICE_GAP_DAYS } from '../core/gap';
 import { pointOn, valueOn, type RealPortfolio } from '../sources/portfolio';
 
@@ -137,6 +137,15 @@ export function coveredDaily(real: RealPortfolio, today: string): [string, numbe
     .map((p) => [p.date, p.value]);
 }
 
+/** The ends of the real portfolio's time-weighted index must be covered too: the opening day (its value is the
+ * index base) and a custom end (latest valuations are current by definition). Otherwise there is no drawdown. */
+function endsCovered(real: RealPortfolio, daily: [string, number][], opening: string | null, today: string): boolean {
+  const days = new Set(daily.map(([d]) => d));
+  if (opening !== null && !days.has(opening)) return false;
+  if (today === real.asOf) return true;
+  return coveredDaily(real, addDays(today, 1)).some(([d]) => d === today);
+}
+
 /** Running sum of `flows` (sorted by date) on and before each of the sorted `days`. */
 export function cumulativeOn(flows: Flow[], days: string[]): number[] {
   let fi = 0;
@@ -236,12 +245,13 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
   });
 
   const actualValue = actualAtEnd;
+  const covered = coveredDaily(real, today);
   const fx: Fixture = {
     today,
     flows,
     variants,
     cpi: input.cpi?.cpi ?? null,
-    actual: { value: actualValue, daily: coveredDaily(real, today) },
+    actual: { value: actualValue, ...(endsCovered(real, covered, opening, today) ? { daily: covered } : {}) },
     ...(opening !== null && openingValue !== null ? { start: { date: opening, value: openingValue } } : {}),
   };
   // Keep booking dates even on weekly/monthly charts; markers must sit on their actual day.

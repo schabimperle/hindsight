@@ -51,10 +51,21 @@ describe('asset index', () => {
     expect(drawdown(idx)?.max).toBe(0);
   });
 
-  it('a window opening on Saturday uses the last price on or before it', () => {
+  it('a window opening on Saturday uses the last price before it as base, dated on the opening day', () => {
     const idx = assetIndex(series, [{ date: '2024-03-02', amount: 100 }], '2024-03-05', '2024-03-02');
-    expect(idx[0]).toEqual(['2024-03-01', 1]);
-    expect(drawdown(idx)).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-03-01', trough: '2024-03-04', recovery: '2024-03-05' });
+    expect(idx[0]).toEqual(['2024-03-02', 1]);
+    expect(drawdown(idx)).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-03-02', trough: '2024-03-04', recovery: '2024-03-05' });
+  });
+
+  it('an uncovered withdrawal before the first deposit does not start the index', () => {
+    const s = new Series([
+      ['2024-01-01', 100],
+      ['2024-01-03', 50],
+      ['2024-01-04', 55],
+    ]);
+    const idx = assetIndex(s, [{ date: '2024-01-01', amount: -10 }, { date: '2024-01-03', amount: 100 }], '2024-01-04');
+    expect(idx[0]).toEqual(['2024-01-03', 1]);
+    expect(drawdown(idx)?.max).toBe(0);
   });
 
   it('a late start begins at the first price', () => {
