@@ -24,8 +24,8 @@
     "value": "Wert",
     "gain": "Gewinn",
     "irr": "MWR p.a.",
-    "gainReal": "Gewinn real",
-    "irrReal": "MWR p.a. real",
+    "gainReal": "Gewinn (real)",
+    "irrReal": "MWR p.a. (real)",
     "vsActual": "vs. deins",
     "vsActualReal": "vs. deins (real)",
     "vsShort": "{{diff}} vs. deins",
@@ -37,7 +37,7 @@
     "perYear": "p.a.",
     "select": "{{name}} auswählen",
     "mwr": "MWR",
-    "mwrReal": "MWR real"
+    "mwrReal": "MWR (real)"
   },
   "chart": {
     "scale": "Chart-Skalierung",
