@@ -16,7 +16,7 @@ import type { WarningItem } from '../core/types';
 import type { Fmt } from '../model/format';
 import { messageText } from '../model/messages';
 import { BookingList } from './Notice';
-import { ASSUMPTION_COUNT, useTexts } from './i18n';
+import { GUIDE_COUNTS, useTexts } from './i18n';
 
 /** Small round icon button next to the card title, as the host's metric help button. */
 const ICON_BUTTON = 'text-muted-foreground hover:text-foreground h-7 w-7 shrink-0 rounded-full';
@@ -60,10 +60,11 @@ export function WarningsButton({ warnings, fmt }: { warnings: WarningItem[]; fmt
   );
 }
 
-/** What Hindsight answers and every assumption behind it. */
+/** What Hindsight answers, what each figure shows and every assumption behind it. */
 export function HowItWorks() {
   const { t } = useTexts();
-  const items = Array.from({ length: ASSUMPTION_COUNT }, (_, i) => t(`assumptions.item${i + 1}`));
+  const list = (part: keyof typeof GUIDE_COUNTS): string[] =>
+    Array.from({ length: GUIDE_COUNTS[part] }, (_, i) => t(`guide.${part}${i + 1}`));
   return (
     <Dialog useIsMobile={useIsMobile}>
       <DialogTrigger render={<Button variant="ghost" size="icon" className={ICON_BUTTON} aria-label={t('app.howItWorks')} />}>
@@ -74,13 +75,16 @@ export function HowItWorks() {
           <DialogTitle>{t('app.howItWorks')}</DialogTitle>
           <DialogDescription className="text-start">{t('app.subtitle')}</DialogDescription>
         </DialogHeader>
-        <div className="text-sm">
-          <ul className="text-muted-foreground list-disc space-y-1.5 ps-4">
-            {items.map((x) => (
-              <li key={x}>{x}</li>
-            ))}
-          </ul>
-        </div>
+        {(['shows', 'assumes'] as const).map((part) => (
+          <section key={part} className="space-y-1.5 text-sm">
+            <h3 className="font-medium">{t(`guide.${part}Title`)}</h3>
+            <ul className="text-muted-foreground list-disc space-y-1.5 ps-4">
+              {list(part).map((x) => (
+                <li key={x}>{x}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
       </DialogContent>
     </Dialog>
   );

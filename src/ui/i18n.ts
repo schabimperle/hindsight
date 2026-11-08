@@ -5,8 +5,8 @@ import { makeFormat, type Fmt } from '../model/format';
 import type { Translate } from '../model/messages';
 import type { Row } from '../model/analysis';
 
-/** Keys assumptions.item1 … itemN in src/i18n. */
-export const ASSUMPTION_COUNT = 11;
+/** Keys guide.shows1 … showsN and guide.assumes1 … assumesN in src/i18n (the How-it-works dialog). */
+export const GUIDE_COUNTS = { shows: 6, assumes: 8 } as const;
 
 export interface Texts {
   t: Translate;

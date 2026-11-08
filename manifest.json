@@ -2,7 +2,7 @@
   "id": "hindsight",
   "name": "Hindsight",
   "version": "0.3.0",
-  "description": "What would your portfolio be worth if every deposit had bought a single asset instead? Replays your own deposits and withdrawals in BTC, an index ETF or any other ticker, nominal and in today's purchasing power.",
+  "description": "Would a simpler strategy have done better with your money? Replays your deposits and withdrawals in an index ETF, Bitcoin, any Yahoo Finance ticker or a fixed mix and shows how much more or less you would have gained.",
   "sdkVersion": "3.12.0",
   "main": "dist/addon.js",
   "enabled": true,

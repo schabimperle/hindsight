@@ -1,16 +1,19 @@
 # Hindsight
 
-A Wealthfolio addon that answers: **what would your portfolio be worth if every deposit
-had bought a single asset instead?** Replay the same deposits and withdrawals in an ETF,
-Bitcoin, another Yahoo Finance ticker, or cash, and compare the result with your portfolio.
+A Wealthfolio addon for one question: **would a simpler strategy have done better with your money?**
+Hindsight replays your own deposits and withdrawals in an alternative, such as an index ETF, Bitcoin,
+any Yahoo Finance ticker, cash or a fixed mix (e.g. 70/30 with yearly rebalancing): each deposit buys it
+on the same day, each withdrawal sells some of it. It then shows how much more or less you would have
+gained.
 
-- Select accounts, benchmarks and a date range; combine assets into a fixed mix (e.g. 70/30 with
-  yearly rebalancing).
-- Compare value, gain and money-weighted return, nominal or inflation-adjusted.
-- Chart each line's value next to the money taken in, or each alternative's lead or gap over your portfolio,
-  with deposit/withdrawal markers.
-- See each line's maximum drawdown (time-weighted).
-- Follows Wealthfolio's language and number formatting; English and German are included.
+- **Gain difference:** the alternative's gain minus yours, with exactly your cash flows.
+- **MWR p.a.:** the same comparison as a money-weighted yearly return (XIRR).
+- **Charts:** each line's value next to the money taken in, or each alternative's lead or gap over your
+  portfolio over time, with deposit/withdrawal markers.
+- **Max drawdown:** how far each line fell from a high (time-weighted), i.e. how bumpy the ride was.
+- **Nominal or real:** gain and MWR in purchasing power at the end of the period.
+- Select accounts, alternatives and a date range; follows Wealthfolio's language and number formatting
+  (English and German included).
 
 ## Install
 

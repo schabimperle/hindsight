@@ -1,6 +1,6 @@
 {
   "app": {
-    "subtitle": "Hindsight spielt deine Ein- und Auszahlungen für jeweils ein Asset nach: Jede Einzahlung kauft es, jede Auszahlung verkauft davon, und die Position kann nie negativ werden. Das ist ein Public Market Equivalent (PME) nach Long und Nickels (Index-Vergleichsmethode), angewendet auf dein eigenes Portfolio.",
+    "subtitle": "Hätte eine einfachere Strategie mit deinem Geld besser abgeschnitten? Hindsight spielt deine eigenen Ein- und Auszahlungen in einer Alternative nach, etwa einem Index-ETF, Bitcoin oder einer festen Mischung: Jede Einzahlung kauft sie am selben Tag, jede Auszahlung verkauft davon. Die Methode heißt Public Market Equivalent (Long–Nickels).",
     "loadFailed": "Laden fehlgeschlagen: {{error}}",
     "loading": "Lade Daten",
     "settingsSaveFailed": "Einstellungen konnten nicht gespeichert werden",
@@ -62,19 +62,6 @@
   },
   "comparison": {
     "title": "Vergleich"
-  },
-  "assumptions": {
-    "item1": "Vor Steuern und Gebühren: Die Alternativen zahlen keine; dein Portfolio enthält die tatsächlich gezahlten.",
-    "item2": "Eine Einzahlung kauft zum bereinigten Schlusskurs (Yahoo Finance) des Tages oder nächsten Handelstags, eine Auszahlung verkauft diesen Betrag. Ausschüttungen werden reinvestiert.",
-    "item3": "Eine Auszahlung über dem Wert der Alternative zählt nur in gedeckter Höhe.",
-    "item4": "Vor dem ersten Kurs eines Assets bleibt das Geld uninvestiert und wird an diesem Tag auf einmal gekauft.",
-    "item5": "Es zählt nur Geld, das von außen auf die gewählten Konten fließt, keine Umbuchungen dazwischen.",
-    "item6": "Sachübertragungen von außen zählen mit dem Preis der Buchung, sonst mit dem Wealthfolio-Kurs um diesen Tag. Wertlose (z. B. Spam-Token) werden ignoriert.",
-    "item7": "Real: Kaufkraft am Ende des Zeitraums, nach dem OECD-Verbraucherpreisindex des Landes deiner Zeitzone (sonst deiner Basiswährung).",
-    "item8": "Beginnt der Zeitraum nach deiner ersten Einzahlung, startet er mit dem Wert deines Portfolios an diesem Tag als Einzahlung.",
-    "item9": "Der Chart zeigt den Wert jeder Linie, das netto eingezahlte Geld („Netto ein“) gestrichelt. „Differenz“ zeigt den Gewinn jeder Linie minus den deines Portfolios an diesem Tag; Gewinn ist der Wert minus das Geld, das die Linie bis dahin selbst aufgenommen und ausgezahlt hat, Ein- und Auszahlungen erzeugen also keine Sprünge (dein Portfolio ist die Nulllinie, der heutige Punkt die Gewinndifferenz).",
-    "item10": "Der maximale Drawdown ist zeitgewichtet, Ein- und Auszahlungen zählen also weder als Gewinn noch als Verlust: bei einer Alternative auf ihrem Kurs, bei deinem Portfolio auf Wealthfolios täglichen Bewertungen.",
-    "item11": "Eine Mischung teilt jede Einzahlung nach den Gewichten auf und verkauft anteilig; „Jährlich“ setzt die Gewichte am ersten Tag des Jahres zurück, an dem jede Anlage einen Kurs hat. Ihr Drawdown ist der der Strategie (eine Einheit ab Beginn angelegt), nicht der simulierten Position."
   },
   "messages": {
     "no_prices": "Es liegen keine Kurse vor.",
@@ -196,5 +183,23 @@
     "hintInvalid": "Jedes Gewicht muss über 0 liegen und höchstens zwei Nachkommastellen haben, jede Anlage verschieden sein.",
     "hintDuplicate": "Diese Mischung ist schon in der Liste.",
     "composition": "{{parts}} · Rebalancing: {{rebalance}}"
+  },
+  "guide": {
+    "showsTitle": "Was du siehst",
+    "shows1": "Gewinndifferenz: der Gewinn der Alternative minus deinen. Über null hätte sie mit genau deinen Ein- und Auszahlungen mehr verdient.",
+    "shows2": "MWR p.a.: die geldgewichtete Jahresrendite (XIRR) jeder Linie auf dieselben Geldflüsse; unter einem Jahr über den Zeitraum. Sie ist derselbe Vergleich als Rate: Sofern keine Auszahlung ungedeckt war, hat die Linie mit dem höheren Gewinn auch die höhere MWR.",
+    "shows3": "Chart „Wert“: der Wert jeder Linie über die Zeit; die gestrichelte Linie „Netto ein“ ist das bis zu diesem Tag eingezahlte minus das ausgezahlte Geld.",
+    "shows4": "Chart „Differenz“: der Gewinn jeder Linie minus den deines Portfolios an diesem Tag; Gewinn ist der Wert minus das Geld, das die Linie aufgenommen und ausgezahlt hat, Einzahlungen erzeugen also keine Sprünge. Dein Portfolio ist die Nulllinie; darüber lag die Alternative bis dahin vorn. Der heutige Punkt ist die Gewinndifferenz.",
+    "shows5": "Max. Drawdown: der größte Rückgang von einem vorherigen Höchststand, zeitgewichtet, Ein- und Auszahlungen zählen also weder als Gewinn noch als Verlust: bei einer Alternative auf ihrem Kurs, bei deinem Portfolio auf Wealthfolios täglichen Bewertungen. Er zeigt, wie holprig der Weg war, nicht, was besser lief.",
+    "shows6": "Real: Gewinn und MWR in Kaufkraft am Ende des Zeitraums, nach dem OECD-Verbraucherpreisindex des Landes deiner Zeitzone (sonst deiner Basiswährung). Werte und Gewinndifferenz bleiben gleich.",
+    "assumesTitle": "Annahmen",
+    "assumes1": "Vor Steuern und Gebühren: Die Alternativen zahlen keine; dein Portfolio enthält die tatsächlich gezahlten.",
+    "assumes2": "Eine Einzahlung kauft zum bereinigten Schlusskurs (Yahoo Finance) des Tages oder nächsten Handelstags, eine Auszahlung verkauft diesen Betrag. Ausschüttungen werden reinvestiert.",
+    "assumes3": "Eine Auszahlung über dem Wert der Alternative zählt nur in gedeckter Höhe.",
+    "assumes4": "Vor dem ersten Kurs eines Assets bleibt das Geld uninvestiert und wird an diesem Tag auf einmal gekauft.",
+    "assumes5": "Es zählt nur Geld, das von außen auf die gewählten Konten fließt, keine Umbuchungen dazwischen.",
+    "assumes6": "Sachübertragungen von außen zählen mit dem Preis der Buchung, sonst mit dem Wealthfolio-Kurs um diesen Tag. Wertlose (z. B. Spam-Token) werden ignoriert.",
+    "assumes7": "Beginnt der Zeitraum nach deiner ersten Einzahlung, startet er mit dem Wert deines Portfolios an diesem Tag als Einzahlung.",
+    "assumes8": "Eine Mischung teilt jede Einzahlung nach den Gewichten auf und verkauft anteilig; „Jährlich“ setzt die Gewichte am ersten Tag des Jahres zurück, an dem jede Anlage einen Kurs hat. Ihr Drawdown ist der der Strategie (eine Einheit ab Beginn angelegt), nicht der simulierten Position."
   }
 }

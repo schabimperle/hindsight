@@ -6,7 +6,7 @@ import de from '../src/i18n/de.json';
 import en from '../src/i18n/en.json';
 import { makeFormat } from '../src/model/format';
 import { MESSAGE_CODES, messageText, type Translate } from '../src/model/messages';
-import { ASSUMPTION_COUNT } from '../src/ui/i18n';
+import { GUIDE_COUNTS } from '../src/ui/i18n';
 import { setTestLanguage } from './setup';
 
 type Bundle = { [k: string]: string | Bundle };
@@ -32,8 +32,11 @@ describe('translations', () => {
 
   it('every message code has a text, every key in use exists', () => {
     for (const c of MESSAGE_CODES) expect(hasKey(`messages.${c}`), c).toBe(true);
-    for (let i = 1; i <= ASSUMPTION_COUNT; i++) expect(enKeys.has(`assumptions.item${i}`)).toBe(true);
-    expect(enKeys.has(`assumptions.item${ASSUMPTION_COUNT + 1}`)).toBe(false);
+    for (const [part, n] of Object.entries(GUIDE_COUNTS)) {
+      expect(enKeys.has(`guide.${part}Title`), part).toBe(true);
+      for (let i = 1; i <= n; i++) expect(enKeys.has(`guide.${part}${i}`), `${part}${i}`).toBe(true);
+      expect(enKeys.has(`guide.${part}${n + 1}`), `${part}${n + 1}`).toBe(false);
+    }
     const used = files(join(srcRoot, 'ui')).flatMap((f) => [...code(f).matchAll(/\bt\(\s*'([^']+)'/g)].map((m) => m[1]));
     expect(used.length).toBeGreaterThan(50);
     for (const k of used) expect(hasKey(k), k).toBe(true);

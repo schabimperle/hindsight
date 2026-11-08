@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- One description in three lengths: the addon listing, the README and the “How Hindsight works” dialog all start
+  from the question “would a simpler strategy have done better with your money?”. The dialog splits into “What you
+  see” (each figure and chart) and “Assumptions”.
 - Fewer views, each on one basis: the chart shows Value (default, with “Net in”) or Difference; the separate gain
   chart and the logarithmic scale are gone. The metric strip leads with the gain difference for an alternative and
   drops the Risk section; the max drawdown is a table column only (dates on hover), and the recovery time is gone,
