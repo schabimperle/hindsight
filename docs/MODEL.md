@@ -117,7 +117,10 @@
   shared net-in line, and a log scale over a series that grows by deposits is hard to read.
   Missing selected-line values use the net-in reference.
   `depCount`/`depAmount`/`wdCount`/`wdAmount` describe original bookings on that day, not simulated execution.
-  Tile counts also mean original bookings (excluding the opening value); the help explains daily netting
+  Tile counts also mean original bookings. A period starting after the first deposit shows the opening value as
+  its own "Start value" tile and leaves it out of "Deposits" (the core still books it as the first deposit), so
+  the tiles add up as Value = Start value + Deposits - Withdrawals + Gain, as in Portfolio Performance's period
+  breakdown and broker statements. The help explains daily netting
   and uncovered withdrawals. Badge minimum height is inline because the host CSS does not contain addon-only
   Tailwind utilities. Mobile metric tiles use the host's label/value typography, padding and gaps, with its compact
   16 px info trigger. Their backgrounds stretch to the carousel row's height (`h-full`); do not reserve

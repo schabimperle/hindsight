@@ -147,12 +147,13 @@
     "mwr": "MWR p.a.",
     "vs": "Gain difference",
     "value": "Value",
+    "start": "Start value",
     "helpTitle": "Hindsight metrics",
     "info": {
       "mwr": "Money-weighted return per year (XIRR).",
       "mwrPeriod": "Money-weighted return over the period (XIRR), not annualised.",
-      "depositsWindow": "Includes {{value}}, your portfolio's value at the start of the period.",
-      "bookings": "The count is original bookings in the period, excluding the opening value. Amounts are netted per day; alternatives only include covered withdrawals.",
+      "start": "Your portfolio's value at the start of the period. Every line starts with it, as if it were deposited on that day; deposits are the bookings after it.",
+      "bookings": "The count is original bookings in the period. Amounts are netted per day; alternatives only include covered withdrawals.",
       "vs": "This alternative's gain minus your portfolio's gain, with the same deposits and withdrawals on the same days. It equals the difference in end value unless the alternative could not fully cover a withdrawal: then it is lower by the uncovered amount (in real figures, that amount at end-of-period purchasing power)."
     },
     "mwrPeriod": "MWR",

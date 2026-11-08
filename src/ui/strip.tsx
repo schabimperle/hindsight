@@ -9,7 +9,8 @@ const signed = (fmt: Fmt, v: number | null) => <span className={gainClass(v)}>{v
 const pct = (fmt: Fmt, v: number | null) => <span className={gainClass(v)}>{fmt.pctSigned(v)}</span>;
 
 /** Metrics of the selected item in the host's strip layout: return and capital (nominal; the real figures are in
- * the comparison table below); for an alternative the gain difference first, as the answer to the comparison
+ * the comparison table below; a period after the first deposit splits the start value from the deposits, as
+ * Value = Start value + Deposits - Withdrawals + Gain); for an alternative the gain difference first, as the answer to the comparison
  * (`actual` = the real portfolio's report to compare with), with the uncovered withdrawals it includes right below
  * the figure. The max drawdown is a column of the comparison table only. */
 export function stripSections({
@@ -25,7 +26,7 @@ export function stripSections({
   report: Report;
   actual: Report | null;
 }): MetricSection[] {
-  const windowed = a.openingValue !== null;
+  const opening = a.openingValue;
   const period = a.mwrPeriodDays !== null;
   const vs = actual ? report.gain - actual.gain : null;
   // Same threshold as the core's `withdrawal_uncovered` warning.
@@ -50,15 +51,24 @@ export function stripSections({
       title: t('strip.capital'),
       metrics: [
         { key: 'value', label: t('strip.value'), value: fmt.money(report.value) },
+        ...(opening !== null
+          ? [
+              {
+                key: 'start',
+                label: t('strip.start'),
+                info: t('strip.info.start'),
+                value: fmt.money(opening),
+                detail: a.start ? fmt.date(a.start) : undefined,
+              },
+            ]
+          : []),
         {
           key: 'deposits',
           label: t('strip.deposits'),
-          info: [
-            windowed ? t('strip.info.depositsWindow', { value: fmt.money(a.openingValue ?? 0) }) : '',
-            t('strip.info.bookings'),
-          ].filter(Boolean).join(' '),
+          info: t('strip.info.bookings'),
           detail: t('strip.bookings', { count: a.depositCount }),
-          value: fmt.money(report.deposits),
+          // The core books the start value as a deposit on the start day (no booking shares that day), shown apart.
+          value: fmt.money(Math.max(0, report.deposits - (opening ?? 0))),
         },
         {
           key: 'withdrawals',

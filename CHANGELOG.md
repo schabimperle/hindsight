@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- A period starting after your first deposit shows the portfolio's value at its start as “Start value” next to
+  “Deposits”, which now count only the bookings in the period.
 - On phones the “How Hindsight works” and mix dialogs space their parts again (the bottom sheet ignored the
   dialog's gap), and each heading in “How Hindsight works” sits closer to its list than to the previous one.
 - One description in three lengths: the addon listing, the README and the “How Hindsight works” dialog all start
