@@ -28,7 +28,7 @@ function compareResult(label: string, got: VariantResult | undefined, want: Vari
   const wd = want.drawdown;
   if (
     (gd === null) !== (wd === null) ||
-    (gd !== null && wd !== null && (!close(gd.max, wd.max, RATE_TOL) || gd.peak !== wd.peak || gd.trough !== wd.trough || gd.recovery !== wd.recovery))
+    (gd !== null && wd !== null && (!close(gd.max, wd.max, RATE_TOL) || gd.peak !== wd.peak || gd.trough !== wd.trough))
   ) {
     diffs.push(`${label}.drawdown: ${JSON.stringify(gd)} != ${JSON.stringify(wd)}`);
   }

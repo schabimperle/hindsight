@@ -21,8 +21,7 @@
    "drawdown": {
     "max": -0.17370564118243348,
     "peak": "2019-10-23",
-    "trough": "2020-12-07",
-    "recovery": "2021-08-16"
+    "trough": "2020-12-07"
    },
    "warnings": []
   },
@@ -42,8 +41,7 @@
    "drawdown": {
     "max": -0.11591221199681401,
     "peak": "2022-06-17",
-    "trough": "2023-09-13",
-    "recovery": "2024-04-01"
+    "trough": "2023-09-13"
    },
    "warnings": []
   },
@@ -63,8 +61,7 @@
    "drawdown": {
     "max": -0.13509087011524157,
     "peak": "2025-03-26",
-    "trough": "2026-05-12",
-    "recovery": null
+    "trough": "2026-05-12"
    },
    "warnings": []
   },
@@ -84,8 +81,7 @@
    "drawdown": {
     "max": -0.14908277791662672,
     "peak": "2025-06-29",
-    "trough": "2026-05-31",
-    "recovery": null
+    "trough": "2026-05-31"
    },
    "warnings": [
     "late_start"
@@ -112,8 +108,7 @@
    "drawdown": {
     "max": -0.9998684791244083,
     "peak": "2019-01-03",
-    "trough": "2026-06-15",
-    "recovery": null
+    "trough": "2026-06-15"
    },
    "warnings": [
     "withdrawal_uncovered"
@@ -135,8 +130,7 @@
    "drawdown": {
     "max": -0.1737056411824338,
     "peak": "2019-10-23",
-    "trough": "2020-12-07",
-    "recovery": "2021-08-16"
+    "trough": "2020-12-07"
    },
    "warnings": []
   },

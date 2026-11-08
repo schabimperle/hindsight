@@ -1,6 +1,6 @@
 import { cn } from '@wealthfolio/ui';
 
-/** Pill switch as in the host's Top Movers card. Shared by view and chart scale. */
+/** Pill switch as in the host's Top Movers card. Shared by view and chart mode. */
 export function PillSwitch<T extends string>({ label, value, options, onChange }: {
   label: string;
   value: T;

@@ -29,9 +29,7 @@ import { loadSettings, saveSettings } from '../sources/settingsStore';
 import { AccountScope, type Scope } from './AccountScope';
 import { BadgeRow, type BadgeItem } from './Badges';
 import { BenchmarkPicker } from './BenchmarkPicker';
-import { ComparisonChart, NET_KEY, type ChartMode } from './ComparisonChart';
-import { ChartScaleSwitch } from './ChartScaleSwitch';
-import { logAxis, type ChartScale } from './logAxis';
+import { ComparisonChart, type ChartMode } from './ComparisonChart';
 import { MarkerToggle } from './MarkerToggle';
 import { PillSwitch } from './PillSwitch';
 import { AddonCtx, useAddon } from './context';
@@ -79,8 +77,7 @@ function Comparison() {
   const [view, setView] = useState<ViewMode>('nominal');
   const [selected, setSelected] = useState('actual');
   const [markers, setMarkers] = useState(false);
-  const [chartScale, setChartScale] = useState<ChartScale>('linear');
-  const [chartMode, setChartMode] = useState<ChartMode>('gain');
+  const [chartMode, setChartMode] = useState<ChartMode>('value');
 
   // Every selector saves right away (as the host persists its selections); the page shows the new state at once.
   // Only once the stored settings are loaded (the selectors are disabled before), so a late load cannot overwrite
@@ -231,9 +228,6 @@ function Comparison() {
   const warnings = analysis && !analysis.fatal ? analysis.headerWarnings : [];
   const period = analysis?.start && analysis.today ? `${fmt.date(analysis.start)} – ${fmt.date(analysis.today)}` : '';
 
-  const plottedKeys = [NET_KEY, ...rows.filter((r) => !isError(r.result) && colors.has(r.key)).map((r) => r.key)];
-  const logAvailable = !!analysis && logAxis(analysis.chart, plottedKeys, fmt.money) !== null;
-  const scale = chartScale === 'log' && logAvailable ? 'log' : 'linear';
 
   return (
     <TooltipProvider>
@@ -301,14 +295,11 @@ function Comparison() {
                   <CardContent className={cn('min-h-0', isMobile ? 'p-2' : 'p-3 sm:p-6')}>
                     <div className="mb-1 flex flex-wrap items-start justify-end gap-2">
                       <MarkerToggle enabled={markers} onToggle={() => setMarkers((m) => !m)} />
-                      {/* Gain starts at zero and can be negative, so only the value chart has a logarithmic scale.
-                          It sits left of the mode switch, which keeps its place when it appears. */}
-                      {chartMode === 'value' && <ChartScaleSwitch scale={scale} onChange={setChartScale} available={logAvailable} />}
                       <PillSwitch
                         label={t('chart.mode')}
                         value={chartMode}
                         onChange={setChartMode}
-                        options={(['gain', 'difference', 'value'] as const).map((value) => ({ value, label: t(`chart.${value}`) }))}
+                        options={(['value', 'difference'] as const).map((value) => ({ value, label: t(`chart.${value}`) }))}
                       />
                     </div>
                     <ComparisonChart
@@ -318,7 +309,6 @@ function Comparison() {
                       selected={selectedKey}
                       markers={markers}
                       mode={chartMode}
-                      scale={scale}
                     />
                   </CardContent>
                 </Card>

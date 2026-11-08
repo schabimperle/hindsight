@@ -42,10 +42,11 @@
   thresholds in `crates/portfolio-engine/src/measure.rs`). Only days on which every started account has its own
   valuation count (`coveredDaily`: the total carries an account's older state forward otherwise, which would turn
   into returns); a booking on any other day makes it unavailable (“history incomplete”). Wealthfolio stores a
-  valuation per account and calendar day, so that only happens with real gaps. Recovery = first day back at the
-  peak before the deepest fall; a mix uses the strategy's index (one unit from the first deposit, same
-  rebalancing), not the simulated position's; the duration runs from that peak to the recovery, or to the period end while
-  open (Wealthfolio reports peak to trough for an open one; Hindsight shows how long it has lasted so far).
+  valuation per account and calendar day, so that only happens with real gaps. A mix uses the strategy's index
+  (one unit from the first deposit, same rebalancing), not the simulated position's. Shown only as a column of
+  the comparison table (peak and trough dates on hover): it is the one time-weighted figure next to the
+  money-weighted rest. A recovery time was removed in 11/2026; it contradicted the value (deposits lift the value
+  above an old high long before the return recovers).
 - Period (`src/model/range.ts`, `analyze(input, window)`): a start after the first flow makes the real
   portfolio's value at the end of the start day (Wealthfolio's daily valuations, latest on or before the day,
   at most 10 days old, never negative, else the analysis blocks with `valuation_missing`) an opening deposit on
@@ -105,24 +106,15 @@
   skips nice/whole-unit ticks with explicit `scale="linear"`. `width="auto"` measures the labels on each
   range change: a fixed mobile width clipped German six-digit amounts and negative signs. Do not restore
   a fixed width or compact tick labels.
-  Gain is the default chart (`Analysis.gainChart`): per line the value minus the net of that line's own
-  executed flows up to the day (`DetailedRun.executed`), so deposits and withdrawals cause no jumps, a
-  withdrawal an alternative could not cover never counts as taken out, and a period starts at zero (the opening
-  deposit is a flow). Differences between lines equal the value differences only while all lines executed the
-  same flows. A zero line replaces the dashed "Net in" reference; a "Gain/Difference/Value" pill switch next to
-  the markers button toggles the chart. Difference (`Analysis.diffChart`) plots every line's gain so far minus the
-  real portfolio's on the same day, so the real portfolio is the zero line and today's point is the nominal gain
-  difference (uncovered withdrawals included); a day where either gain is missing has no point. Value mode is the
-  only one with the Logarithmic scale (gain starts at zero and can be negative); the scale switch is hidden in the
-  other modes and appears left of the mode switch, so that one stays under the pointer when toggling.
-  A shared pill control (same component as Nominal/Real) at the top right switches Linear/Logarithmic.
-  Linear remains the default. Log uses Recharts `scale="log"`, the positive data extent (constant values
-  get a nondegenerate domain), and D3 log ticks with distinct whole-currency labels. It keeps the same
-  16 px padding and automatic label width; it does not round the domain to powers of ten, which would
-  flatten short windows. Log is disabled, with a visible explanation, if any plotted value is zero,
-  negative or nonfinite, including the always-visible net-in reference. Existing null gaps do not block
-  it. No values are hidden or clamped. The choice is local like Nominal/Real and History; an unavailable
-  range displays Linear and restores the chosen Log mode when positive data returns.
+  Value is the default chart (`Analysis.chart`) with the dashed "Net in" reference, as in the tools that replay
+  the same cash flows into a benchmark (TradingView Portfolios, FinBodhi). A "Value/Difference" pill switch next
+  to the markers button toggles the chart. Difference (`Analysis.diffChart`) plots every line's gain so far
+  (`Analysis.gainChart`: the value minus the net of that line's own executed flows up to the day,
+  `DetailedRun.executed`, so deposits cause no jumps and an uncovered withdrawal never counts as taken out) minus
+  the real portfolio's on the same day, so the real portfolio is the zero line and today's point is the nominal
+  gain difference (uncovered withdrawals included); a day where either gain is missing has no point. A separate
+  gain chart and a logarithmic scale were removed in 11/2026: the gain chart only shifted the value chart by the
+  shared net-in line, and a log scale over a series that grows by deposits is hard to read.
   Missing selected-line values use the net-in reference.
   `depCount`/`depAmount`/`wdCount`/`wdAmount` describe original bookings on that day, not simulated execution.
   Tile counts also mean original bookings (excluding the opening value); the help explains daily netting

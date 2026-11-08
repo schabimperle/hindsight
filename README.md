@@ -7,9 +7,9 @@ Bitcoin, another Yahoo Finance ticker, or cash, and compare the result with your
 - Select accounts, benchmarks and a date range; combine assets into a fixed mix (e.g. 70/30 with
   yearly rebalancing).
 - Compare value, gain and money-weighted return, nominal or inflation-adjusted.
-- Chart the gain so far (default), each alternative's lead or gap over your portfolio, or the value,
-  with a logarithmic scale for the value, and show deposit/withdrawal markers.
-- See each line's maximum drawdown (time-weighted) and how long it took to recover.
+- Chart each line's value next to the money taken in, or each alternative's lead or gap over your portfolio,
+  with deposit/withdrawal markers.
+- See each line's maximum drawdown (time-weighted).
 - Follows Wealthfolio's language and number formatting; English and German are included.
 
 ## Install

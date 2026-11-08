@@ -265,7 +265,6 @@ describe('drawdown', () => {
     const actual = a.rows.find((r) => r.kind === 'actual')?.result as Report;
     expect(want.actual && 'drawdown' in want.actual ? want.actual.drawdown : undefined).toBeTruthy();
     expect(actual.drawdown?.max).toBeCloseTo((want.actual as Report).drawdown?.max as number, 9);
-    expect(actual.drawdown?.recovery).toBe((want.actual as Report).drawdown?.recovery);
   });
 
   it('days on which a started account has no valuation of its own do not count; a booking on one blocks it', () => {

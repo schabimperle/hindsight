@@ -37,14 +37,12 @@ export interface Shortfall {
   amount: number;
 }
 
-/** Maximum drawdown of a time-weighted index (nominal). `max` 0 means none (all dates null); `recovery` null with
- * `max` < 0: not recovered by the window end. */
+/** Maximum drawdown of a time-weighted index (nominal). `max` 0 means none (both dates null). */
 export interface Drawdown {
   /** Lowest index level relative to its running peak, minus 1 (e.g. -0.25). */
   max: number;
   peak: string | null;
   trough: string | null;
-  recovery: string | null;
 }
 
 export interface Report {

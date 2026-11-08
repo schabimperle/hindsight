@@ -81,8 +81,7 @@ Model decisions (documented in the addon UI):
     day without a valuation point or a missing daily series.
   - On the index: running peak (a value at or above it, within a relative 1e-12, is a new peak),
     drawdown = index / peak - 1; `max` is the lowest drawdown, `peak` the date of the peak before
-    it, `trough` the date of the lowest point, `recovery` the first later day back at that peak
-    (null: not recovered). Without any drawdown below -1e-12: max 0, all dates null.
+    it, `trough` the date of the lowest point. Without any drawdown below -1e-12: max 0, all dates null.
 """
 
 import bisect
@@ -95,7 +94,7 @@ MAX_PRICE_GAP_DAYS = 10  # holidays plus the odd missing quote
 EPS = 1e-9
 MIN_RETURN_BASE = 1.0  # Wealthfolio's: a smaller day base pauses the time-weighted index
 PEAK_TOL = 1e-12
-NO_DRAWDOWN = {"max": 0.0, "peak": None, "trough": None, "recovery": None}
+NO_DRAWDOWN = {"max": 0.0, "peak": None, "trough": None}
 
 
 class PriceError(Exception):
@@ -290,20 +289,17 @@ def drawdown(index):
     if not index:
         return None
     peak, peak_day = index[0][1], index[0][0]
-    worst, at_peak, trough, recovery = 0.0, None, None, None
+    worst, at_peak, trough = 0.0, None, None
     for day, level in index:
         if level >= peak * (1 - PEAK_TOL):
             peak, peak_day = max(peak, level), day
-            if trough is not None and recovery is None:
-                recovery = day
             continue
         dd = level / peak - 1
         if dd < worst:
-            worst, at_peak, trough, recovery = dd, peak_day, day, None
+            worst, at_peak, trough = dd, peak_day, day
     if trough is None:
         return dict(NO_DRAWDOWN)
-    return {"max": worst, "peak": at_peak.isoformat(), "trough": trough.isoformat(),
-            "recovery": recovery.isoformat() if recovery else None}
+    return {"max": worst, "peak": at_peak.isoformat(), "trough": trough.isoformat()}
 
 
 def mix_parts(variant):

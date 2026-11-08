@@ -30,8 +30,7 @@
    "drawdown": {
     "max": -0.11592598519227804,
     "peak": "2024-04-23",
-    "trough": "2024-06-28",
-    "recovery": null
+    "trough": "2024-06-28"
    },
    "warnings": [
     "late_start",
@@ -63,8 +62,7 @@
    "drawdown": {
     "max": 0.0,
     "peak": null,
-    "trough": null,
-    "recovery": null
+    "trough": null
    },
    "warnings": [
     "late_start",
@@ -96,8 +94,7 @@
    "drawdown": {
     "max": -0.3100106151141041,
     "peak": "2024-02-06",
-    "trough": "2024-06-08",
-    "recovery": null
+    "trough": "2024-06-08"
    },
    "warnings": [
     "withdrawal_uncovered"
@@ -136,8 +133,7 @@
    "drawdown": {
     "max": 0.0,
     "peak": null,
-    "trough": null,
-    "recovery": null
+    "trough": null
    },
    "warnings": [
     "withdrawal_uncovered"

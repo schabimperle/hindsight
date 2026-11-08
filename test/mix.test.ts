@@ -109,7 +109,7 @@ describe('fixed mix', () => {
     const v = mix('yearly', [50, fri], [50, fri]);
     const idx = mixIndex(v, [{ date: '2024-03-03', amount: 100 }], '2024-03-05', '2024-03-03');
     expect(idx?.[0]).toEqual(['2024-03-03', 1]);
-    expect(drawdown(idx)).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-03-03', trough: '2024-03-04', recovery: null });
+    expect(drawdown(idx)).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-03-03', trough: '2024-03-04' });
   });
 
   it('a component whose prices start after today makes the mix uncomputable', () => {

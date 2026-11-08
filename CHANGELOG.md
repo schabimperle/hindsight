@@ -2,9 +2,12 @@
 
 ## Unreleased
 
-- The “Gain difference” column no longer gets a “(real)” suffix: the difference is the same in both views. An open
-  drawdown names the high it has not regained, and the recovery explanation says that it follows the return, not
-  the value.
+- Fewer views, each on one basis: the chart shows Value (default, with “Net in”) or Difference; the separate gain
+  chart and the logarithmic scale are gone. The metric strip leads with the gain difference for an alternative and
+  drops the Risk section; the max drawdown is a table column only (dates on hover), and the recovery time is gone,
+  because it followed the time-weighted return and contradicted the value. The drawdown explanation says why it can
+  differ from Wealthfolio's Performance page (other accounts, e.g. a cash account).
+- The “Gain difference” column no longer gets a “(real)” suffix: the difference is the same in both views.
 
 - Fixed mixes as alternatives: “Create a mix…” in “Add benchmark” combines 2 to 5 assets with weights, rebalanced
   yearly (on the first trading day) or never. Deposits split by the weights, withdrawals sell pro rata; the mix

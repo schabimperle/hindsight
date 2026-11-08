@@ -5,7 +5,6 @@ import { isError } from '../core/types';
 import type { Analysis } from '../model/analysis';
 import type { Fmt } from '../model/format';
 import { axisTicks } from './axis';
-import { logAxis, type ChartScale } from './logAxis';
 import { rowName, useTexts } from './i18n';
 import { HistoryChartMarkerShape } from '../vendor/wealthfolio/history-chart-marker';
 import { bookingMarkers, dayFromTime, timeOfDay } from './markers';
@@ -19,13 +18,13 @@ interface Series {
 }
 
 export const NET_KEY = 'net';
-export type ChartMode = 'gain' | 'difference' | 'value';
+export type ChartMode = 'value' | 'difference';
 const DEPOSIT_COLOR = 'var(--success)';
 const WITHDRAWAL_COLOR = 'var(--destructive)';
 
 /** Every computable row as a line in its badge colour (the host plots every added item); the selected line is
- * drawn last and thicker. Gain mode plots the gain so far with a zero line; difference mode each gain minus the
- * real portfolio's, whose own line is then the zero line; value mode the value with the dashed "Net in" reference. */
+ * drawn last and thicker. Value mode plots the value with the dashed "Net in" reference; difference mode each gain
+ * minus the real portfolio's, whose own line is then the zero line. */
 export function ComparisonChart({
   a,
   fmt,
@@ -33,7 +32,6 @@ export function ComparisonChart({
   selected,
   markers,
   mode = 'value',
-  scale = 'linear',
 }: {
   a: Analysis;
   fmt: Fmt;
@@ -42,8 +40,6 @@ export function ComparisonChart({
   /** Wealthfolio activity markers on the selected line. */
   markers: boolean;
   mode?: ChartMode;
-  /** Only meaningful for value mode: gain starts at zero and can be negative. */
-  scale?: ChartScale;
 }) {
   const { t, language } = useTexts();
   const isMobile = useIsMobile();
@@ -64,11 +60,7 @@ export function ComparisonChart({
     return out;
   }, [a.rows, colors, selected, mode, t]);
 
-  const chart = mode === 'gain' ? a.gainChart : mode === 'difference' ? a.diffChart : a.chart;
-  const logarithmic = useMemo(
-    () => (mode === 'value' && scale === 'log' ? logAxis(a.chart, series.map((s) => s.key), fmt.money) : null),
-    [a.chart, series, mode, scale, fmt],
-  );
+  const chart = mode === 'difference' ? a.diffChart : a.chart;
   const data = useMemo(() => chart.map((p) => ({ ...p, time: timeOfDay(String(p.date)) })), [chart]);
   const points = useMemo(() => markers ? bookingMarkers(chart, selected) : [], [chart, selected, markers]);
   const dates = useMemo(() => a.chart.map((p) => String(p.date)), [a.chart]);
@@ -98,8 +90,7 @@ export function ComparisonChart({
               minTickGap={isMobile ? 16 : 8}
             />
             <YAxis
-              domain={logarithmic?.domain ?? ['auto', 'auto']}
-              ticks={logarithmic?.ticks}
+              domain={['auto', 'auto']}
               padding={{ top: 16, bottom: 16 }}
               allowDecimals={false}
               tickFormatter={(v: number) => fmt.money(v)}
@@ -107,9 +98,8 @@ export function ComparisonChart({
               tickLine={false}
               axisLine={false}
               width="auto"
-              scale={logarithmic ? 'log' : 'auto'}
             />
-            {mode !== 'value' && <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="5 4" strokeOpacity={0.6} ifOverflow="extendDomain" />}
+            {mode === 'difference' && <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="5 4" strokeOpacity={0.6} ifOverflow="extendDomain" />}
             <Tooltip
               cursor={{ stroke: 'var(--muted-foreground)', strokeWidth: 1 }}
               content={({ active, payload, label: day }) => {

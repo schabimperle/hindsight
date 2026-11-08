@@ -8,21 +8,21 @@ const levels = (xs: number[]): IndexPoint[] => xs.map((x, i) => [`2024-01-${Stri
 
 describe('drawdown on an index', () => {
   it('no fall: max 0 without dates', () => {
-    expect(drawdown(levels([1, 1, 1.2, 1.3]))).toEqual({ max: 0, peak: null, trough: null, recovery: null });
+    expect(drawdown(levels([1, 1, 1.2, 1.3]))).toEqual({ max: 0, peak: null, trough: null });
   });
 
   it('a first falling step counts and stays open', () => {
-    expect(drawdown(levels([1, 0.9]))).toEqual({ max: expect.closeTo(-0.1, 12), peak: '2024-01-01', trough: '2024-01-02', recovery: null });
+    expect(drawdown(levels([1, 0.9]))).toEqual({ max: expect.closeTo(-0.1, 12), peak: '2024-01-01', trough: '2024-01-02' });
   });
 
   it('recovers on the first day back at the peak', () => {
     const dd = drawdown(levels([1, 0.8, 0.9, 1.0, 1.1]));
-    expect(dd).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-01-01', trough: '2024-01-02', recovery: '2024-01-04' });
+    expect(dd).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-01-01', trough: '2024-01-02' });
   });
 
   it('a deeper later fall replaces a recovered one', () => {
     const dd = drawdown(levels([1, 0.9, 1.05, 0.7]));
-    expect(dd).toEqual({ max: expect.closeTo(0.7 / 1.05 - 1, 12), peak: '2024-01-03', trough: '2024-01-04', recovery: null });
+    expect(dd).toEqual({ max: expect.closeTo(0.7 / 1.05 - 1, 12), peak: '2024-01-03', trough: '2024-01-04' });
   });
 
   it('a plateau at the peak moves the peak date', () => {
@@ -54,7 +54,7 @@ describe('asset index', () => {
   it('a window opening on Saturday uses the last price before it as base, dated on the opening day', () => {
     const idx = assetIndex(series, [{ date: '2024-03-02', amount: 100 }], '2024-03-05', '2024-03-02');
     expect(idx[0]).toEqual(['2024-03-02', 1]);
-    expect(drawdown(idx)).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-03-02', trough: '2024-03-04', recovery: '2024-03-05' });
+    expect(drawdown(idx)).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-03-02', trough: '2024-03-04' });
   });
 
   it('an uncovered withdrawal before the first deposit does not start the index', () => {
@@ -162,8 +162,8 @@ describe('run', () => {
 
   it('reports the drawdown per variant; cash never falls', () => {
     const out = run(fx);
-    expect((out.variants[0] as Report).drawdown).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-03-01', trough: '2024-03-04', recovery: null });
-    expect((out.variants[1] as Report).drawdown).toEqual({ max: 0, peak: null, trough: null, recovery: null });
+    expect((out.variants[0] as Report).drawdown).toEqual({ max: expect.closeTo(-0.2, 12), peak: '2024-03-01', trough: '2024-03-04' });
+    expect((out.variants[1] as Report).drawdown).toEqual({ max: 0, peak: null, trough: null });
   });
 
   it('does not depend on the chart sampling', () => {

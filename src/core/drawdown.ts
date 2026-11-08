@@ -4,7 +4,7 @@ import type { Drawdown, Fixture, Flow } from './types';
 /** Wealthfolio's: a smaller day base pauses the time-weighted index. */
 export const MIN_RETURN_BASE = 1;
 const PEAK_TOL = 1e-12;
-export const NO_DRAWDOWN: Drawdown = { max: 0, peak: null, trough: null, recovery: null };
+export const NO_DRAWDOWN: Drawdown = { max: 0, peak: null, trough: null };
 
 /** A level of a time-weighted index (1 = start). */
 export type IndexPoint = [string, number];
@@ -103,12 +103,10 @@ export function drawdown(index: IndexPoint[] | null): Drawdown | null {
   let worst = 0;
   let atPeak: string | null = null;
   let trough: string | null = null;
-  let recovery: string | null = null;
   for (const [day, level] of index) {
     if (level >= peak * (1 - PEAK_TOL)) {
       peak = Math.max(peak, level);
       peakDay = day;
-      if (trough !== null && recovery === null) recovery = day;
       continue;
     }
     const dd = level / peak - 1;
@@ -116,9 +114,8 @@ export function drawdown(index: IndexPoint[] | null): Drawdown | null {
       worst = dd;
       atPeak = peakDay;
       trough = day;
-      recovery = null;
     }
   }
   if (trough === null) return { ...NO_DRAWDOWN };
-  return { max: worst, peak: atPeak, trough, recovery };
+  return { max: worst, peak: atPeak, trough };
 }

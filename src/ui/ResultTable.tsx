@@ -13,7 +13,7 @@ import {
 import { TriangleAlert } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { Analysis } from '../model/analysis';
-import { drawdownState, durationText } from '../model/drawdownText';
+import { drawdownState } from '../model/drawdownText';
 import type { Fmt } from '../model/format';
 import { codeText, messageText } from '../model/messages';
 import { rowName, useTexts, type Texts } from './i18n';
@@ -55,7 +55,7 @@ export function ComparisonCard({
   const { t } = useTexts();
   const views = useMemo(() => ({ nominal: buildRowViews(a.rows, 'nominal'), real: buildRowViews(a.rows, 'real') }), [a.rows]);
   const rows = views[view];
-  const ctx: RowCtx = { colors, selected, onSelect, period: a.mwrPeriodDays !== null, today: a.today };
+  const ctx: RowCtx = { colors, selected, onSelect, period: a.mwrPeriodDays !== null };
   const [open, setOpen] = useState<Set<string>>(new Set());
   const toggle = (key: string): void =>
     setOpen((s) => {
@@ -111,8 +111,6 @@ interface RowCtx {
   onSelect: (key: string) => void;
   /** Money-weighted returns over the window instead of per year. */
   period: boolean;
-  /** Window end (an open drawdown lasts until then). */
-  today: string;
 }
 
 /** Warning marker of a row; it opens the row's notes. Rows without notes have nothing to expand. */
@@ -238,6 +236,8 @@ function DesktopTable({
 }) {
   const { t } = useTexts();
   const real = view === 'real';
+  // Only the real portfolio's drawdown can be missing (a valuation gap on a booking day); the column says why.
+  const ddUnavailable = rows.some((v) => v.headline && v.report?.drawdown === null);
   const alternateByKey = useMemo(() => new Map(alternateRows.map((v) => [v.row.key, v])), [alternateRows]);
   return (
     <Table>
@@ -262,7 +262,7 @@ function DesktopTable({
             {/* Nominal in both views, so no "(real)" suffix and nothing to reserve. */}
             <span className="inline-flex items-center">
               {t('table.maxDrawdown')}
-              <InfoPopover title={t('table.maxDrawdown')} paragraphs={[t('strip.info.maxDrawdown'), t('strip.info.recovery')]} compact />
+              <InfoPopover title={t('table.maxDrawdown')} paragraphs={[t('table.maxDrawdownInfo'), ...(ddUnavailable ? [t('table.ddUnavailable')] : [])]} compact />
             </span>
           </TableHead>
         </TableRow>
@@ -302,7 +302,7 @@ function DesktopRow({ v, alternate, fmt, isOpen, onToggle, ctx }: { v: RowView; 
               <ReservedText value={v.diff === null ? '–' : fmt.moneySigned(v.diff)} reserve={alternate.diff === null ? '–' : fmt.moneySigned(alternate.diff)} />
             </TableCell>
             <TableCell className={td}>
-              <DrawdownCell v={v} fmt={fmt} today={ctx.today} />
+              <DrawdownCell v={v} fmt={fmt} />
             </TableCell>
           </>
         ) : (
@@ -322,20 +322,15 @@ function DesktopRow({ v, alternate, fmt, isOpen, onToggle, ctx }: { v: RowView; 
   );
 }
 
-/** Max drawdown with its recovery time (or "not recovered") behind it. */
-function DrawdownCell({ v, fmt, today }: { v: RowView; fmt: Fmt; today: string }) {
-  const { t } = useTexts();
-  const dd = drawdownState(v.report?.drawdown ?? null, today);
+/** Max drawdown; its peak and trough dates on hover. */
+function DrawdownCell({ v, fmt }: { v: RowView; fmt: Fmt }) {
+  const dd = drawdownState(v.report?.drawdown ?? null);
   if (dd.kind === 'unavailable') return <span className="text-muted-foreground">–</span>;
   if (dd.kind === 'none') return <span className="text-muted-foreground">{fmt.pct(0)}</span>;
   return (
-    <>
-      <span className={gainClass(dd.max)}>{fmt.pctSigned(dd.max)}</span>
-      <span className="text-muted-foreground">
-        {' · '}
-        {dd.kind === 'recovered' ? durationText(t, fmt, dd.days) : t('drawdown.notRecovered')}
-      </span>
-    </>
+    <span className={gainClass(dd.max)} title={`${fmt.date(dd.peak)} – ${fmt.date(dd.trough)}`}>
+      {fmt.pctSigned(dd.max)}
+    </span>
   );
 }
 
