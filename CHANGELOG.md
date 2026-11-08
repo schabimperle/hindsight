@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- The comparison header has no info buttons any more, so switching to Real no longer wraps the switch onto a new
+  line on phones. Real figures and the gain difference are explained in “How Hindsight works”; an uncovered
+  withdrawal, the one case where the gain difference departs from the end-value difference, stays a warning on its
+  row.
 - A period starting after your first deposit shows the portfolio's value at its start as “Start value” next to
   “Deposits”, which now count only the bookings in the period.
 - On phones the “How Hindsight works” and mix dialogs space their parts again (the bottom sheet ignored the

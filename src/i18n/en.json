@@ -39,7 +39,6 @@
     "select": "Select {{name}}",
     "mwr": "MWR",
     "mwrReal": "MWR (real)",
-    "realNote": "Real figures use purchasing power at the end of the period: only gain and MWR change. The end value stays the same, and so does the gain difference (both gains share the same deposits and withdrawals; only an uncovered withdrawal counts at end-of-period purchasing power).",
     "maxDrawdown": "Max drawdown",
     "maxDrawdownInfo": "Largest fall from a previous high, time-weighted: deposits and withdrawals are neither gains nor losses. For an alternative it is the asset's own price fall in your base currency, whatever the simulation held; for your portfolio the fall of what you actually held, from Wealthfolio's daily valuations. Nominal in both views. Wealthfolio's Performance page computes it the same way; it differs when the accounts differ (a cash account, for example, dampens the fall). Hover a figure for the dates of the high and the low.",
     "ddUnavailable": "Your portfolio's drawdown needs a valuation of every selected account on each booking day; Wealthfolio's history has a gap there."
@@ -154,7 +153,7 @@
       "mwrPeriod": "Money-weighted return over the period (XIRR), not annualised.",
       "start": "Your portfolio's value at the start of the period. Every line starts with it, as if it were deposited on that day; deposits are the bookings after it.",
       "bookings": "The count is original bookings in the period. Amounts are netted per day; alternatives only include covered withdrawals.",
-      "vs": "This alternative's gain minus your portfolio's gain, with the same deposits and withdrawals on the same days. It equals the difference in end value unless the alternative could not fully cover a withdrawal: then it is lower by the uncovered amount (in real figures, that amount at end-of-period purchasing power)."
+      "vs": "This alternative's gain minus your portfolio's gain, with the same deposits and withdrawals on the same days."
     },
     "mwrPeriod": "MWR",
     "deposits": "Deposits",

@@ -39,7 +39,6 @@
     "select": "{{name}} auswählen",
     "mwr": "MWR",
     "mwrReal": "MWR (real)",
-    "realNote": "Reale Werte nutzen die Kaufkraft am Ende des Zeitraums: Nur Gewinn und MWR ändern sich. Der Endwert bleibt gleich, ebenso die Gewinndifferenz (beide Gewinne haben dieselben Ein- und Auszahlungen; nur eine nicht gedeckte Auszahlung zählt mit der Kaufkraft am Ende des Zeitraums).",
     "maxDrawdown": "Max. Drawdown",
     "maxDrawdownInfo": "Größter Rückgang von einem vorherigen Höchststand, zeitgewichtet: Ein- und Auszahlungen zählen weder als Gewinn noch als Verlust. Bei einer Alternative ist es der Kursrückgang des Assets in deiner Basiswährung, unabhängig vom simulierten Bestand; bei deinem Portfolio der Rückgang dessen, was du tatsächlich gehalten hast, aus Wealthfolios täglichen Bewertungen. In beiden Ansichten nominal. Wealthfolios Performance-Seite rechnet ihn genauso; er weicht ab, wenn andere Konten gewählt sind (ein Girokonto etwa dämpft den Rückgang). Beim Darüberfahren zeigt die Zahl die Daten von Hoch und Tief.",
     "ddUnavailable": "Der Drawdown deines Portfolios braucht an jedem Buchungstag eine Bewertung jedes ausgewählten Kontos; Wealthfolios Historie hat dort eine Lücke."
@@ -154,7 +153,7 @@
       "mwrPeriod": "Geldgewichtete Rendite über den Zeitraum (XIRR), nicht annualisiert.",
       "start": "Wert deines Portfolios zu Beginn des Zeitraums. Jede Linie startet mit ihm, als wäre er an diesem Tag eingezahlt worden; Einzahlungen sind die Buchungen danach.",
       "bookings": "Gezählt werden die ursprünglichen Buchungen im Zeitraum. Beträge sind je Tag saldiert; bei Alternativen zählen nur gedeckte Auszahlungen.",
-      "vs": "Gewinn dieser Alternative minus Gewinn deines Portfolios, bei denselben Ein- und Auszahlungen an denselben Tagen. Entspricht der Endwert-Differenz, außer die Alternative konnte eine Auszahlung nicht voll decken: Dann ist sie um den ungedeckten Betrag niedriger (real: diesen Betrag in Kaufkraft am Ende des Zeitraums)."
+      "vs": "Gewinn dieser Alternative minus Gewinn deines Portfolios, bei denselben Ein- und Auszahlungen an denselben Tagen."
     },
     "mwrPeriod": "MWR",
     "deposits": "Einzahlungen",

@@ -89,7 +89,11 @@
   computable asset in the host's `--series-1…8` colours, cycled. The host components themselves are not
   exported to addons (`AccountScopeSelector`, `BenchmarkSymbolSelector`, the strip), so `AccountScope.tsx`,
   `BenchmarkPicker.tsx`, `Badges.tsx` and `MetricStrip.tsx` are clones with the host's classes.
-  The comparison table below switches gain, MWR and gain difference between nominal and real (in real view an info button left of the switch says the end value stays the same; the gain difference column has its own info button); the strip stays
+  The comparison table below switches gain and MWR between nominal and real. The card
+  header carries no info buttons (they wrapped the switch onto its own line on phones, and the real-view note named
+  MWR, which phone rows do not label): the guide explains real figures and the gain difference, and the one case
+  where the gain difference departs from the end-value difference (an uncovered withdrawal) is a row warning. The
+  gain difference column keeps its definition in an info button. The strip stays
   nominal. Real amounts use end-period purchasing power: the end value stays unchanged, earlier payments
   are multiplied by CPI(end)/CPI(payment). Thus the gain gap also stays unchanged with identical executed
   payments, but can change with uncovered withdrawals. A row click selects the line (strip and chart), a row with notes (uncovered withdrawal, late start)
