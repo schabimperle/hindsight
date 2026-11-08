@@ -17,6 +17,7 @@ import type { Fmt } from '../model/format';
 import { messageText } from '../model/messages';
 import { BookingList } from './Notice';
 import { GUIDE_COUNTS, useTexts } from './i18n';
+import { DIALOG } from './styles';
 
 /** Small round icon button next to the card title, as the host's metric help button. */
 const ICON_BUTTON = 'text-muted-foreground hover:text-foreground h-7 w-7 shrink-0 rounded-full';
@@ -70,13 +71,13 @@ export function HowItWorks() {
       <DialogTrigger render={<Button variant="ghost" size="icon" className={ICON_BUTTON} aria-label={t('app.howItWorks')} />}>
         <Info className="h-3.5 w-3.5" aria-hidden />
       </DialogTrigger>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg" mobileClassName="max-h-[85vh] overflow-y-auto p-6">
+      <DialogContent {...DIALOG}>
         <DialogHeader className="text-start">
           <DialogTitle>{t('app.howItWorks')}</DialogTitle>
           <DialogDescription className="text-start">{t('app.subtitle')}</DialogDescription>
         </DialogHeader>
         {(['shows', 'assumes'] as const).map((part) => (
-          <section key={part} className="space-y-1.5 text-sm">
+          <section key={part} className="space-y-2 text-sm">
             <h3 className="font-medium">{t(`guide.${part}Title`)}</h3>
             <ul className="text-muted-foreground list-disc space-y-1.5 ps-4">
               {list(part).map((x) => (

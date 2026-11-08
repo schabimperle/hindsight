@@ -9,3 +9,12 @@ const SERIES = ['--series-1', '--series-2', '--series-3', '--series-4', '--serie
 
 /** Colour of the n-th comparison asset; cycles through the host palette like the Performance page does. */
 export const seriesColor = (n: number): string => `var(${SERIES[n % SERIES.length]})`;
+
+/**
+ * Size of a scrolling dialog. On phones `DialogContent` renders a bottom sheet whose root is a plain block, so
+ * the `gap-4` that spaces the desktop dialog's children does nothing there; `flex flex-col` restores it.
+ */
+export const DIALOG = {
+  className: 'max-h-[85vh] overflow-y-auto sm:max-w-lg',
+  mobileClassName: 'flex max-h-[85vh] flex-col overflow-y-auto p-6',
+};

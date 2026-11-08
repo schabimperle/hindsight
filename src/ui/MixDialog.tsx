@@ -19,6 +19,7 @@ import { MIX_MAX, MIX_MIN, MIX_SUM_TOL, mixIdentity, validMix, type BenchmarkDef
 import { PickerCommand } from './BenchmarkPicker';
 import { useTexts } from './i18n';
 import { PillSwitch } from './PillSwitch';
+import { DIALOG } from './styles';
 
 interface Row {
   name: string;
@@ -128,7 +129,7 @@ export function MixDialog({
       }}
       useIsMobile={useIsMobile}
     >
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg" mobileClassName="max-h-[85vh] overflow-y-auto p-6">
+      <DialogContent {...DIALOG}>
         <DialogHeader className="text-start">
           <DialogTitle>{t('mix.title')}</DialogTitle>
           <DialogDescription className="text-start">{t('mix.description')}</DialogDescription>
