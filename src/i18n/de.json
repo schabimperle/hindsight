@@ -29,7 +29,6 @@
     "gainReal": "Gewinn (real)",
     "irrReal": "MWR p.a. (real)",
     "vsActual": "Gewinndifferenz",
-    "vsActualReal": "Gewinndifferenz (real)",
     "vsShort": "{{diff}} Gewinndifferenz",
     "yourPortfolio": "Dein Portfolio",
     "notInvested": "Nicht angelegt",
@@ -40,7 +39,7 @@
     "select": "{{name}} auswählen",
     "mwr": "MWR",
     "mwrReal": "MWR (real)",
-    "realNote": "Reale Werte nutzen die Kaufkraft am Ende des Zeitraums: Nur Gewinn, MWR und die Differenz ändern sich. Der Endwert bleibt gleich.",
+    "realNote": "Reale Werte nutzen die Kaufkraft am Ende des Zeitraums: Nur Gewinn und MWR ändern sich. Der Endwert bleibt gleich, ebenso die Gewinndifferenz (beide Gewinne haben dieselben Ein- und Auszahlungen; nur eine nicht gedeckte Auszahlung zählt mit der Kaufkraft am Ende des Zeitraums).",
     "maxDrawdown": "Max. Drawdown"
   },
   "chart": {
@@ -172,7 +171,7 @@
       "bookings": "Gezählt werden die ursprünglichen Buchungen im Zeitraum, ohne Anfangswert. Beträge sind je Tag saldiert; bei Alternativen zählen nur gedeckte Auszahlungen.",
       "vs": "Gewinn dieser Alternative minus Gewinn deines Portfolios, bei denselben Ein- und Auszahlungen an denselben Tagen. Entspricht der Endwert-Differenz, außer die Alternative konnte eine Auszahlung nicht voll decken: Dann ist sie um den ungedeckten Betrag niedriger (real: diesen Betrag in Kaufkraft am Ende des Zeitraums).",
       "maxDrawdown": "Größter Rückgang von einem vorherigen Höchststand, zeitgewichtet: Ein- und Auszahlungen zählen weder als Gewinn noch als Verlust. Bei einer Alternative ist es der Kursrückgang des Assets in deiner Basiswährung, unabhängig vom simulierten Bestand; bei deinem Portfolio der Rückgang dessen, was du tatsächlich gehalten hast, aus Wealthfolios täglichen Bewertungen. In beiden Ansichten nominal.",
-      "recovery": "Zeit von diesem Höchststand, bis er wieder erreicht war; solange nicht erholt, die Zeit vom Höchststand bis zum Ende des Zeitraums.",
+      "recovery": "Zeit vom Höchststand vor dem max. Drawdown (dessen erstes Datum), bis die zeitgewichtete Rendite wieder dort stand; solange nicht erholt, bis zum Ende des Zeitraums. Wie der Drawdown folgt sie der Rendite, nicht dem Wert: Einzahlungen können den Wert lange vor der Erholung der Rendite über einen alten Höchststand heben.",
       "ddUnavailable": "Der Drawdown deines Portfolios braucht an jedem Buchungstag eine Bewertung jedes ausgewählten Kontos; Wealthfolios Historie hat dort eine Lücke."
     },
     "mwrPeriod": "MWR",
@@ -184,7 +183,7 @@
     "risk": "Risiko",
     "maxDrawdown": "Max. Drawdown",
     "recovery": "Erholung",
-    "notRecovered": "noch nicht erholt",
+    "belowHigh": "unter dem Hoch vom {{date}}",
     "backOn": "zurück am {{date}}",
     "ddUnavailable": "Historie lückenhaft"
   },

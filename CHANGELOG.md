@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- The “Gain difference” column no longer gets a “(real)” suffix: the difference is the same in both views. An open
+  drawdown names the high it has not regained, and the recovery explanation says that it follows the return, not
+  the value.
+
 - Fixed mixes as alternatives: “Create a mix…” in “Add benchmark” combines 2 to 5 assets with weights, rebalanced
   yearly (on the first trading day) or never. Deposits split by the weights, withdrawals sell pro rata; the mix
   gets its line, row, metrics and drawdown like any alternative.

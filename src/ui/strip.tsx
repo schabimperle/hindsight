@@ -95,7 +95,7 @@ export function stripSections({
             dd.kind === 'recovered'
               ? t('strip.backOn', { date: fmt.date(dd.recovery) })
               : dd.kind === 'open'
-                ? t('strip.notRecovered')
+                ? t('strip.belowHigh', { date: fmt.date(dd.peak) })
                 : undefined,
         },
       ],

@@ -29,7 +29,6 @@
     "gainReal": "Gain (real)",
     "irrReal": "MWR p.a. (real)",
     "vsActual": "Gain difference",
-    "vsActualReal": "Gain difference (real)",
     "vsShort": "{{diff}} gain difference",
     "yourPortfolio": "Your portfolio",
     "notInvested": "Not invested",
@@ -40,7 +39,7 @@
     "select": "Select {{name}}",
     "mwr": "MWR",
     "mwrReal": "MWR (real)",
-    "realNote": "Real figures use purchasing power at the end of the period: only gain, MWR and the difference change. The end value stays the same.",
+    "realNote": "Real figures use purchasing power at the end of the period: only gain and MWR change. The end value stays the same, and so does the gain difference (both gains share the same deposits and withdrawals; only an uncovered withdrawal counts at end-of-period purchasing power).",
     "maxDrawdown": "Max drawdown"
   },
   "chart": {
@@ -172,7 +171,7 @@
       "bookings": "The count is original bookings in the period, excluding the opening value. Amounts are netted per day; alternatives only include covered withdrawals.",
       "vs": "This alternative's gain minus your portfolio's gain, with the same deposits and withdrawals on the same days. It equals the difference in end value unless the alternative could not fully cover a withdrawal: then it is lower by the uncovered amount (in real figures, that amount at end-of-period purchasing power).",
       "maxDrawdown": "Largest fall from a previous high, time-weighted: deposits and withdrawals are neither gains nor losses. For an alternative it is the asset's own price fall in your base currency, whatever the simulation held; for your portfolio the fall of what you actually held, from Wealthfolio's daily valuations. Nominal in both views.",
-      "recovery": "Time from that high until it was reached again; while not recovered, the time since the high until the end of the period.",
+      "recovery": "Time from the high before the max drawdown (its first date) until the time-weighted return was back at that level; while not recovered, until the end of the period. Like the drawdown it follows the return, not the value: deposits can lift the value above an old high long before the return has recovered.",
       "ddUnavailable": "Your portfolio's drawdown needs a valuation of every selected account on each booking day; Wealthfolio's history has a gap there."
     },
     "mwrPeriod": "MWR",
@@ -184,7 +183,7 @@
     "risk": "Risk",
     "maxDrawdown": "Max drawdown",
     "recovery": "Recovery",
-    "notRecovered": "not recovered yet",
+    "belowHigh": "below the {{date}} high",
     "backOn": "back on {{date}}",
     "ddUnavailable": "history incomplete"
   },

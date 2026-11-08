@@ -252,9 +252,9 @@ function DesktopTable({
             <ReservedText value={mwrLabel(t, ctx.period, real)} reserve={mwrLabel(t, ctx.period, !real)} />
           </TableHead>
           <TableHead className={cn(th, 'text-end')}>
-            {/* After the right-aligned title, so it keeps its place when the "(real)" suffix appears. */}
+            {/* No "(real)" suffix: both gains share the same flows, so the difference is the same in both views. */}
             <span className="inline-flex items-center">
-              <ReservedText value={real ? t('table.vsActualReal') : t('table.vsActual')} reserve={real ? t('table.vsActual') : t('table.vsActualReal')} />
+              {t('table.vsActual')}
               <InfoPopover title={t('table.vsActual')} paragraphs={[t('strip.info.vs')]} compact />
             </span>
           </TableHead>
