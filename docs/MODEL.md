@@ -29,11 +29,12 @@
   Deposits split by the weights, withdrawals sell pro rata to current values (cash of a component without prices
   yet at face value), an uncovered withdrawal sells everything as for one asset. Rebalancing rules as in Vanguard's
   "Best practices for portfolio rebalancing" and the backtesters with benchmarks (Portfolio Visualizer, testfol.io):
-  calendar ("Monthly", "Quarterly", "Yearly": one rule over periods of 1, 3 or 12 months) rebalances on the first
-  day of each period on which every component started before the period has a price of it (valued at the last price
-  on or before that day), so the chart never shows a new allocation before new prices exist. "Threshold" checks on
-  every price day of any component and rebalances once a share is more than `band` percentage points (absolute,
-  default 5, 0.1 to 50 in the dialog) away from its weight; deposits and pro-rata withdrawals already pull the shares
+  a rebalance only happens on a day on which every started component has a price of that very day (a deposit buys
+  each component at its next price, so on any other day a purchase could be pending and its units would be revalued
+  at an older price; found in the Codex review of 11/2026). Calendar ("Monthly", "Quarterly", "Yearly": one rule over
+  periods of 1, 3 or 12 months) rebalances on the first such day of each period, so the chart never shows a new
+  allocation before new prices exist. "Threshold" checks every such day and rebalances once a share is more than
+  `band` percentage points (absolute, default 5, 0.1 to 50 in the dialog) away from its weight; deposits and pro-rata withdrawals already pull the shares
   back, so it trades rarely. "Never" lets the weights drift. Late components:
   `late_start_partial` (“Partly uninvested until …”). Settings: kind `mix` with `components`, `rebalance` and, for
   the threshold rule, `band`; an unknown rule reads as yearly, an invalid band as 5. `ticker` is the identity

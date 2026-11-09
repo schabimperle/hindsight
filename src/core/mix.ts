@@ -46,6 +46,9 @@ function mixPrice(series: Series, day: string, openingDay?: string): [number, st
 
 /** Calendar rules: months per period (periods start on the 1st of a month whose index, Jan = 0, is a multiple). */
 const REBALANCE_MONTHS: Partial<Record<Rebalance, number>> = { monthly: 1, quarterly: 3, yearly: 12 };
+/** A drift of exactly the band does not trade (shares are ratios of floats, so the comparison needs a tolerance). */
+const BAND_TOL = 1e-9;
+
 /** First days of the periods after the one containing `firstFlow`, up to `today`. */
 export function periodStarts(firstFlow: string, today: string, months: number): string[] {
   const m = Number(firstFlow.slice(5, 7)) - 1;
@@ -59,28 +62,37 @@ export function periodStarts(firstFlow: string, today: string, months: number): 
   }
 }
 
-/** Calendar rebalances: in each new period the first day on which every component started before the period has a
- * price of that period (see reference/oracle.py). */
+/** Days on which every component that has started (first price on or before the day) has a price of that very day.
+ * Only these can rebalance: a deposit buys each component at its next price, so on any other day a purchase could
+ * still be pending and its units would be revalued at an older price (see reference/oracle.py). */
+function commonDays(parts: Part[], today: string): string[] {
+  const days = parts.map((p) => new Set(p.series.d));
+  const all = new Set(parts.flatMap((p) => p.series.d));
+  return [...all].filter((d) => d <= today && parts.every((p, i) => p.series.d[0] > d || days[i].has(d))).sort();
+}
+
+/** Calendar rebalances: in each new period the first common day on or after its start, if a component had started
+ * before the period. */
 function rebalanceDays(parts: Part[], firstFlow: string, today: string, months: number): string[] {
+  const common = commonDays(parts, today);
   const out: string[] = [];
   for (const start of periodStarts(firstFlow, today, months)) {
-    const due: (string | null)[] = [];
+    let held = false;
     for (const { series: s } of parts) {
       if (s.d[0] >= start) continue;
+      held = true;
       const k = bisectLeft(s.d, start);
       if (k < s.d.length && daysBetween(start, s.d[k]) > MAX_PRICE_GAP_DAYS) throw new PriceError('prices_missing');
-      due.push(k < s.d.length ? s.d[k] : null);
     }
-    if (due.length === 0 || due.includes(null)) continue;
-    const day = (due as string[]).reduce((m, d) => (d > m ? d : m));
-    if (day <= today) out.push(day);
+    const k = bisectLeft(common, start);
+    if (held && k < common.length && !out.includes(common[k])) out.push(common[k]);
   }
   return out;
 }
 
-/** Threshold rule: every price day of any component after the first flow is a check. */
+/** Threshold rule: every common day after the first flow is a check. */
 function checkDays(parts: Part[], firstFlow: string, today: string): string[] {
-  return [...new Set(parts.flatMap((p) => p.series.d.filter((d) => d > firstFlow && d <= today)))].sort();
+  return commonDays(parts, today).filter((d) => d > firstFlow);
 }
 
 /** Simulates a fixed mix over the (netted, sorted) flows; see reference/oracle.py. */
@@ -118,14 +130,12 @@ export function simulateMix(flows: Flow[], variant: Variant, today: string, open
       cash[i] = 0;
       started[i] = true;
     } else if (e.order === 1) {
-      // Valued at the last price on or before the day; cash of a component without prices at face value.
+      // A common day: every started component has a price of the day; cash of one without prices at face value.
       const prices = parts.map((p, i) => (started[i] ? p.series.onOrBeforeWithin(e.day) : null));
-      // Only possible on a threshold check: a component's price is too old to value it.
-      if (parts.some((_, i) => started[i] && prices[i] === null)) continue;
       const vals = parts.map((_, i) => (started[i] ? units[i] * (prices[i] as number) : cash[i]));
       const total = vals.reduce((s, v) => s + v, 0);
       if (total <= EPS) continue;
-      if (rule === 'threshold' && Math.max(...vals.map((v, i) => Math.abs(v / total - parts[i].weight))) <= band) continue;
+      if (rule === 'threshold' && Math.max(...vals.map((v, i) => Math.abs(v / total - parts[i].weight))) <= band + BAND_TOL) continue;
       parts.forEach((p, i) => {
         if (started[i]) units[i] = (total * p.weight) / (prices[i] as number);
         else cash[i] = total * p.weight;

@@ -129,6 +129,38 @@ describe('fixed mix', () => {
     expect(run(50).value).toBeCloseTo(simulateMix(flows, mix('none', [50, x], [50, y]), '2024-03-05').value, 12);
   });
 
+  it('threshold: never rebalances while a purchase is pending (only on days every started component trades)', () => {
+    // The deposit on 03-03 buys A on 03-04 and B on 03-05 (their next prices). Checking on 03-04 would value B's
+    // units, bought at 200, at its 03-01 price of 100.
+    const a: PricePoint[] = [
+      ['2024-03-01', 100],
+      ['2024-03-04', 100],
+      ['2024-03-05', 100],
+    ];
+    const b: PricePoint[] = [
+      ['2024-03-01', 100],
+      ['2024-03-05', 200],
+    ];
+    const r = simulateMix([{ date: '2024-03-03', amount: 100 }], mix('threshold', [50, a], [50, b]), '2024-03-05');
+    expect(r.value).toBeCloseTo(100, 9);
+  });
+
+  it('threshold: a drift of exactly the band does not trade', () => {
+    const a: PricePoint[] = [
+      ['2024-03-01', 100],
+      ['2024-03-04', 110],
+      ['2024-03-05', 100],
+    ];
+    const b: PricePoint[] = [
+      ['2024-03-01', 100],
+      ['2024-03-04', 90],
+      ['2024-03-05', 100],
+    ];
+    const r = simulateMix([{ date: '2024-03-01', amount: 100 }], mix('threshold', [50, a], [50, b]), '2024-03-05');
+    expect(r.history.map((h) => h.day)).toEqual(['2024-03-01']);
+    expect(r.value).toBeCloseTo(100, 9);
+  });
+
   it('a component without prices yet keeps its share as cash until its first price', () => {
     const late: PricePoint[] = [
       ['2024-03-10', 25],
@@ -201,6 +233,7 @@ describe('mix settings', () => {
       { name: 'T', kind: 'mix', components: comps, rebalance: 'threshold', band: 2.5 },
       { name: 'T bad', kind: 'mix', components: comps, rebalance: 'threshold', band: 0.25 },
       { name: 'Unknown', kind: 'mix', components: comps, rebalance: 'daily', band: 3 },
+      { name: 'T tiny', kind: 'mix', components: comps, rebalance: 'threshold', band: 0.00000001 },
     ]);
     expect(r.map((b) => [b.rebalance, b.band, b.ticker])).toEqual([
       ['monthly', undefined, 'mix:AGG*30+URTH*70|monthly'],
@@ -208,6 +241,7 @@ describe('mix settings', () => {
       ['threshold', 2.5, 'mix:AGG*30+URTH*70|threshold:2.5'],
       ['threshold', 5, 'mix:AGG*30+URTH*70|threshold:5'],
       ['yearly', undefined, 'mix:AGG*30+URTH*70|yearly'],
+      ['threshold', 5, 'mix:AGG*30+URTH*70|threshold:5'],
     ]);
   });
 });

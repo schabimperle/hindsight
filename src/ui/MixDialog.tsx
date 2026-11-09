@@ -228,7 +228,7 @@ export function MixDialog({
         />
         <DialogFooter className="flex-row items-center justify-end gap-3">
           {hint && <span className="text-muted-foreground me-auto text-xs">{hint}</span>}
-          <Button size="sm" disabled={!valid || duplicate} onClick={add}>
+          <Button size="sm" disabled={!identity || duplicate} onClick={add}>
             {t('mix.add')}
           </Button>
         </DialogFooter>

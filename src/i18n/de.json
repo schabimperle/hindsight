@@ -192,7 +192,7 @@
     "hintAssets": "Wähle für jede Zeile eine Anlage.",
     "hintSum": "Die Gewichte ergeben {{sum}} %, nicht 100 %.",
     "hintInvalid": "Jedes Gewicht muss über 0 liegen und höchstens zwei Nachkommastellen haben, jede Anlage verschieden sein.",
-    "hintBand": "Die Schwelle muss über 0 und höchstens 50 Prozentpunkte liegen, mit höchstens einer Nachkommastelle.",
+    "hintBand": "Die Schwelle muss zwischen 0,1 und 50 Prozentpunkten liegen, mit höchstens einer Nachkommastelle.",
     "hintDuplicate": "Diese Mischung ist schon in der Liste.",
     "composition": "{{parts}} · Rebalancing: {{rebalance}}"
   },

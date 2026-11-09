@@ -52,15 +52,16 @@ Model decisions (documented in the addon UI):
     if it exceeds the total, everything is sold and the rest is a shortfall, as for one asset;
   - a component whose first price comes after the first flow starts on that day: its cash buys at
     its first price;
+  - rebalances only happen on a common day: a day on which every component that has started has a
+    price of that very day (else a purchase could still be pending at a later price). There all
+    components are valued at the day's prices and reset to the weights (not started ones as cash).
   - "monthly", "quarterly", "yearly": for every period (calendar month, quarter, year) after the
-    first flow's, on the first day on which every component started before the period's first day
-    has a price on or after it (each at most MAX_PRICE_GAP_DAYS after it, else prices_missing; not
-    yet happened if that day is after `today`), all components are valued at their last price on
-    or before that day and reset to the weights (not started ones as cash).
-  - "threshold": on every price day of any component after the first flow, the components are
-    valued the same way (skipped if a started one has no price within MAX_PRICE_GAP_DAYS); if any
-    component's share differs from its weight by more than `band` percentage points (absolute,
-    default DEFAULT_BAND), all are reset to the weights. "none": never.
+    first flow's in which a component had started before its first day, on the first common day on
+    or after that first day (each such component's first price in the period at most
+    MAX_PRICE_GAP_DAYS after it, else prices_missing; not yet happened if after `today`).
+  - "threshold": on every common day after the first flow, if any component's share differs from
+    its weight by more than `band` percentage points (absolute, default DEFAULT_BAND; exactly the
+    band does not trade). "none": never.
   - Value: units at each component's last price, plus cash; a component whose prices start after
     `today` makes the mix uncomputable (no_prices), as does any price error of a component.
 - Maximum drawdown (`drawdown`, nominal) is measured on a time-weighted index, so deposits and
@@ -327,6 +328,8 @@ def mix_price(series, day, opening_day):
 REBALANCE_MONTHS = {"monthly": 1, "quarterly": 3, "yearly": 12}
 # Threshold rule: default allowed drift of a component's share from its weight, in percentage points (absolute).
 DEFAULT_BAND = 5
+# A drift of exactly the band does not trade (shares are ratios of floats, so the comparison needs a tolerance).
+BAND_TOL = 1e-9
 
 
 def period_starts(first_flow, today, months):
@@ -341,30 +344,38 @@ def period_starts(first_flow, today, months):
         k += months
 
 
+def common_days(parts, today):
+    """Days on which every component that has started (first price on or before the day) has a price of that very
+    day. Only these can rebalance: a deposit buys each component at its next price, so on any other day a purchase
+    could still be pending and its units would be revalued at an older price."""
+    days = [set(s.d) for s, _ in parts]
+    return sorted(d for d in set().union(*days)
+                  if d <= today and all(s.d[0] > d or d in ds for (s, _), ds in zip(parts, days)))
+
+
 def rebalance_days(parts, first_flow, today, months):
-    """Calendar rebalances: in each new period the first day on which every component started before the period
-    has a price of that period."""
+    """Calendar rebalances: in each new period the first common day (see common_days) on or after its start, if a
+    component had started before the period."""
+    common = common_days(parts, today)
     out = []
     for start in period_starts(first_flow, today, months):
-        due = []
+        held = False
         for s, _ in parts:
             if s.d[0] >= start:
                 continue
+            held = True
             k = bisect.bisect_left(s.d, start)
             if k < len(s.d) and (s.d[k] - start).days > MAX_PRICE_GAP_DAYS:
                 raise PriceError("prices_missing")
-            due.append(s.d[k] if k < len(s.d) else None)
-        if not due:
-            continue
-        if None in due or max(due) > today:
-            continue
-        out.append(max(due))
+        k = bisect.bisect_left(common, start)
+        if held and k < len(common) and common[k] not in out:
+            out.append(common[k])
     return out
 
 
 def check_days(parts, first_flow, today):
-    """Threshold rule: every price day of any component after the first flow is a check."""
-    return sorted({d for s, _ in parts for d in s.d if first_flow < d <= today})
+    """Threshold rule: every common day (see common_days) after the first flow is a check."""
+    return [d for d in common_days(parts, today) if d > first_flow]
 
 
 def simulate_mix(flows, variant, today, opening_day=None):
@@ -396,15 +407,13 @@ def simulate_mix(flows, variant, today, opening_day=None):
             cash[data] = 0.0
             started[data] = True
         elif order == 1:
-            # Valued at the last price on or before the day; cash of a component without prices at face value.
+            # A common day: every started component has a price of the day; cash of one without prices at face value.
             prices = [parts[i][0].opening_price(day) if started[i] else None for i in range(n)]
-            if any(started[i] and prices[i] is None for i in range(n)):
-                continue  # only possible on a threshold check: a component's price is too old to value it
             vals = [units[i] * prices[i] if started[i] else cash[i] for i in range(n)]
             total = sum(vals)
             if total <= EPS:
                 continue
-            if rule == "threshold" and max(abs(v / total - w) for v, (_, w) in zip(vals, parts)) <= band:
+            if rule == "threshold" and max(abs(v / total - w) for v, (_, w) in zip(vals, parts)) <= band + BAND_TOL:
                 continue
             for i, (_, w) in enumerate(parts):
                 if started[i]:

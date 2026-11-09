@@ -35,10 +35,10 @@ export function mixIdentity(components: MixComponent[], rebalance: Rebalance, ba
   return `mix:${parts.join('+')}|${rebalance}${rebalance === 'threshold' ? `:${band}` : ''}`;
 }
 
-/** Drift band of the threshold rule: above 0 and at most 50 percentage points (a share cannot drift further in a
- * two-asset 50/50 mix), with at most one decimal. */
+/** Drift band of the threshold rule: 0.1 to 50 percentage points (a share cannot drift further in a two-asset 50/50
+ * mix), with at most one decimal. */
 export function validBand(band: unknown): band is number {
-  return typeof band === 'number' && Number.isFinite(band) && band > 0 && band <= 50 && Math.abs(band * 10 - Math.round(band * 10)) < 1e-6;
+  return typeof band === 'number' && Number.isFinite(band) && band >= 0.1 && band <= 50 && Math.abs(band * 10 - Math.round(band * 10)) < 1e-6;
 }
 
 /** Validated components (null if the mix is incomplete or invalid). */
