@@ -87,6 +87,7 @@ Model decisions (documented in the addon UI):
 import bisect
 import datetime as dt
 import json
+import math
 import sys
 
 D = dt.date.fromisoformat
@@ -434,23 +435,30 @@ def mix_index(variant, flows, today, opening_day):
     return index
 
 
+# Search brackets, tried in order: the usual one first (so ordinary results never depend on the widening), then
+# wider ones for returns beyond +1000 % or -99 % (e.g. a sharp move shortly after a large deposit, annualised).
+XIRR_BRACKETS = [(-0.99, 10.0), (-0.999, 100.0), (-0.9999, 1000.0), (-0.9999, 10000.0)]
+
+
 def xirr(cfs, unit=365.25):
-    """Money-weighted return per `unit` days (default: per year); None without a sign change."""
+    """Money-weighted return per `unit` days (default: per year); None without a sign change in any bracket."""
     t0 = min(d for d, _ in cfs)
 
     def npv(r):
         return sum(a / (1 + r) ** ((d - t0).days / unit) for d, a in cfs)
 
-    lo, hi = -0.99, 10.0
-    if npv(lo) * npv(hi) > 0:
-        return None
-    for _ in range(200):
-        m = (lo + hi) / 2
-        if npv(lo) * npv(m) <= 0:
-            hi = m
-        else:
-            lo = m
-    return (lo + hi) / 2
+    for lo, hi in XIRR_BRACKETS:
+        ends = npv(lo) * npv(hi)
+        if not math.isfinite(ends) or ends > 0:
+            continue
+        for _ in range(200):
+            m = (lo + hi) / 2
+            if npv(lo) * npv(m) <= 0:
+                hi = m
+            else:
+                lo = m
+        return (lo + hi) / 2
+    return None
 
 
 def month_key(d):

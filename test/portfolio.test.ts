@@ -179,6 +179,32 @@ describe('loadAll: asset transfer with Wealthfolio price', () => {
     ]);
     expect(r.flows.unvalued).toEqual([{ date: '2024-01-01', symbol: 'ETH', account: 'A' }]);
   });
+
+  it('a price history that cannot be read leaves the transfer unvalued instead of worthless', async () => {
+    const api = fakeApi(0);
+    api.settings.get = async () => ({ baseCurrency: 'EUR', timezone: 'Europe/Berlin' });
+    api.activities.search = async () => ({
+      data: [{ id: 't1', accountId: 'A', activityType: 'TRANSFER_IN', assetId: 'btc', assetSymbol: 'BTC', quantity: '2', date: '2024-01-01T10:00:00Z' }] as never,
+      meta: { totalRowCount: 1 },
+    });
+    api.portfolio.getLatestValuations = async () =>
+      [{ totalValueBase: 1, netContributionBase: 0, valuationDate: '2024-02-01' }] as unknown as AccountValuation[];
+    api.quotes.getHistory = async () => {
+      throw new Error('host error');
+    };
+    const deps: FetchDeps = {
+      net: {
+        request: async () => {
+          throw new Error('offline');
+        },
+      },
+      storage: { get: async () => null, set: async () => undefined },
+      nowMs: () => Date.parse('2024-02-01T12:00:00Z'),
+    };
+    const r = await loadAll(api, deps, { accounts: null, benchmarks: [] });
+    expect(r.flows.unvalued).toEqual([{ date: '2024-01-01', symbol: 'BTC', account: 'A' }]);
+    expect(r.flows.warnings).toEqual([]);
+  });
 });
 
 describe('fetchAllActivities with clamped page 0', () => {
@@ -195,6 +221,17 @@ describe('fetchAllActivities with clamped page 0', () => {
     } as unknown as PortfolioApi;
     const rows = await fetchAllActivities(api, ['A']);
     expect(rows).toHaveLength(1200);
+  });
+
+  it('keeps reading when the host caps the page size below the requested one', async () => {
+    const all = Array.from({ length: 250 }, (_, i) => ({ id: `a${i}` }));
+    const api = {
+      activities: {
+        search: async (page: number) => ({ data: all.slice(page * 100, (page + 1) * 100), meta: { totalRowCount: all.length } }),
+      },
+    } as unknown as PortfolioApi;
+    const rows = await fetchAllActivities(api, ['A']);
+    expect(rows).toHaveLength(250);
   });
 });
 

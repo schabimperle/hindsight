@@ -8,7 +8,8 @@
   quantity (so for hand-entered bookings whatever was entered there, e.g. an old purchase price), otherwise
   the nearest Wealthfolio price to the booking day (before or after, at most 10 days); without a value the
   analysis is blocked and lists the bookings. Exception “worthless” (`worthless` in `src/sources/load.ts`):
-  no value today (`heldValue`) in the selected accounts and never a Wealthfolio price > 0 (spam token) ->
+  no value today (`heldValue`) in the selected accounts and never a Wealthfolio price > 0 (spam token; a price
+  history that could not be read does not count as “never”, it blocks) ->
   the transfer is ignored, but counted. Consequence: if such an asset is sold after all, the proceeds show
   up as gain of the real portfolio (the sale is not a flow). Foreign-currency deposits/withdrawals and cash
   transfers without an exchange rate also block with a booking list (leaving them out would distort the
@@ -54,7 +55,9 @@
   day (the real value is a close as well; a Sunday start uses Friday), else like any deposit. A custom end
   before today uses the valuation of that day and drops later flows and prices. Money-weighted returns (XIRR)
   are per year from a 365-day window on, below that over the window itself (`mwrPeriodDays`, label “MWR”
-  without “p.a.”), as on the host's Performance page. Loading does not depend on the period: switching only
+  without “p.a.”), as on the host's Performance page. XIRR bisects in -99 %..+1000 % first and only widens
+  (up to -99.99 %..+1,000,000 %) when that bracket has no sign change, so ordinary results never depend on the
+  widening; beyond it the rate is “–”. Loading does not depend on the period: switching only
   recomputes. Chart points: daily up to ~13 months, weekly up to ~6 years, month ends beyond.
 - Currencies: any base currency. Prices in the ticker currency (`GBp`, `ZAc`, `ILA` into the main currency)
   are converted via Yahoo pairs `<CCY><BASE>=X` (rate on or before the day, `src/sources/fx.ts`), as are

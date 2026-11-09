@@ -9,7 +9,8 @@ export class PriceError extends Error {
   }
 }
 
-function bisectLeft(a: string[], x: string): number {
+/** First index whose day is >= x (Python `bisect_left`). */
+export function bisectLeft(a: readonly string[], x: string): number {
   let lo = 0;
   let hi = a.length;
   while (lo < hi) {
@@ -20,7 +21,8 @@ function bisectLeft(a: string[], x: string): number {
   return lo;
 }
 
-function bisectRight(a: string[], x: string): number {
+/** First index whose day is > x (Python `bisect_right`). */
+export function bisectRight(a: readonly string[], x: string): number {
   let lo = 0;
   let hi = a.length;
   while (lo < hi) {

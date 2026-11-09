@@ -1,4 +1,4 @@
-import type { Series } from './series';
+import { bisectLeft, bisectRight, type Series } from './series';
 import type { Drawdown, Fixture, Flow } from './types';
 
 /** Wealthfolio's: a smaller day base pauses the time-weighted index. */
@@ -8,28 +8,6 @@ export const NO_DRAWDOWN: Drawdown = { max: 0, peak: null, trough: null };
 
 /** A level of a time-weighted index (1 = start). */
 export type IndexPoint = [string, number];
-
-function bisectLeft(a: readonly string[], x: string): number {
-  let lo = 0;
-  let hi = a.length;
-  while (lo < hi) {
-    const mid = (lo + hi) >> 1;
-    if (a[mid] < x) lo = mid + 1;
-    else hi = mid;
-  }
-  return lo;
-}
-
-function bisectRight(a: readonly string[], x: string): number {
-  let lo = 0;
-  let hi = a.length;
-  while (lo < hi) {
-    const mid = (lo + hi) >> 1;
-    if (x < a[mid]) hi = mid;
-    else lo = mid + 1;
-  }
-  return lo;
-}
 
 /** [index of the price the simulation first invests at, day of that investment] (see `simulateSingle`). The first
  * deposit counts: a withdrawal before it buys nothing. */

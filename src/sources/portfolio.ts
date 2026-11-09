@@ -89,7 +89,8 @@ export async function fetchAllActivities(api: PortfolioApi, accountIds: string[]
   const seen = new Map<string, ActivityRow>();
   let total = Infinity;
   // Page numbering (0- or 1-based) is not documented; a page that repeats known rows (e.g. a
-  // clamped page 0) is skipped, the loop ends on an empty or short page or when all rows are in.
+  // clamped page 0) is skipped, the loop ends on an empty page, when all rows are in, or (without a total) on a
+  // short page.
   for (const start of [0, 1]) {
     let page = start;
     let unproductive = 0;
@@ -104,7 +105,9 @@ export async function fetchAllActivities(api: PortfolioApi, accountIds: string[]
           added++;
         }
       }
-      if (rows.length === 0 || rows.length < PAGE_SIZE || seen.size >= total) break;
+      // A short page ends the listing only while the total is unknown: a host that caps the page size below
+      // PAGE_SIZE would otherwise cut the activities off after the first page.
+      if (rows.length === 0 || seen.size >= total || (total === Infinity && rows.length < PAGE_SIZE)) break;
       unproductive = added === 0 ? unproductive + 1 : 0;
       if (unproductive >= 2) break;
     }
@@ -222,7 +225,7 @@ export async function loadRealPortfolio(
       quotes[id] = hist.map((q): PricePoint => [toDay(q.timestamp, timeZone), q.close]);
       quoteCurrencies[id] = hist[hist.length - 1]?.currency ?? base;
     } catch {
-      quotes[id] = [];
+      // Left out: an asset whose prices could not be read is unknown, not worthless (see `loadAll`).
     }
   });
 

@@ -48,6 +48,11 @@ describe('deriveFlows', () => {
     expect(deriveFlows(rows, sel, ctx()).flows).toEqual([]);
   });
 
+  it('a missing or null status counts as posted', () => {
+    const rows = [act({ activityType: 'DEPOSIT', amount: '10', status: undefined }), act({ activityType: 'DEPOSIT', amount: '5', status: null })];
+    expect(deriveFlows(rows, sel, ctx()).flows.map((f) => f.amount)).toEqual([10, 5]);
+  });
+
   it('foreign currency: fxRate for an account in base currency, else daily rate; without a rate a blocking list', () => {
     const r = deriveFlows(
       [

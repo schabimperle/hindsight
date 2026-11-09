@@ -55,5 +55,8 @@ export function toDay(value: string | Date, timeZone = 'UTC'): string {
   if (typeof value === 'string' && !/[T ]\d{2}:\d{2}/.test(value)) return value.slice(0, 10);
   const d = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(d.getTime())) return String(value).slice(0, 10);
-  return dayFormat(timeZone).format(d);
+  // formatToParts, not format(): the 'en-CA' pattern is not guaranteed to be ISO in every ICU build.
+  const parts = dayFormat(timeZone).formatToParts(d);
+  const part = (type: string): string => parts.find((p) => p.type === type)?.value ?? '';
+  return `${part('year')}-${part('month')}-${part('day')}`;
 }

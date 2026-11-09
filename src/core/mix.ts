@@ -1,7 +1,7 @@
 import { daysBetween, yearOf } from './dates';
 import { MAX_PRICE_GAP_DAYS } from './gap';
 import type { IndexPoint } from './drawdown';
-import { PriceError, Series } from './series';
+import { bisectLeft, PriceError, Series } from './series';
 import type { Flow, PathPoint, Shortfall, Variant } from './types';
 
 const EPS = 1e-9;
@@ -24,17 +24,6 @@ export interface MixResult {
 interface Part {
   series: Series;
   weight: number;
-}
-
-function bisectLeft(a: readonly string[], x: string): number {
-  let lo = 0;
-  let hi = a.length;
-  while (lo < hi) {
-    const mid = (lo + hi) >> 1;
-    if (a[mid] < x) lo = mid + 1;
-    else hi = mid;
-  }
-  return lo;
 }
 
 /** Components with their weights normalised to sum 1. */

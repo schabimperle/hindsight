@@ -1,6 +1,6 @@
 import { normalizeCurrency } from '../core/currency';
 import { addDays, toDay } from '../core/dates';
-import { deriveFlows, type FlowsResult } from '../core/flows';
+import { deriveFlows, isPosted, type FlowsResult } from '../core/flows';
 import { Series } from '../core/series';
 import type { PricePoint } from '../core/types';
 import { countryById, defaultCountry } from '../model/countries';
@@ -59,7 +59,7 @@ export async function loadAll(
   const base = real.baseCurrency;
   const selected = new Set(real.accountIds);
   const relevant = real.activities.filter(
-    (a) => selected.has(a.accountId) && FLOW_TYPES.has(a.activityType) && (a.status === undefined || a.status === 'POSTED'),
+    (a) => selected.has(a.accountId) && FLOW_TYPES.has(a.activityType) && isPosted(a),
   );
   const firstActivity = relevant.reduce<string | null>((m, a) => {
     const d = toDay(a.date, real.timeZone);
@@ -91,8 +91,10 @@ export async function loadAll(
     // asset that only arrives in Wealthfolio with the transfer often has prices only from the next day.
     quoteOn: (id, day) => quoteSeries.get(id)?.nearestWithin(day) ?? null,
     // Worthless = no value in the selected accounts today and never a Wealthfolio price > 0 (e.g. spam token).
-    // The transfer then does not count; later sale proceeds show up as gain of the real portfolio.
-    worthless: (id) => !((real.heldValue[id] ?? 0) > 0) && !(real.quotes[id] ?? []).some(([, p]) => p !== null && p > 0),
+    // The transfer then does not count; later sale proceeds show up as gain of the real portfolio. An asset whose
+    // price history could not be read is missing from `real.quotes`: it is unvalued (blocks), never worthless.
+    worthless: (id) =>
+      id in real.quotes && !((real.heldValue[id] ?? 0) > 0) && !real.quotes[id].some(([, p]) => p !== null && p > 0),
   });
 
   const first = flows.flows[0]?.date;

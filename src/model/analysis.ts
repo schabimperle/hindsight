@@ -310,11 +310,9 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
 
   const ends = chartDays(det.flows[0]?.date ?? today);
   const chart: Record<string, number | string | null>[] = ends.map((d) => ({ date: d }));
-  let fi = 0;
-  let cum = 0;
-  chart.forEach((pt) => {
-    while (fi < det.flows.length && det.flows[fi].date <= (pt.date as string)) cum += det.flows[fi++].amount;
-    pt.net = cum;
+  const net = cumulativeOn(det.flows, ends);
+  chart.forEach((pt, i) => {
+    pt.net = net[i];
   });
   // Raw bookings, including days netting to zero, grouped by their actual day.
   let bi = 0;

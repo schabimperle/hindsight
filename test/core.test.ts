@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { toDay } from '../src/core/dates';
 import { netFlows, run, runDetailed } from '../src/core/report';
 import { PriceError, Series } from '../src/core/series';
+import { xirr } from '../src/core/xirr';
 import { isError, type Fixture, type PricePoint, type Report } from '../src/core/types';
 
 /** Daily prices (every calendar day) with a fixed price per section. */
@@ -228,5 +229,24 @@ describe('price for a flow', () => {
     const gap = new Series([['2024-06-01', 1], ['2024-06-11', 2]]);
     expect(gap.nearestWithin('2024-06-09')).toBe(2);
     expect(gap.nearestWithin('2024-06-06')).toBe(1);
+  });
+});
+
+describe('xirr beyond the usual bracket', () => {
+  // 0.25 years apart (91.3125 days at 365.25): the annual rate is the quarter's growth to the 4th power.
+  const q = (growth: number): [string, number][] => [
+    ['2024-01-01', -1000],
+    ['2024-04-01', 1000 * growth],
+  ];
+  const t = (91 / 365.25) as number;
+  it.each([
+    ['ordinary', 1.1],
+    ['above +1000 %', 2],
+    ['below -99 %', 0.2],
+  ])('%s', (_, growth) => {
+    expect(xirr(q(growth))).toBeCloseTo(Math.pow(growth, 1 / t) - 1, 6);
+  });
+  it('stays null without a sign change', () => {
+    expect(xirr([['2024-01-01', -1000], ['2024-04-01', -5]])).toBeNull();
   });
 });

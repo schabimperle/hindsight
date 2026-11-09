@@ -15,7 +15,7 @@ export interface ActivityRow {
   unitPrice?: string | null;
   currency?: string;
   fxRate?: string | null;
-  status?: string;
+  status?: string | null;
   sourceGroupId?: string | null;
   assetId?: string | null;
   assetSymbol?: string | null;
@@ -107,6 +107,9 @@ function unlinkedPairs(transfers: ExternalTransfer[]): { count: number; sum: num
   return { count, sum };
 }
 
+/** Booked activity: posted, or from a host version without a status (missing or null). */
+export const isPosted = (a: Pick<ActivityRow, 'status'>): boolean => a.status == null || a.status === 'POSTED';
+
 /**
  * Derives the external cash flows (deposits positive, withdrawals negative, base currency) of the
  * selected accounts. A transfer is internal (does not count) exactly when a counterpart with the
@@ -117,7 +120,7 @@ export function deriveFlows(activities: ActivityRow[], selected: ReadonlySet<str
   const warn = (code: string): void => {
     counts.set(code, (counts.get(code) ?? 0) + 1);
   };
-  const rows = activities.filter((a) => selected.has(a.accountId) && (a.status === undefined || a.status === 'POSTED'));
+  const rows = activities.filter((a) => selected.has(a.accountId) && isPosted(a));
 
   const groupMembers = new Map<string, number>();
   for (const a of rows) {

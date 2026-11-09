@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- An asset transfer whose Wealthfolio price history cannot be read now blocks the analysis as unvalued instead of
+  being dropped as worthless.
+- MWR no longer shows “–” for annualised returns above +1000 % or below -99 % (e.g. a sharp move shortly after a
+  large deposit); the search widens up to -99.99 %..+1,000,000 %.
+- Robustness against the host: booking days no longer rely on the `en-CA` date pattern, activity paging keeps
+  reading when the host returns shorter pages than requested, and a `null` status counts as posted like a
+  missing one.
 - The comparison header has no info buttons any more, so switching to Real no longer wraps the switch onto a new
   line on phones. Real figures and the gain difference are explained in “How Hindsight works”; an uncovered
   withdrawal, the one case where the gain difference departs from the end-value difference, stays a warning on its
