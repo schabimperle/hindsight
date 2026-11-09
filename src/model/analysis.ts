@@ -266,7 +266,7 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
     actual: { value: actualValue, ...(endsCovered(real, covered, opening, today) ? { daily: covered } : {}) },
     ...(opening !== null && openingValue !== null ? { start: { date: opening, value: openingValue } } : {}),
   };
-  // Keep booking dates even on weekly/monthly charts; markers must sit on their actual day.
+  // Booking days before the first netted flow (bookings netting to zero) still get a point for their markers.
   const chartDays = (first: string): string[] =>
     [...new Set([...sampleDays(first, today), ...flows.filter((f) => f.amount !== 0).map((f) => f.date)])].sort();
   const det = runDetailed(fx, chartDays);

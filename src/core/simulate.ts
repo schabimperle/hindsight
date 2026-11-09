@@ -1,4 +1,4 @@
-import { addDays, daysBetween, monthEnd, yearOf } from './dates';
+import { addDays, monthEnd, yearOf } from './dates';
 import { PriceError, Series } from './series';
 import type { Flow, PathPoint, Shortfall, Variant } from './types';
 
@@ -33,14 +33,11 @@ export function monthEnds(first: string, today: string): string[] {
   return out;
 }
 
-/** Chart days from `first` to `today` (last entry = today): daily up to ~13 months, weekly up to ~6 years,
- * month ends beyond, so short windows still get a usable line and long ones stay light. */
+/** Chart days from `first` to `today` (last entry = today): every day, as on the host's Performance page, so the
+ * lines show the same swings the drawdown is measured on. */
 export function sampleDays(first: string, today: string): string[] {
-  const span = daysBetween(first, today);
-  if (span > 6 * 366) return monthEnds(first, today);
-  const step = span > 400 ? 7 : 1;
   const out: string[] = [];
-  for (let d = first; d < today; d = addDays(d, step)) out.push(d);
+  for (let d = first; d < today; d = addDays(d, 1)) out.push(d);
   out.push(today);
   return out;
 }

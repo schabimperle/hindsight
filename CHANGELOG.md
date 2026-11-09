@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Charts have a point for every day, as on Wealthfolio's Performance page, instead of weekly points beyond
+  ~13 months and month ends beyond ~6 years, so the lines show the swings the max drawdown is measured on.
 - More rebalancing rules for mixes: monthly and quarterly next to yearly and never, and a threshold rule that
   rebalances once a share drifts more than an adjustable number of percentage points (default 5) from its weight.
   The dialog picks the rule from a list with a short description of each.

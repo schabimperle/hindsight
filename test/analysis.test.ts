@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { daysBetween } from '../src/core/dates';
 import { isError, type Fixture, type Report, type RunOutput } from '../src/core/types';
 import { analyze, type AnalysisInput } from '../src/model/analysis';
 import type { RealPortfolio } from '../src/sources/portfolio';
@@ -206,11 +207,12 @@ describe('analyze over a window', () => {
         expect(r.irr as number).toBeCloseTo(w.irr as number, 6);
       }
     });
-    // weekly chart points over ~2.8 years, first point = opening value
+    // daily chart points over ~2.8 years, first point = opening value
     expect(a.chart[0].date).toBe('2023-03-15');
     expect(a.chart[0].net).toBeCloseTo(83456.78, 6);
     expect(a.chart[0].actual).toBeCloseTo(83456.78, 6);
     expect(a.chart.at(-1)?.date).toBe('2025-12-31');
+    expect(a.chart).toHaveLength(daysBetween('2023-03-15', '2025-12-31') + 1);
   });
 
   it('a start on or before the first flow is all time', () => {
