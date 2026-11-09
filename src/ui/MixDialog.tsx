@@ -10,15 +10,15 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
+  ResponsiveSelect,
   useIsMobile,
 } from '@wealthfolio/ui';
 import { ChevronDown, Plus, X } from 'lucide-react';
 import { useState } from 'react';
-import type { Rebalance } from '../core/types';
-import { MIX_MAX, MIX_MIN, MIX_SUM_TOL, mixIdentity, validMix, type BenchmarkDef, type MixComponent } from '../model/settings';
+import { DEFAULT_BAND, REBALANCE_RULES, type Rebalance } from '../core/types';
+import { MIX_MAX, MIX_MIN, MIX_SUM_TOL, mixIdentity, validBand, validMix, type BenchmarkDef, type MixComponent } from '../model/settings';
 import { PickerCommand } from './BenchmarkPicker';
 import { useTexts } from './i18n';
-import { PillSwitch } from './PillSwitch';
 import { DIALOG } from './styles';
 
 interface Row {
@@ -91,17 +91,23 @@ export function MixDialog({
   const { t, language } = useTexts();
   const [rows, setRows] = useState<Row[]>([EMPTY, EMPTY]);
   const [rebalance, setRebalance] = useState<Rebalance>('yearly');
+  /** Threshold rule's drift band as typed (percentage points). */
+  const [band, setBand] = useState(String(DEFAULT_BAND));
   const [name, setName] = useState('');
   const reset = (): void => {
     setRows([EMPTY, EMPTY]);
     setRebalance('yearly');
+    setBand(String(DEFAULT_BAND));
     setName('');
   };
   const setRow = (i: number, patch: Partial<Row>): void => setRows((rs) => rs.map((r, k) => (k === i ? { ...r, ...patch } : r)));
   const components: MixComponent[] = rows.map((r) => ({ name: r.name, ticker: r.ticker, weight: num(r.weight) }));
+  const threshold = rebalance === 'threshold';
+  const bandValue = num(band);
+  const bandOk = !threshold || validBand(bandValue);
   const valid = validMix(components);
   const sum = components.reduce((s, c) => s + (Number.isFinite(c.weight) ? c.weight : 0), 0);
-  const identity = valid ? mixIdentity(valid, rebalance) : null;
+  const identity = valid && bandOk ? mixIdentity(valid, rebalance, bandValue) : null;
   const duplicate = identity !== null && existing.some((b) => b.kind === 'mix' && b.ticker === identity);
   const suggested = valid ? mixName(valid) : '';
   const sumText = new Intl.NumberFormat(language, { maximumFractionDigits: 2 }).format(sum);
@@ -111,12 +117,14 @@ export function MixDialog({
       : Math.abs(sum - 100) > MIX_SUM_TOL
         ? t('mix.hintSum', { sum: sumText })
         : t('mix.hintInvalid')
-    : duplicate
+    : !bandOk
+      ? t('mix.hintBand')
+      : duplicate
       ? t('mix.hintDuplicate')
       : null;
   const add = (): void => {
     if (!valid || !identity || duplicate) return;
-    onAdd({ name: name.trim() || suggested, ticker: identity, kind: 'mix', components: valid, rebalance });
+    onAdd({ name: name.trim() || suggested, ticker: identity, kind: 'mix', components: valid, rebalance, ...(threshold ? { band: bandValue } : {}) });
     onOpenChange(false);
     reset();
   };
@@ -177,14 +185,40 @@ export function MixDialog({
             </span>
           </div>
         </div>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-sm">{t('mix.rebalance')}</span>
-          <PillSwitch
-            label={t('mix.rebalance')}
-            value={rebalance}
-            onChange={setRebalance}
-            options={(['yearly', 'none'] as const).map((value) => ({ value, label: t(`mix.rebalance_${value}`) }))}
-          />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm">{t('mix.rebalance')}</span>
+            <ResponsiveSelect
+              aria-label={t('mix.rebalance')}
+              sheetTitle={t('mix.rebalance')}
+              value={rebalance}
+              onValueChange={(v: string) => setRebalance(v as Rebalance)}
+              options={REBALANCE_RULES.map((value) => ({
+                value,
+                label: t(`mix.rebalance_${value}`),
+                description: t(`mix.rebalanceInfo_${value}`),
+              }))}
+              triggerClassName="w-44"
+              useIsMobile={useIsMobile}
+            />
+          </div>
+          {threshold && (
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-muted-foreground text-sm">{t('mix.band')}</span>
+              <div className="relative w-24 shrink-0">
+                <Input
+                  inputMode="decimal"
+                  aria-label={t('mix.band')}
+                  value={band}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBand(e.target.value)}
+                  className="pe-10 text-end tabular-nums"
+                />
+                <span className="text-muted-foreground pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-sm">
+                  {t('mix.bandUnit')}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
         <Input
           aria-label={t('mix.name')}

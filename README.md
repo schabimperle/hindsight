@@ -2,9 +2,9 @@
 
 A Wealthfolio addon for one question: **would a simpler strategy have done better with your money?**
 Hindsight replays your own deposits and withdrawals in an alternative, such as an index ETF, Bitcoin,
-any Yahoo Finance ticker, cash or a fixed mix (e.g. 70/30 with yearly rebalancing): each deposit buys it
-on the same day, each withdrawal sells some of it. It then shows how much more or less you would have
-gained.
+any Yahoo Finance ticker, cash or a fixed mix (e.g. 70/30, rebalanced on a schedule or at a drift
+threshold): each deposit buys it on the same day, each withdrawal sells some of it. It then shows how
+much more or less you would have gained.
 
 - **Gain difference:** the alternative's gain minus yours, with exactly your cash flows.
 - **MWR p.a.:** the same comparison as a money-weighted yearly return (XIRR).

@@ -220,7 +220,8 @@ def short():
 def mix():
     """Fixed mixes over the main flows plus a deposit on New Year's Day and a withdrawal on the next:
     yearly and never rebalanced, a component starting late (daily series), a mix that cannot cover a
-    withdrawal, two identical components (must equal the single asset) and a component with a gap."""
+    withdrawal, two identical components (must equal the single asset), a component with a gap, and
+    monthly, quarterly and threshold rebalancing (default band; 2.5 pp with a late component)."""
     fx = base()
     start, today = dt.date(2019, 1, 2), dt.date(2026, 6, 15)
     fx["flows"] += [{"date": "2024-01-01", "amount": 1000.0}, {"date": "2025-01-01", "amount": -500.0}]
@@ -244,6 +245,15 @@ def mix():
          "components": [{"weight": 40, "points": stocks}, {"weight": 60, "points": stocks}]},
         {"name": "Gap mix", "kind": "mix", "rebalance": "yearly",
          "components": [{"weight": 50, "points": stocks}, {"weight": 50, "points": gap}]},
+        {"name": "70/30 monthly", "kind": "mix", "rebalance": "monthly",
+         "components": [{"weight": 70, "points": stocks}, {"weight": 30, "points": bonds}]},
+        {"name": "70/30 quarterly", "kind": "mix", "rebalance": "quarterly",
+         "components": [{"weight": 70, "points": stocks}, {"weight": 30, "points": bonds}]},
+        {"name": "70/30 threshold", "kind": "mix", "rebalance": "threshold",
+         "components": [{"weight": 70, "points": stocks}, {"weight": 30, "points": bonds}]},
+        {"name": "Late crypto 2.5 pp", "kind": "mix", "rebalance": "threshold", "band": 2.5,
+         "components": [{"weight": 60, "points": stocks}, {"weight": 25, "points": bonds},
+                        {"weight": 15, "points": crypto}]},
     ]
     fx["cpi"] = cpi_table(2019, today, 1)
     return fx

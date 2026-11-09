@@ -1,4 +1,4 @@
-import type { Rebalance, VariantKind } from '../core/types';
+import { DEFAULT_BAND, REBALANCE_RULES, type Rebalance, type VariantKind } from '../core/types';
 import { DEFAULT_RANGE, type RangeSetting } from './range';
 
 export interface MixComponent {
@@ -17,6 +17,8 @@ export interface BenchmarkDef {
   /** Mix only: 2 to 5 components with distinct tickers, and the rebalancing rule. */
   components?: MixComponent[];
   rebalance?: Rebalance;
+  /** Threshold rule only: allowed drift in percentage points (`validBand`). */
+  band?: number;
 }
 
 export const MIX_MIN = 2;
@@ -24,12 +26,19 @@ export const MIX_MAX = 5;
 /** Weights may be entered with two decimals; their sum must be 100 within this tolerance. */
 export const MIX_SUM_TOL = 0.005;
 
-/** Identity of a mix, independent of the component order and ticker case: same composition and rule = same mix. */
-export function mixIdentity(components: MixComponent[], rebalance: Rebalance): string {
+/** Identity of a mix, independent of the component order and ticker case: same composition and rule (with its band)
+ * = same mix. */
+export function mixIdentity(components: MixComponent[], rebalance: Rebalance, band = DEFAULT_BAND): string {
   const parts = components
     .map((c) => `${c.ticker.trim().toUpperCase()}*${Math.round(c.weight * 100) / 100}`)
     .sort();
-  return `mix:${parts.join('+')}|${rebalance}`;
+  return `mix:${parts.join('+')}|${rebalance}${rebalance === 'threshold' ? `:${band}` : ''}`;
+}
+
+/** Drift band of the threshold rule: above 0 and at most 50 percentage points (a share cannot drift further in a
+ * two-asset 50/50 mix), with at most one decimal. */
+export function validBand(band: unknown): band is number {
+  return typeof band === 'number' && Number.isFinite(band) && band > 0 && band <= 50 && Math.abs(band * 10 - Math.round(band * 10)) < 1e-6;
 }
 
 /** Validated components (null if the mix is incomplete or invalid). */
@@ -98,8 +107,10 @@ function parseMix(b: Record<string, unknown>): BenchmarkDef | null {
   if (raw.includes(null)) return null;
   const components = validMix(raw as MixComponent[]);
   if (!components) return null;
-  const rebalance: Rebalance = b.rebalance === 'none' ? 'none' : 'yearly';
-  return { name: b.name, ticker: mixIdentity(components, rebalance), kind: 'mix', components, rebalance };
+  const rebalance: Rebalance = REBALANCE_RULES.includes(b.rebalance as Rebalance) ? (b.rebalance as Rebalance) : 'yearly';
+  if (rebalance !== 'threshold') return { name: b.name, ticker: mixIdentity(components, rebalance), kind: 'mix', components, rebalance };
+  const band = validBand(b.band) ? b.band : DEFAULT_BAND;
+  return { name: b.name, ticker: mixIdentity(components, rebalance, band), kind: 'mix', components, rebalance, band };
 }
 
 /** Reads `{name, ticker, kind}` and mixes; older entries with `taxClass` are migrated (cash -> cash, else asset).

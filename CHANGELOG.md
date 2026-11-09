@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- More rebalancing rules for mixes: monthly and quarterly next to yearly and never, and a threshold rule that
+  rebalances once a share drifts more than an adjustable number of percentage points (default 5) from its weight.
+  The dialog picks the rule from a list with a short description of each.
 - The source archive inside the ZIP follows the .gitignore in every shipped directory, so a local credential,
   log or Python cache (e.g. `src/.env.local`, `reference/__pycache__/`) can no longer end up in it.
 - A failure to load the stored settings now shows as an error instead of an empty page, the date range is locked

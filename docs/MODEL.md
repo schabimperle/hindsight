@@ -27,11 +27,17 @@
   sum 100; normalised internally). One state machine over date-ordered events (component starts, rebalances,
   flows; on one day in that order) serves the simulation, the chart path and the drawdown's strategy run.
   Deposits split by the weights, withdrawals sell pro rata to current values (cash of a component without prices
-  yet at face value), an uncovered withdrawal sells everything as for one asset. "Yearly" rebalances on the first
-  day of each year on which every component started before Jan 1 has a new-year price (valued at the last price on
-  or before that day), so the chart never shows a new allocation before new prices exist. Late components:
-  `late_start_partial` (“Partly uninvested until …”). Settings: kind `mix` with `components` and `rebalance`;
-  `ticker` is the identity `mix:<TICKER*weight sorted>|<rule>`, recomputed when read, so the same composition is
+  yet at face value), an uncovered withdrawal sells everything as for one asset. Rebalancing rules as in Vanguard's
+  "Best practices for portfolio rebalancing" and the backtesters with benchmarks (Portfolio Visualizer, testfol.io):
+  calendar ("Monthly", "Quarterly", "Yearly": one rule over periods of 1, 3 or 12 months) rebalances on the first
+  day of each period on which every component started before the period has a price of it (valued at the last price
+  on or before that day), so the chart never shows a new allocation before new prices exist. "Threshold" checks on
+  every price day of any component and rebalances once a share is more than `band` percentage points (absolute,
+  default 5, 0.1 to 50 in the dialog) away from its weight; deposits and pro-rata withdrawals already pull the shares
+  back, so it trades rarely. "Never" lets the weights drift. Late components:
+  `late_start_partial` (“Partly uninvested until …”). Settings: kind `mix` with `components`, `rebalance` and, for
+  the threshold rule, `band`; an unknown rule reads as yearly, an invalid band as 5. `ticker` is the identity
+  `mix:<TICKER*weight sorted>|<rule>[:<band>]`, recomputed when read, so the same composition is
   the same mix. Versions before mixes skip them when reading and drop them once they save the benchmark list.
   Loading fetches each ticker once per load; any component error makes the mix uncomputable with that error.
 - Maximum drawdown (`src/core/drawdown.ts`, rules in `reference/oracle.py`): on a time-weighted index, nominal,

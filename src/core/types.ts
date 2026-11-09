@@ -1,5 +1,8 @@
 export type VariantKind = 'asset' | 'cash' | 'mix';
-export type Rebalance = 'yearly' | 'none';
+export type Rebalance = 'monthly' | 'quarterly' | 'yearly' | 'threshold' | 'none';
+export const REBALANCE_RULES: readonly Rebalance[] = ['monthly', 'quarterly', 'yearly', 'threshold', 'none'];
+/** Default drift band of the threshold rule in percentage points (Vanguard's and Portfolio Visualizer's common 5). */
+export const DEFAULT_BAND = 5;
 
 /** Deposit (positive) or withdrawal (negative) in base currency. */
 export interface Flow {
@@ -17,6 +20,9 @@ export interface Variant {
   /** Mix only: components (weights in any unit, normalised to sum 1) and the rebalancing rule. */
   components?: { weight: number; points: PricePoint[] }[];
   rebalance?: Rebalance;
+  /** Threshold rule only: the allowed drift of a component's share from its weight, in percentage points
+   * (default `DEFAULT_BAND`). */
+  band?: number;
 }
 
 export interface Fixture {

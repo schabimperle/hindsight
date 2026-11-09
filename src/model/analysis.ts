@@ -248,6 +248,7 @@ export function analyze(input: AnalysisInput, window: Window = ALL_TIME): Analys
         kind: 'mix',
         points: [],
         rebalance: b.def.rebalance ?? 'yearly',
+        ...(b.def.band !== undefined ? { band: b.def.band } : {}),
         components: (b.components ?? []).map((c) => ({ weight: c.weight, points: c.points.filter(([d]) => d <= today) })),
       });
       return;

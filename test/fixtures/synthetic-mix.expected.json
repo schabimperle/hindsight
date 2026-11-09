@@ -137,6 +137,88 @@
   {
    "name": "Gap mix",
    "error": "prices_missing"
+  },
+  {
+   "name": "70/30 monthly",
+   "invested": 75700.0,
+   "deposits": 110200.0,
+   "withdrawals": 34500.0,
+   "value": 104894.47256990531,
+   "gain": 29194.47256990531,
+   "irr": 0.047850281753398005,
+   "gainReal": 7681.26820092283,
+   "irrReal": 0.010892439970059287,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.11700728452799147,
+    "peak": "2025-04-14",
+    "trough": "2026-05-15"
+   },
+   "warnings": []
+  },
+  {
+   "name": "70/30 quarterly",
+   "invested": 75700.0,
+   "deposits": 110200.0,
+   "withdrawals": 34500.0,
+   "value": 105882.6806859318,
+   "gain": 30182.680685931802,
+   "irr": 0.04924706532812617,
+   "gainReal": 8669.476316949324,
+   "irrReal": 0.01224098890388825,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.11589371319675934,
+    "peak": "2025-04-14",
+    "trough": "2026-05-15"
+   },
+   "warnings": []
+  },
+  {
+   "name": "70/30 threshold",
+   "invested": 75700.0,
+   "deposits": 110200.0,
+   "withdrawals": 34500.0,
+   "value": 106021.7812752202,
+   "gain": 30321.7812752202,
+   "irr": 0.04944273074233452,
+   "gainReal": 8808.576906237722,
+   "irrReal": 0.012429897789223321,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": null,
+   "drawdown": {
+    "max": -0.11804686954095056,
+    "peak": "2019-09-23",
+    "trough": "2021-01-04"
+   },
+   "warnings": []
+  },
+  {
+   "name": "Late crypto 2.5 pp",
+   "invested": 75700.0,
+   "deposits": 110200.0,
+   "withdrawals": 34500.0,
+   "value": 117156.48486732798,
+   "gain": 41456.48486732798,
+   "irr": 0.06440056486462431,
+   "gainReal": 19943.2804983455,
+   "irrReal": 0.02687143765471689,
+   "shortfall": 0,
+   "shortfalls": [],
+   "uninvestedUntil": "2021-01-04",
+   "drawdown": {
+    "max": -0.1472252539717377,
+    "peak": "2025-06-29",
+    "trough": "2026-05-31"
+   },
+   "warnings": [
+    "late_start"
+   ]
   }
  ],
  "actual": {

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { drawdown } from '../src/core/drawdown';
-import { mixIndex, mixParts, mixValueOn, simulateMix } from '../src/core/mix';
-import type { PricePoint, Variant } from '../src/core/types';
+import { mixIndex, mixParts, mixValueOn, periodStarts, simulateMix } from '../src/core/mix';
+import type { PricePoint, Rebalance, Variant } from '../src/core/types';
 
-const mix = (rebalance: 'yearly' | 'none', ...comps: [number, PricePoint[]][]): Variant => ({
+const mix = (rebalance: Rebalance, ...comps: [number, PricePoint[]][]): Variant => ({
   name: 'Mix',
   kind: 'mix',
   points: [],
@@ -82,6 +82,53 @@ describe('fixed mix', () => {
     expect(never.value).toBeCloseTo(100, 9);
   });
 
+  it('calendar periods start after the period of the first flow', () => {
+    expect(periodStarts('2024-02-15', '2024-12-31', 3)).toEqual(['2024-04-01', '2024-07-01', '2024-10-01']);
+    expect(periodStarts('2024-11-20', '2025-01-05', 1)).toEqual(['2024-12-01', '2025-01-01']);
+    expect(periodStarts('2023-05-02', '2025-01-01', 12)).toEqual(['2024-01-01', '2025-01-01']);
+    expect(periodStarts('2024-12-31', '2024-12-31', 1)).toEqual([]);
+  });
+
+  it('rebalances monthly and quarterly on the first price day of the period', () => {
+    const x: PricePoint[] = [
+      ['2024-01-31', 100],
+      ['2024-02-01', 200],
+      ['2024-03-04', 100],
+      ['2024-04-02', 150],
+    ];
+    const y: PricePoint[] = x.map(([d]) => [d, 100]);
+    const flows = [{ date: '2024-01-31', amount: 100 }];
+    const days = (r: Rebalance) => simulateMix(flows, mix(r, [50, x], [50, y]), '2024-04-02').history.map((h) => h.day);
+    expect(days('monthly')).toEqual(['2024-01-31', '2024-02-01', '2024-03-04', '2024-04-02']);
+    expect(days('quarterly')).toEqual(['2024-01-31', '2024-04-02']);
+    // A period start more than 10 days before its first price is a price gap, as for the yearly rule.
+    const gap: PricePoint[] = x.filter(([d]) => d !== '2024-03-04');
+    expect(() => simulateMix(flows, mix('monthly', [50, gap], [50, y]), '2024-04-02')).toThrow('prices_missing');
+  });
+
+  it('threshold: rebalances only once a share drifts beyond the band', () => {
+    const x: PricePoint[] = [
+      ['2024-03-01', 100],
+      ['2024-03-04', 110],
+      ['2024-03-05', 130],
+    ];
+    const y: PricePoint[] = [
+      ['2024-03-01', 100],
+      ['2024-03-04', 100],
+      ['2024-03-05', 100],
+    ];
+    const flows = [{ date: '2024-03-01', amount: 100 }];
+    const run = (band?: number) => simulateMix(flows, { ...mix('threshold', [50, x], [50, y]), band }, '2024-03-05');
+    // 03-04: x is 55/105 = 52.4 % (2.4 pp off): no trade at the default 5 pp. 03-05: 65/115 = 56.5 %: reset to 57.5/57.5.
+    const dflt = run();
+    expect(dflt.history.map((h) => h.day)).toEqual(['2024-03-01', '2024-03-05']);
+    expect(dflt.history[1].units).toEqual([expect.closeTo(57.5 / 130, 12), expect.closeTo(0.575, 12)]);
+    // 2 pp: trades on both days.
+    expect(run(2).history.map((h) => h.day)).toEqual(['2024-03-01', '2024-03-04', '2024-03-05']);
+    // 50 pp: never trades, so it equals "never".
+    expect(run(50).value).toBeCloseTo(simulateMix(flows, mix('none', [50, x], [50, y]), '2024-03-05').value, 12);
+  });
+
   it('a component without prices yet keeps its share as cash until its first price', () => {
     const late: PricePoint[] = [
       ['2024-03-10', 25],
@@ -140,5 +187,27 @@ describe('mix settings', () => {
     expect(r[0].ticker).toBe('mix:AGG*30+URTH*70|none');
     expect(r[1].rebalance).toBe('yearly');
     expect(r[1].ticker).toBe(mixIdentity(comps, 'yearly'));
+  });
+
+  it('reads every rebalancing rule; the threshold keeps a valid band in its identity, else the default', async () => {
+    const { parseBenchmarks } = await import('../src/model/settings');
+    const comps = [
+      { name: 'World', ticker: 'URTH', weight: 70 },
+      { name: 'Bonds', ticker: 'AGG', weight: 30 },
+    ];
+    const r = parseBenchmarks([
+      { name: 'M', kind: 'mix', components: comps, rebalance: 'monthly' },
+      { name: 'Q', kind: 'mix', components: comps, rebalance: 'quarterly' },
+      { name: 'T', kind: 'mix', components: comps, rebalance: 'threshold', band: 2.5 },
+      { name: 'T bad', kind: 'mix', components: comps, rebalance: 'threshold', band: 0.25 },
+      { name: 'Unknown', kind: 'mix', components: comps, rebalance: 'daily', band: 3 },
+    ]);
+    expect(r.map((b) => [b.rebalance, b.band, b.ticker])).toEqual([
+      ['monthly', undefined, 'mix:AGG*30+URTH*70|monthly'],
+      ['quarterly', undefined, 'mix:AGG*30+URTH*70|quarterly'],
+      ['threshold', 2.5, 'mix:AGG*30+URTH*70|threshold:2.5'],
+      ['threshold', 5, 'mix:AGG*30+URTH*70|threshold:5'],
+      ['yearly', undefined, 'mix:AGG*30+URTH*70|yearly'],
+    ]);
   });
 });

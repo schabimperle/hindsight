@@ -1,8 +1,8 @@
-import { daysBetween, yearOf } from './dates';
+import { daysBetween, pad2 } from './dates';
 import { MAX_PRICE_GAP_DAYS } from './gap';
 import type { IndexPoint } from './drawdown';
 import { bisectLeft, PriceError, Series } from './series';
-import type { Flow, PathPoint, Shortfall, Variant } from './types';
+import { DEFAULT_BAND, type Flow, type PathPoint, type Rebalance, type Shortfall, type Variant } from './types';
 
 const EPS = 1e-9;
 
@@ -44,16 +44,31 @@ function mixPrice(series: Series, day: string, openingDay?: string): [number, st
   return [p, i < series.d.length ? series.d[i] : day];
 }
 
-/** Days on which the yearly rebalance happens (see reference/oracle.py). */
-function rebalanceDays(parts: Part[], firstFlow: string, today: string): string[] {
+/** Calendar rules: months per period (periods start on the 1st of a month whose index, Jan = 0, is a multiple). */
+const REBALANCE_MONTHS: Partial<Record<Rebalance, number>> = { monthly: 1, quarterly: 3, yearly: 12 };
+/** First days of the periods after the one containing `firstFlow`, up to `today`. */
+export function periodStarts(firstFlow: string, today: string, months: number): string[] {
+  const m = Number(firstFlow.slice(5, 7)) - 1;
+  let k = Number(firstFlow.slice(0, 4)) * 12 + Math.floor(m / months) * months + months;
   const out: string[] = [];
-  for (let y = yearOf(firstFlow) + 1; y <= yearOf(today); y++) {
-    const jan1 = `${y}-01-01`;
+  for (;;) {
+    const start = `${Math.floor(k / 12)}-${pad2((k % 12) + 1)}-01`;
+    if (start > today) return out;
+    out.push(start);
+    k += months;
+  }
+}
+
+/** Calendar rebalances: in each new period the first day on which every component started before the period has a
+ * price of that period (see reference/oracle.py). */
+function rebalanceDays(parts: Part[], firstFlow: string, today: string, months: number): string[] {
+  const out: string[] = [];
+  for (const start of periodStarts(firstFlow, today, months)) {
     const due: (string | null)[] = [];
     for (const { series: s } of parts) {
-      if (s.d[0] >= jan1) continue;
-      const k = bisectLeft(s.d, jan1);
-      if (k < s.d.length && daysBetween(jan1, s.d[k]) > MAX_PRICE_GAP_DAYS) throw new PriceError('prices_missing');
+      if (s.d[0] >= start) continue;
+      const k = bisectLeft(s.d, start);
+      if (k < s.d.length && daysBetween(start, s.d[k]) > MAX_PRICE_GAP_DAYS) throw new PriceError('prices_missing');
       due.push(k < s.d.length ? s.d[k] : null);
     }
     if (due.length === 0 || due.includes(null)) continue;
@@ -61,6 +76,11 @@ function rebalanceDays(parts: Part[], firstFlow: string, today: string): string[
     if (day <= today) out.push(day);
   }
   return out;
+}
+
+/** Threshold rule: every price day of any component after the first flow is a check. */
+function checkDays(parts: Part[], firstFlow: string, today: string): string[] {
+  return [...new Set(parts.flatMap((p) => p.series.d.filter((d) => d > firstFlow && d <= today)))].sort();
 }
 
 /** Simulates a fixed mix over the (netted, sorted) flows; see reference/oracle.py. */
@@ -78,7 +98,12 @@ export function simulateMix(flows: Flow[], variant: Variant, today: string, open
   parts.forEach((p, i) => {
     if (p.series.d[0] > firstFlow) events.push({ day: p.series.d[0], order: 0, i });
   });
-  if (variant.rebalance === 'yearly') for (const day of rebalanceDays(parts, firstFlow, today)) events.push({ day, order: 1 });
+  const rule = variant.rebalance;
+  // Threshold rule: rebalance once a component's share is more than this far from its weight (absolute).
+  const band = (variant.band ?? DEFAULT_BAND) / 100;
+  const months = rule === undefined ? undefined : REBALANCE_MONTHS[rule];
+  if (months !== undefined) for (const day of rebalanceDays(parts, firstFlow, today, months)) events.push({ day, order: 1 });
+  else if (rule === 'threshold') for (const day of checkDays(parts, firstFlow, today)) events.push({ day, order: 1 });
   for (const f of flows) events.push({ day: f.date, order: 2, amount: f.amount });
   // Stable sort: by day, then starts, rebalance, flows (each group keeps its own order).
   events.sort((a, b) => (a.day < b.day ? -1 : a.day > b.day ? 1 : a.order - b.order));
@@ -93,14 +118,18 @@ export function simulateMix(flows: Flow[], variant: Variant, today: string, open
       cash[i] = 0;
       started[i] = true;
     } else if (e.order === 1) {
-      const prices = parts.map((p, i) => (started[i] ? (p.series.onOrBeforeWithin(e.day) as number) : 0));
-      const total = parts.reduce((s, _, i) => s + (started[i] ? units[i] * prices[i] : cash[i]), 0);
-      if (total > EPS) {
-        parts.forEach((p, i) => {
-          if (started[i]) units[i] = (total * p.weight) / prices[i];
-          else cash[i] = total * p.weight;
-        });
-      }
+      // Valued at the last price on or before the day; cash of a component without prices at face value.
+      const prices = parts.map((p, i) => (started[i] ? p.series.onOrBeforeWithin(e.day) : null));
+      // Only possible on a threshold check: a component's price is too old to value it.
+      if (parts.some((_, i) => started[i] && prices[i] === null)) continue;
+      const vals = parts.map((_, i) => (started[i] ? units[i] * (prices[i] as number) : cash[i]));
+      const total = vals.reduce((s, v) => s + v, 0);
+      if (total <= EPS) continue;
+      if (rule === 'threshold' && Math.max(...vals.map((v, i) => Math.abs(v / total - parts[i].weight))) <= band) continue;
+      parts.forEach((p, i) => {
+        if (started[i]) units[i] = (total * p.weight) / (prices[i] as number);
+        else cash[i] = total * p.weight;
+      });
     } else {
       const a = e.amount as number;
       if (a > 0) {

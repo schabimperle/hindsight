@@ -18,7 +18,7 @@ import {
 } from '@wealthfolio/ui';
 import { CircleAlert } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { isError } from '../core/types';
+import { DEFAULT_BAND, isError } from '../core/types';
 import { analyze, benchKeys } from '../model/analysis';
 import { codeText } from '../model/messages';
 import { isoOfLocal, localOfIso, presetFrom, rangeFromDays, windowOf, type RangeSetting } from '../model/range';
@@ -167,7 +167,10 @@ function Comparison() {
           : b.kind === 'mix'
             ? t('mix.composition', {
                 parts: (b.components ?? []).map((c) => `${c.weight}% ${c.name || c.ticker}`).join(' / '),
-                rebalance: t(`mix.rebalance_${b.rebalance ?? 'yearly'}`),
+                rebalance:
+                  b.rebalance === 'threshold'
+                    ? t('mix.rebalanceAt', { band: b.band ?? DEFAULT_BAND })
+                    : t(`mix.rebalance_${b.rebalance ?? 'yearly'}`),
               })
             : undefined,
         removable: true,
