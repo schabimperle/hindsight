@@ -98,11 +98,18 @@ describe('scripts/package.mjs', () => {
       writeFileSync(join(project, 'package-lock.json'), '{}');
       writeFileSync(join(project, '.env'), 'SYNTHETIC_SECRET=do-not-package');
       writeFileSync(join(project, 'node_modules', 'ignored.txt'), 'dependency install');
+      // Ignored files inside the shipped directories stay out as well.
+      writeFileSync(join(project, '.gitignore'), '__pycache__/\n.env.*\n*.key\n');
+      writeFileSync(join(project, 'src', '.env.local'), 'SYNTHETIC_SECRET=do-not-package');
+      writeFileSync(join(project, 'src', 'synthetic.key'), 'do-not-package');
+      mkdirSync(join(project, 'reference', '__pycache__'), { recursive: true });
+      writeFileSync(join(project, 'reference', 'oracle.py'), 'pass');
+      writeFileSync(join(project, 'reference', '__pycache__', 'oracle.cpython-313.pyc'), 'cache');
       writeFileSync(join(project, 'manifest.json'), JSON.stringify({ id: 'source-test', version: '1.0.0' }));
       execFileSync('node', [script, project]);
       const files = readZip(readFileSync(join(project, 'build', 'source-test.zip')));
       const sources = readZip(files.get('dist/hindsight-source.zip')!);
-      expect([...sources.keys()].sort()).toEqual(['LICENSE', 'manifest.json', 'package-lock.json', 'src/index.ts']);
+      expect([...sources.keys()].sort()).toEqual(['.gitignore', 'LICENSE', 'manifest.json', 'package-lock.json', 'reference/oracle.py', 'src/index.ts']);
       expect(sources.get('src/index.ts')?.toString()).toBe('export const example = 1;');
       expect(sources.get('LICENSE')?.toString()).toBe('synthetic license');
     } finally {

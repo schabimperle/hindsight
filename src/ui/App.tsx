@@ -181,7 +181,13 @@ function Comparison() {
   const addBench = (b: BenchmarkDef): void => update({ benchmarks: [...benchmarks, b] });
 
   const busy = settingsQ.isLoading || accountsQ.isLoading || (blocked.length === 0 && !loaded && dataQ.isFetching);
-  const failure = blocked.length === 0 && dataQ.isError && !staleScope ? dataQ.error : accountsQ.isError ? accountsQ.error : null;
+  const failure = settingsQ.isError
+    ? settingsQ.error
+    : blocked.length === 0 && dataQ.isError && !staleScope
+      ? dataQ.error
+      : accountsQ.isError
+        ? accountsQ.error
+        : null;
   const loadError = failure ? (failure instanceof Error ? failure.message : String(failure)) : null;
   const realMissing = view === 'real' && analysis !== null && analysis.investedReal === null;
   const unavailable = realMissing ? t('app.realUnavailable') : null;
@@ -208,13 +214,16 @@ function Comparison() {
         disabled={!settings}
         onChange={(v: Scope) => update({ accounts: v })}
       />
-      <DateRangeSelector
-        asOf={asOfDate}
-        value={rangeValue}
-        onChange={onRange}
-        hiddenRanges={['1D']}
-        allTimeFrom={analysis?.firstEver ? localOfIso(analysis.firstEver) : undefined}
-      />
+      {/* The host's selector has no `disabled`; `inert` locks it until the settings are loaded, as `update` needs them. */}
+      <div style={{ display: 'contents' }} inert={!settings}>
+        <DateRangeSelector
+          asOf={asOfDate}
+          value={rangeValue}
+          onChange={onRange}
+          hiddenRanges={['1D']}
+          allTimeFrom={analysis?.firstEver ? localOfIso(analysis.firstEver) : undefined}
+        />
+      </div>
     </>
   );
 

@@ -1,11 +1,13 @@
 // Packs manifest.json and the complete licensed payload into build/<id>.zip.
 // Deterministic: fixed timestamps, sorted entries, nothing random.
-// Node builtins only. Usage: node scripts/package.mjs [project directory]
+// Node builtins plus `ignore` (the .gitignore matcher eslint and prettier use).
+// Usage: node scripts/package.mjs [project directory]
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { deflateRawSync } from 'node:zlib';
+import ignore from 'ignore';
 
 const CRC_TABLE = (() => {
   const t = new Uint32Array(256);
@@ -102,11 +104,16 @@ export function packageAddon(root) {
     '.dockerignore', '.gitignore', '.node-version',
   ];
   if (existsSync(join(root, 'src'))) {
+    // Inside the listed directories the .gitignore decides, so a local credential, log or cache that git would not
+    // take (e.g. src/.env.local, reference/__pycache__/) never reaches the ZIP. Not `git ls-files`: the Docker build
+    // has no .git.
+    const gitignore = join(root, '.gitignore');
+    const ignored = ignore().add(existsSync(gitignore) ? readFileSync(gitignore, 'utf8') : '');
     const sources = sourcePaths.flatMap((rel) => {
       const full = join(root, rel);
       if (!existsSync(full)) return [];
       const names = statSync(full).isDirectory() ? listFiles(full).map((name) => `${rel}/${name}`) : [rel];
-      return names.map((name) => ({ name, data: readFileSync(join(root, name)) }));
+      return names.filter((name) => !ignored.ignores(name)).map((name) => ({ name, data: readFileSync(join(root, name)) }));
     });
     sources.sort((a, b) => a.name.localeCompare(b.name, 'en'));
     writeFileSync(join(root, 'dist/hindsight-source.zip'), zip(sources));

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- The source archive inside the ZIP follows the .gitignore in every shipped directory, so a local credential,
+  log or Python cache (e.g. `src/.env.local`, `reference/__pycache__/`) can no longer end up in it.
+- A failure to load the stored settings now shows as an error instead of an empty page, the date range is locked
+  until the settings are loaded, and the Difference chart highlights the selected line also when it is your
+  portfolio.
 - An asset transfer whose Wealthfolio price history cannot be read now blocks the analysis as unvalued instead of
   being dropped as worthless.
 - MWR no longer shows “–” for annualised returns above +1000 % or below -99 % (e.g. a sharp move shortly after a

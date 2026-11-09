@@ -53,7 +53,8 @@ export function ComparisonChart({
       out.push({ key: r.key, name: rowName(t, r), color, width: r.kind === 'actual' ? 2.5 : 1.75 });
     }
     const sel = out.findIndex((s) => s.key === selected);
-    if (sel > 0) {
+    // >= 0: in Difference mode there is no net-in series, so the real portfolio is at index 0.
+    if (sel >= 0) {
       const [s] = out.splice(sel, 1);
       out.push({ ...s, width: s.width + 1 });
     }

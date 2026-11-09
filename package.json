@@ -22,6 +22,7 @@
     "@wealthfolio/ui": "^3.12.0",
     "date-fns": "^4.4.0",
     "i18next": "^25.10.10",
+    "ignore": "^7.0.14",
     "lucide-react": "^0.561.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
