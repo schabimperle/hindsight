@@ -1,6 +1,6 @@
 {
   "app": {
-    "subtitle": "Hätte eine einfachere Strategie mit deinem Geld besser abgeschnitten? Hindsight spielt deine eigenen Ein- und Auszahlungen in einer Alternative nach, etwa einem Index-ETF, Bitcoin oder einer festen Mischung: Jede Einzahlung kauft sie am selben Tag, jede Auszahlung verkauft davon. Die Methode heißt Public Market Equivalent (Long–Nickels).",
+    "subtitle": "Hätte eine einfachere Strategie mit deinem Geld besser abgeschnitten? Hindsight spielt deine Ein- und Auszahlungen in einer Alternative nach, etwa einem Index-ETF, Bitcoin oder einer Mischung: Jede Einzahlung kauft sie, jede Auszahlung verkauft davon. Die Methode ist ein Public Market Equivalent (Long–Nickels).",
     "loadFailed": "Laden fehlgeschlagen: {{error}}",
     "loading": "Lade Daten",
     "settingsSaveFailed": "Einstellungen konnten nicht gespeichert werden",
@@ -15,7 +15,7 @@
     "withdrawals_one": "{{count}} Auszahlung",
     "withdrawals_other": "{{count}} Auszahlungen",
     "tagline": "Gleiche Geldflüsse. Andere Anlagen.",
-    "scopeBlocked": "Diese ausgewählten Konten lassen sich nicht auswerten: {{names}}. Wähle sie ab, um fortzufahren."
+    "scopeBlocked": "{{names}} lässt sich nicht auswerten. Zum Fortfahren abwählen."
   },
   "view": {
     "nominal": "Nominal",
@@ -40,8 +40,8 @@
     "mwr": "MWR",
     "mwrReal": "MWR (real)",
     "maxDrawdown": "Max. Drawdown",
-    "maxDrawdownInfo": "Größter Rückgang von einem vorherigen Höchststand, zeitgewichtet: Ein- und Auszahlungen zählen weder als Gewinn noch als Verlust. Bei einer Alternative ist es der Kursrückgang des Assets in deiner Basiswährung, unabhängig vom simulierten Bestand; bei deinem Portfolio der Rückgang dessen, was du tatsächlich gehalten hast, aus Wealthfolios täglichen Bewertungen. In beiden Ansichten nominal. Wealthfolios Performance-Seite rechnet ihn genauso; er weicht ab, wenn andere Konten gewählt sind (ein Girokonto etwa dämpft den Rückgang). Beim Darüberfahren zeigt die Zahl die Daten von Hoch und Tief.",
-    "ddUnavailable": "Der Drawdown deines Portfolios braucht an jedem Buchungstag eine Bewertung jedes ausgewählten Kontos; Wealthfolios Historie hat dort eine Lücke."
+    "maxDrawdownInfo": "Größter Rückgang von einem vorherigen Hoch, zeitgewichtet, Ein- und Auszahlungen zählen also nicht. Alternativen nutzen den Kurs, dein Portfolio Wealthfolios tägliche Bewertungen. Immer nominal; entspricht der Performance-Seite bei denselben Konten. Daten beim Darüberfahren.",
+    "ddUnavailable": "Braucht an jedem Buchungstag eine Bewertung jedes gewählten Kontos; Wealthfolios Historie hat Lücken."
   },
   "chart": {
     "netDeposited": "Netto ein",
@@ -63,57 +63,57 @@
     "title": "Vergleich"
   },
   "messages": {
-    "no_prices": "Es liegen keine Kurse vor.",
-    "prices_missing": "Die Kurshistorie hat Lücken von mehr als 10 Tagen.",
+    "no_prices": "Keine Kurse vorhanden.",
+    "prices_missing": "Die Kurshistorie hat Lücken von über 10 Tagen.",
     "prices_stale": "Der letzte Kurs ist älter als 10 Tage.",
     "prices_unavailable": "Kurse konnten nicht geladen werden (Yahoo nicht erreichbar, kein Cache).",
     "ticker_unknown": "Yahoo kennt diesen Ticker nicht.",
     "currency_unknown": "Yahoo nennt für diesen Ticker keine Währung.",
-    "fx_rate_missing": "Es gibt keinen Wechselkurs in die Basiswährung.",
-    "inflation_missing": "Inflationsdaten für {{country}} beginnen erst mit {{month}}, nach der ersten Ein- oder Auszahlung ({{date}}); reale Werte entfallen.",
-    "inflation_gap_one": "Für {{months}} fehlen Inflationsdaten; verwendet wird der letzte veröffentlichte Monat davor.",
-    "inflation_gap_other": "Für {{months}} fehlen Inflationsdaten; verwendet wird jeweils der letzte veröffentlichte Monat davor.",
+    "fx_rate_missing": "Kein Wechselkurs in die Basiswährung.",
+    "inflation_missing": "Inflationsdaten für {{country}} beginnen erst mit {{month}}, nach der ersten Buchung ({{date}}). Keine realen Werte.",
+    "inflation_gap_one": "Inflationsdaten fehlen für {{months}}; der Vormonat wird verwendet.",
+    "inflation_gap_other": "Inflationsdaten fehlen für {{months}}; jeweils wird der letzte veröffentlichte Monat verwendet.",
     "inflation_unavailable": "Inflationsdaten (OECD) konnten nicht geladen werden.",
     "inflation_stale": "Inflationsdaten reichen nur bis {{month}}; spätere Monate verwenden diesen Wert.",
-    "inflation_cache_stale": "Inflationsdaten aus dem Cache (Stand vor {{hours}} Std.), Abruf fehlgeschlagen.",
-    "fx_rates_cache_stale": "Wechselkurse aus dem Cache (Stand vor {{hours}} Std.), Abruf fehlgeschlagen.",
-    "cache_stale": "Kurse aus dem Cache (Stand vor {{hours}} Std.), Abruf fehlgeschlagen.",
-    "withdrawal_uncovered_one": "Eine Auszahlung am {{date}} überstieg den Wert dieser Alternative; {{amount}} waren nicht gedeckt und zählen nicht; das senkt ihre Gewinndifferenz.",
-    "withdrawal_uncovered_other": "{{count}} Auszahlungen (zuerst am {{date}}) überstiegen den Wert dieser Alternative; {{amount}} waren nicht gedeckt und zählen nicht; das senkt ihre Gewinndifferenz.",
-    "late_start": "Bis {{date}} nicht angelegt (erster Kurs); das Geld blieb bis dahin uninvestiert.",
-    "late_start_partial": "Teilweise uninvestiert bis {{date}}: Ein Bestandteil hat keine früheren Kurse, sein Anteil blieb bis dahin uninvestiert.",
-    "foreign_currency_no_rate_one": "Für diese Buchung in Fremdwährung gibt es keinen Wechselkurs nach {{currency}} (Yahoo nicht erreichbar oder Paar unbekannt); ohne sie wäre der Vergleich falsch. Später erneut versuchen oder den Wechselkurs der Buchung in Wealthfolio setzen:",
-    "foreign_currency_no_rate_other": "Für diese Buchungen in Fremdwährung gibt es keinen Wechselkurs nach {{currency}} (Yahoo nicht erreichbar oder Paar unbekannt); ohne sie wäre der Vergleich falsch. Später erneut versuchen oder den Wechselkurs der Buchungen in Wealthfolio setzen:",
-    "asset_transfer_unvalued_one": "Der Wert dieser Sachübertragung ist nicht ermittelbar. Setze ihren Preis in Wealthfolio:",
-    "asset_transfer_unvalued_other": "Der Wert dieser Sachübertragungen ist nicht ermittelbar. Setze ihren Preis in Wealthfolio:",
-    "asset_transfer_worthless_one": "{{count}} Übertragung eines Assets ohne jeden Wert (z. B. Spam-Token) wurde ignoriert.",
-    "asset_transfer_worthless_other": "{{count}} Übertragungen von Assets ohne jeden Wert (z. B. Spam-Token) wurden ignoriert.",
-    "transfers_unlinked_one": "{{count}} Übertragung zwischen gewählten Konten ist nicht verknüpft und zählt als Ein- und Auszahlung (Summe {{sum}}).",
-    "transfers_unlinked_other": "{{count}} Übertragungen zwischen gewählten Konten sind nicht verknüpft und zählen als Ein- und Auszahlungen (Summe {{sum}}).",
-    "no_deposits": "In den gewählten Konten wurden keine externen Einzahlungen gefunden.",
+    "inflation_cache_stale": "Inflationsdaten aus dem Cache ({{hours}} Std. alt); Abruf fehlgeschlagen.",
+    "fx_rates_cache_stale": "Wechselkurse aus dem Cache ({{hours}} Std. alt); Abruf fehlgeschlagen.",
+    "cache_stale": "Kurse aus dem Cache ({{hours}} Std. alt); Abruf fehlgeschlagen.",
+    "withdrawal_uncovered_one": "Eine Auszahlung am {{date}} überstieg den Wert dieser Alternative; {{amount}} waren ungedeckt und zählen nicht.",
+    "withdrawal_uncovered_other": "{{count}} Auszahlungen (zuerst am {{date}}) überstiegen den Wert dieser Alternative; {{amount}} waren ungedeckt und zählen nicht.",
+    "late_start": "Bis {{date}} uninvestiert (erster Kurs).",
+    "late_start_partial": "Bis {{date}} teilweise uninvestiert: Ein Bestandteil hat keine früheren Kurse.",
+    "foreign_currency_no_rate_one": "Kein Wechselkurs nach {{currency}} für diese Fremdwährungsbuchung. Später erneut versuchen oder den Kurs in Wealthfolio setzen:",
+    "foreign_currency_no_rate_other": "Kein Wechselkurs nach {{currency}} für diese Fremdwährungsbuchungen. Später erneut versuchen oder die Kurse in Wealthfolio setzen:",
+    "asset_transfer_unvalued_one": "Diese Sachübertragung lässt sich nicht bewerten. Setze ihren Preis in Wealthfolio:",
+    "asset_transfer_unvalued_other": "Diese Sachübertragungen lassen sich nicht bewerten. Setze ihre Preise in Wealthfolio:",
+    "asset_transfer_worthless_one": "{{count}} Übertragung eines wertlosen Assets (z. B. Spam-Token) ignoriert.",
+    "asset_transfer_worthless_other": "{{count}} Übertragungen wertloser Assets (z. B. Spam-Token) ignoriert.",
+    "transfers_unlinked_one": "{{count}} Übertrag zwischen gewählten Konten ist nicht verknüpft und zählt als Ein- und Auszahlung ({{sum}}).",
+    "transfers_unlinked_other": "{{count}} Überträge zwischen gewählten Konten sind nicht verknüpft und zählen als Ein- und Auszahlungen ({{sum}}).",
+    "no_deposits": "Keine externen Einzahlungen in den gewählten Konten.",
     "no_accounts": "Keine Konten ausgewählt.",
-    "net_contribution_mismatch": "Abgleich: Summe der abgeleiteten Einzahlungen ({{flowsSum}}) weicht von den Netto-Einzahlungen in Wealthfolio ({{netContribution}}) ab.",
+    "net_contribution_mismatch": "Abgeleitete Einzahlungen ({{flowsSum}}) weichen von Wealthfolios Netto-Einzahlungen ({{netContribution}}) ab.",
     "unknown": "Unbekanntes Problem ({{code}}).",
-    "no_deposits_window": "Dein Portfolio hatte zu Beginn dieses Zeitraums keinen Wert und darin keine Einzahlungen. Wähle einen anderen Zeitraum.",
-    "window_empty": "Der gewählte Zeitraum ist leer: Er beginnt am oder nach seinem Ende bzw. der letzten Bewertung. Wähle einen anderen Zeitraum.",
-    "valuation_missing": "Wealthfolio hat für den {{date}} keinen aktuellen Portfoliowert (die Bewertungshistorie eines gewählten Kontos fehlt oder ist über 10 Tage älter). Berechne die Historie in Wealthfolio neu oder wähle einen anderen Zeitraum."
+    "no_deposits_window": "Kein Wert zu Beginn und keine Einzahlungen in diesem Zeitraum. Wähle einen anderen.",
+    "window_empty": "Der Zeitraum ist leer: Er beginnt am oder nach seinem Ende bzw. der letzten Bewertung. Wähle einen anderen.",
+    "valuation_missing": "Kein Portfoliowert für den {{date}}: Die Historie eines gewählten Kontos fehlt oder ist über 10 Tage alt. Berechne die Historie in Wealthfolio neu oder wähle einen anderen Zeitraum."
   },
   "info": {
     "shortfall": {
       "title": "Ungedeckte Auszahlung",
-      "p1": "Diese Alternative war weniger wert als eine Auszahlung; nur der gedeckte Teil zählt. Vergleiche den Gewinn, nicht den Endwert."
+      "p1": "Diese Alternative war weniger wert als eine Auszahlung; nur der gedeckte Teil zählt. Vergleiche Gewinne, nicht Endwerte."
     },
     "lateStart": {
       "title": "Später Start",
-      "p1": "Vor diesem Datum gibt es keine Kurse. Das Geld bleibt bis dahin uninvestiert und wird auf einmal gekauft.",
-      "partial": "Ein Bestandteil hat vor diesem Datum keine Kurse. Sein Anteil an jeder Einzahlung bleibt bis dahin uninvestiert und wird dann auf einmal gekauft; der Rest der Mischung wird normal angelegt."
+      "p1": "Vor diesem Datum gibt es keine Kurse. Das Geld wartet uninvestiert und wird dann gekauft.",
+      "partial": "Ein Bestandteil hat vor diesem Datum keine Kurse. Sein Anteil wartet uninvestiert und wird dann gekauft; der Rest wird normal angelegt."
     },
     "moreAbout": "Mehr Infos zu {{label}}"
   },
   "scope": {
     "title": "Kontobereich auswählen",
     "all": "Alle Anlagekonten",
-    "allHint": "Aktive, ohne Bargeldkonten. Diese separat auswählen.",
+    "allHint": "Aktive, ohne Bargeldkonten (diese einzeln wählen).",
     "accounts": "Konten",
     "search": "Konten durchsuchen…",
     "noResults": "Keine Ergebnisse.",
@@ -150,10 +150,10 @@
     "helpTitle": "Hindsight-Kennzahlen",
     "info": {
       "mwr": "Geldgewichtete Rendite pro Jahr (XIRR).",
-      "mwrPeriod": "Geldgewichtete Rendite über den Zeitraum (XIRR), nicht annualisiert.",
-      "start": "Wert deines Portfolios zu Beginn des Zeitraums. Jede Linie startet mit ihm, als wäre er an diesem Tag eingezahlt worden; Einzahlungen sind die Buchungen danach.",
-      "bookings": "Gezählt werden die ursprünglichen Buchungen im Zeitraum. Beträge sind je Tag saldiert; bei Alternativen zählen nur gedeckte Auszahlungen.",
-      "vs": "Gewinn dieser Alternative minus Gewinn deines Portfolios, bei denselben Ein- und Auszahlungen an denselben Tagen."
+      "mwrPeriod": "Geldgewichtete Rendite über den Zeitraum (XIRR).",
+      "start": "Wert deines Portfolios zu Beginn des Zeitraums. Jede Linie startet mit ihm als Einzahlung.",
+      "bookings": "Buchungen im Zeitraum. Beträge sind je Tag saldiert; Alternativen zählen nur gedeckte Auszahlungen.",
+      "vs": "Gewinn dieser Alternative minus deinen, bei denselben Ein- und Auszahlungen."
     },
     "mwrPeriod": "MWR",
     "deposits": "Einzahlungen",
@@ -167,7 +167,7 @@
     "create": "Mischung erstellen…",
     "createInfo": "Mehrere Anlagen mit festen Gewichten.",
     "title": "Mischung erstellen",
-    "description": "Jede Einzahlung wird nach den Gewichten aufgeteilt, jede Auszahlung verkauft alle Anlagen anteilig. Rebalancing setzt die Gewichte zurück: nach Kalender (erster Handelstag jedes Monats, Quartals oder Jahres) oder sobald ein Anteil weiter als die Schwelle von seinem Gewicht abweicht.",
+    "description": "Einzahlungen werden nach Gewicht aufgeteilt, Auszahlungen verkaufen anteilig. Rebalancing stellt die Gewichte nach Kalender wieder her oder sobald ein Anteil die Schwelle überschreitet.",
     "chooseAsset": "Anlage wählen",
     "weight": "Gewicht in Prozent",
     "remove": "Anlage entfernen",
@@ -191,27 +191,27 @@
     "add": "Mischung hinzufügen",
     "hintAssets": "Wähle für jede Zeile eine Anlage.",
     "hintSum": "Die Gewichte ergeben {{sum}} %, nicht 100 %.",
-    "hintInvalid": "Jedes Gewicht muss über 0 liegen und höchstens zwei Nachkommastellen haben, jede Anlage verschieden sein.",
-    "hintBand": "Die Schwelle muss zwischen 0,1 und 50 Prozentpunkten liegen, mit höchstens einer Nachkommastelle.",
+    "hintInvalid": "Gewichte müssen über 0 liegen, mit höchstens zwei Nachkommastellen; Anlagen müssen verschieden sein.",
+    "hintBand": "Die Schwelle muss 0,1 bis 50 %-Pkt. betragen, mit höchstens einer Nachkommastelle.",
     "hintDuplicate": "Diese Mischung ist schon in der Liste.",
     "composition": "{{parts}} · Rebalancing: {{rebalance}}"
   },
   "guide": {
     "showsTitle": "Was du siehst",
-    "shows1": "Gewinndifferenz: der Gewinn der Alternative minus deinen. Über null hätte sie mit genau deinen Ein- und Auszahlungen mehr verdient.",
-    "shows2": "MWR p.a.: die geldgewichtete Jahresrendite (XIRR) jeder Linie auf dieselben Geldflüsse; unter einem Jahr über den Zeitraum. Sie ist derselbe Vergleich als Rate: Sofern keine Auszahlung ungedeckt war, hat die Linie mit dem höheren Gewinn auch die höhere MWR.",
-    "shows3": "Chart „Wert“: der Wert jeder Linie über die Zeit; die gestrichelte Linie „Netto ein“ ist das bis zu diesem Tag eingezahlte minus das ausgezahlte Geld.",
-    "shows4": "Chart „Differenz“: der Gewinn jeder Linie minus den deines Portfolios an diesem Tag; Gewinn ist der Wert minus das Geld, das die Linie aufgenommen und ausgezahlt hat, Einzahlungen erzeugen also keine Sprünge. Dein Portfolio ist die Nulllinie; darüber lag die Alternative bis dahin vorn. Der heutige Punkt ist die Gewinndifferenz.",
-    "shows5": "Max. Drawdown: der größte Rückgang von einem vorherigen Höchststand, zeitgewichtet, Ein- und Auszahlungen zählen also weder als Gewinn noch als Verlust: bei einer Alternative auf ihrem Kurs, bei deinem Portfolio auf Wealthfolios täglichen Bewertungen. Er zeigt, wie holprig der Weg war, nicht, was besser lief.",
-    "shows6": "Real: Gewinn und MWR in Kaufkraft am Ende des Zeitraums, nach dem OECD-Verbraucherpreisindex des Landes deiner Zeitzone (sonst deiner Basiswährung). Werte und Gewinndifferenz bleiben gleich.",
+    "shows1": "Gewinndifferenz: Gewinn der Alternative minus deinen. Über null hätte sie mit genau deinen Geldflüssen mehr verdient.",
+    "shows2": "MWR p.a.: geldgewichtete Jahresrendite (XIRR) auf dieselben Geldflüsse; bei Zeiträumen unter einem Jahr über den Zeitraum.",
+    "shows3": "Chart „Wert“: der Wert jeder Linie über die Zeit. Die gestrichelte Linie „Netto ein“ ist Eingezahltes minus Ausgezahltes.",
+    "shows4": "Chart „Differenz“: Gewinn jeder Linie minus deinen an diesem Tag. Dein Portfolio ist die Nulllinie; der letzte Punkt ist die Gewinndifferenz.",
+    "shows5": "Max. Drawdown: der größte Rückgang von einem Hoch, zeitgewichtet. Er zeigt, wie holprig der Weg war, nicht, was besser lief.",
+    "shows6": "Real: Gewinn und MWR in Kaufkraft am Ende des Zeitraums (OECD-Verbraucherpreise deines Landes). Werte und Gewinndifferenz bleiben gleich.",
     "assumesTitle": "Annahmen",
-    "assumes1": "Vor Steuern und Gebühren: Die Alternativen zahlen keine; dein Portfolio enthält die tatsächlich gezahlten.",
-    "assumes2": "Eine Einzahlung kauft zum bereinigten Schlusskurs (Yahoo Finance) des Tages oder nächsten Handelstags, eine Auszahlung verkauft diesen Betrag. Ausschüttungen werden reinvestiert.",
-    "assumes3": "Eine Auszahlung über dem Wert der Alternative zählt nur in gedeckter Höhe.",
-    "assumes4": "Vor dem ersten Kurs eines Assets bleibt das Geld uninvestiert und wird an diesem Tag auf einmal gekauft.",
-    "assumes5": "Es zählt nur Geld, das von außen auf die gewählten Konten fließt, keine Umbuchungen dazwischen.",
-    "assumes6": "Sachübertragungen von außen zählen mit dem Preis der Buchung, sonst mit dem Wealthfolio-Kurs um diesen Tag. Wertlose (z. B. Spam-Token) werden ignoriert.",
-    "assumes7": "Beginnt der Zeitraum nach deiner ersten Einzahlung, startet er mit dem Wert deines Portfolios an diesem Tag als Einzahlung.",
-    "assumes8": "Eine Mischung teilt jede Einzahlung nach den Gewichten auf und verkauft anteilig. Rebalancing nach Kalender setzt die Gewichte am ersten Tag jedes Monats, Quartals oder Jahres zurück, an dem jede Anlage einen Kurs hat; „Schwelle“ an jedem Kurstag, an dem der Anteil einer Anlage weiter als die Schwelle (in Prozentpunkten) von ihrem Gewicht abweicht. Ihr Drawdown ist der der Strategie (eine Einheit ab Beginn angelegt), nicht der simulierten Position."
+    "assumes1": "Keine Steuern oder Gebühren für Alternativen; dein Portfolio enthält die tatsächlich gezahlten.",
+    "assumes2": "Einzahlungen kaufen zum bereinigten Schlusskurs (Yahoo Finance) des Tages oder nächsten Handelstags; Auszahlungen verkaufen. Ausschüttungen werden reinvestiert.",
+    "assumes3": "Auszahlungen zählen nur, soweit der Wert der Alternative sie deckt.",
+    "assumes4": "Vor dem ersten Kurs eines Assets wartet das Geld uninvestiert.",
+    "assumes5": "Es zählt nur Geld von außen, keine Überträge zwischen den gewählten Konten.",
+    "assumes6": "Eingehende Sachübertragungen zählen zum Buchungspreis, sonst zum Wealthfolio-Kurs des Tages. Wertlose (z. B. Spam-Token) werden ignoriert.",
+    "assumes7": "Beginnt der Zeitraum nach deiner ersten Einzahlung, zählt der Wert deines Portfolios an diesem Tag als Einzahlung.",
+    "assumes8": "Eine Mischung rebalanciert nur an Tagen, an denen jede Anlage einen Kurs hat. Ihr Drawdown ist der der Strategie, nicht der simulierten Position."
   }
 }

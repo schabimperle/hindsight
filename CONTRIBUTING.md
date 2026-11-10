@@ -1,17 +1,35 @@
 # Contributing
 
-Use Node.js 22.12+ and Python 3.12+. Run `npm ci --ignore-scripts`, `npm run check`
-and `npm run package` from the repository root. Commit the lockfile when dependencies change.
+Issues and pull requests are welcome. Never share real account data; use synthetic examples.
 
-Keep the pure calculation model independent of Wealthfolio. Explain calculation changes
-in `docs/MODEL.md`, update the Python oracle deliberately, and add synthetic cases covering
-the behavior. Put user-visible text in both English and German translation files.
+## Setup
 
-For host integration changes, check the pinned SDK manifest and runtime dependencies.
-A typecheck alone does not prove compatibility with the host iframe and compiled CSS;
-see `docs/DEVELOPMENT.md` for integration checks.
+Node.js 22.12+ and Python 3.12+.
 
-Do not submit account exports, tokens, identifiers or screenshots containing personal
-financial information. Use synthetic reproductions in issues and patches.
+```sh
+npm ci --ignore-scripts
+npm run check
+npm run package
+```
 
-Original contributions are MIT-licensed; retain the licenses of vendored components.
+## Rules
+
+- `reference/oracle.py` defines the calculations. Change it first, then `src/core/`, and add a synthetic
+  case. Never regenerate expected results to make a test pass.
+- Document calculation changes in [docs/MODEL.md](docs/MODEL.md).
+- UI text goes into `src/i18n/en.json` and `de.json`.
+- Keep the addon ID `hindsight` and stored settings compatible.
+- Keep provenance and license of vendored code in `src/vendor/`.
+
+Architecture and host quirks: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+
+## Releasing
+
+Add your changes under `## Unreleased` in `CHANGELOG.md`, then:
+
+```sh
+npm version <patch|minor|major>   # bumps package.json and manifest.json, dates the changelog, tags vX.Y.Z
+git push --follow-tags
+```
+
+The tag runs `.github/workflows/release.yml`, which checks, builds and publishes the ZIP as a GitHub release.

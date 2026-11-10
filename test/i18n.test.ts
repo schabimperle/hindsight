@@ -80,27 +80,27 @@ describe('messages via i18next (interpolation, plural, formats)', () => {
     const f = makeFormat('de', 'EUR');
     const booking = { date: '2024-01-01', symbol: 'CHF', account: 'A' };
     expect(messageText(t, f, { code: 'foreign_currency_no_rate', params: { currency: 'EUR' }, items: [booking] })).toMatch(
-      /^Für diese Buchung in Fremdwährung gibt es keinen Wechselkurs nach EUR /,
+      /^Kein Wechselkurs nach EUR für diese Fremdwährungsbuchung\. /,
     );
     expect(messageText(t, f, { code: 'foreign_currency_no_rate', params: { currency: 'EUR' }, items: [booking, booking] })).toMatch(
-      /^Für diese Buchungen in Fremdwährung/,
+      /^Kein Wechselkurs nach EUR für diese Fremdwährungsbuchungen/,
     );
     expect(
       messageText(t, f, {
         code: 'inflation_missing',
         params: { country: { country: 'AUS' }, month: { month: '2024-04' }, date: { date: '2019-01-03' } },
       }),
-    ).toBe('Inflationsdaten für Australien beginnen erst mit 04/2024, nach der ersten Ein- oder Auszahlung (03.01.2019); reale Werte entfallen.');
+    ).toBe('Inflationsdaten für Australien beginnen erst mit 04/2024, nach der ersten Buchung (03.01.2019). Keine realen Werte.');
     expect(messageText(t, f, { code: 'inflation_gap', params: { months: { months: ['2025-10'] }, count: 1 } })).toBe(
-      'Für 10/2025 fehlen Inflationsdaten; verwendet wird der letzte veröffentlichte Monat davor.',
+      'Inflationsdaten fehlen für 10/2025; der Vormonat wird verwendet.',
     );
     expect(messageText(t, f, { code: 'inflation_stale', params: { month: { month: '2026-01' } } })).toBe(
       'Inflationsdaten reichen nur bis 01/2026; spätere Monate verwenden diesen Wert.',
     );
     expect(
       messageText(t, f, { code: 'withdrawal_uncovered', params: { count: 1, date: { date: '2023-07-15' }, amount: { money: 20861.04 } } }),
-    ).toMatch(/^Eine Auszahlung am 15\.07\.2023 .*; 20\.861\s\u20ac waren nicht gedeckt/);
-    expect(messageText(t, f, { code: 'asset_transfer_unvalued', items: [{ date: '2024-01-01', symbol: 'X', account: 'A' }] })).toMatch(/^Der Wert dieser Sachübertragung/);
+    ).toMatch(/^Eine Auszahlung am 15\.07\.2023 .*; 20\.861\s\u20ac waren ungedeckt/);
+    expect(messageText(t, f, { code: 'asset_transfer_unvalued', items: [{ date: '2024-01-01', symbol: 'X', account: 'A' }] })).toMatch(/^Diese Sachübertragung lässt sich nicht bewerten/);
     expect(messageText(t, f, { code: 'not_a_code' })).toBe('Unbekanntes Problem (not_a_code).');
   });
 
@@ -108,17 +108,17 @@ describe('messages via i18next (interpolation, plural, formats)', () => {
     await setTestLanguage('en');
     const f = makeFormat('en', 'USD');
     expect(messageText(t, f, { code: 'transfers_unlinked', params: { count: 2, sum: { money: 1045 } } })).toBe(
-      '2 transfers between selected accounts are not linked and count as deposits and withdrawals (total $1,045).',
+      '2 transfers between selected accounts are unlinked and count as deposits and withdrawals ($1,045).',
     );
     expect(messageText(t, f, { code: 'inflation_gap', params: { months: { months: ['2025-10', '2025-11'] }, count: 2 } })).toBe(
-      'Inflation data lack 10/2025, 11/2025; each uses the latest published month before it.',
+      'Inflation data lack 10/2025, 11/2025; each uses the previous published month.',
     );
     expect(
       messageText(t, f, {
         code: 'inflation_missing',
         params: { country: { country: 'AUS' }, month: { month: '2024-04' }, date: { date: '2019-01-03' } },
       }),
-    ).toBe('Inflation data for Australia only start in 04/2024, after the first deposit or withdrawal (01/03/2019); real figures are not shown.');
+    ).toBe('Inflation data for Australia start in 04/2024, after the first booking (01/03/2019). No real figures.');
     await setTestLanguage('fr');
     expect(t('table.yourPortfolio')).toBe('Your portfolio');
   });

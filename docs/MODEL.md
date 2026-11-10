@@ -1,143 +1,84 @@
 # Calculation model
 
+`reference/oracle.py` is the reference implementation; `src/core/` ports it and is tested against it.
 
-- Cash flows (`src/core/flows.ts`): `DEPOSIT`/`WITHDRAWAL` and transfers. A transfer is internal (does not
-  count) exactly when a counterpart with the same `sourceGroupId` lies in the selected accounts;
-  `metadata.flow.is_external` is deliberately not read (false is only the SDK default). Ungrouped pairs
-  between selected accounts are only reported, not guessed. In-kind transfers: the booking's `unitPrice` x
-  quantity (so for hand-entered bookings whatever was entered there, e.g. an old purchase price), otherwise
-  the nearest Wealthfolio price to the booking day (before or after, at most 10 days); without a value the
-  analysis is blocked and lists the bookings. Exception “worthless” (`worthless` in `src/sources/load.ts`):
-  no value today (`heldValue`) in the selected accounts and never a Wealthfolio price > 0 (spam token; a price
-  history that could not be read does not count as “never”, it blocks) ->
-  the transfer is ignored, but counted. Consequence: if such an asset is sold after all, the proceeds show
-  up as gain of the real portfolio (the sale is not a flow). Foreign-currency deposits/withdrawals and cash
-  transfers without an exchange rate also block with a booking list (leaving them out would distort the
-  comparison).
-- Simulation (`reference/oracle.py`): this is a Public Market Equivalent in the Long–Nickels sense (index
-  comparison method; the dialog names it), except that the position never goes negative (see uncovered
-  withdrawals below). Flows are netted per day; a purchase happens at the adjusted close of
-  the day or the next trading day (at most 10 days); if there is no later price (flow on today's Saturday, US
-  ticker before the market opens), at the last price before it if at most 10 days old (the same limit as for
-  today's price); before the first price the money stays cash and is invested on the first price day;
-  uncovered withdrawals only count up to the covered amount (gain and XIRR use the executed flows).
-  “Gain difference” = alternative's gain minus your portfolio's gain; without an uncovered withdrawal it equals
-  the difference in value, otherwise (nominal) it is lower by the uncovered amount.
-- Mix (`src/core/mix.ts`, rules in `reference/oracle.py`): 2 to 5 assets with weights (percent, two decimals,
-  sum 100; normalised internally). One state machine over date-ordered events (component starts, rebalances,
-  flows; on one day in that order) serves the simulation, the chart path and the drawdown's strategy run.
-  Deposits split by the weights, withdrawals sell pro rata to current values (cash of a component without prices
-  yet at face value), an uncovered withdrawal sells everything as for one asset. Rebalancing rules as in Vanguard's
-  "Best practices for portfolio rebalancing" and the backtesters with benchmarks (Portfolio Visualizer, testfol.io):
-  a rebalance only happens on a day on which every started component has a price of that very day (a deposit buys
-  each component at its next price, so on any other day a purchase could be pending and its units would be revalued
-  at an older price; found in the Codex review of 11/2026). Calendar ("Monthly", "Quarterly", "Yearly": one rule over
-  periods of 1, 3 or 12 months) rebalances on the first such day of each period, so the chart never shows a new
-  allocation before new prices exist. "Threshold" checks every such day and rebalances once a share is more than
-  `band` percentage points (absolute, default 5, 0.1 to 50 in the dialog) away from its weight; deposits and pro-rata withdrawals already pull the shares
-  back, so it trades rarely. "Never" lets the weights drift. Late components:
-  `late_start_partial` (“Partly uninvested until …”). Settings: kind `mix` with `components`, `rebalance` and, for
-  the threshold rule, `band`; an unknown rule reads as yearly, an invalid band as 5. `ticker` is the identity
-  `mix:<TICKER*weight sorted>|<rule>[:<band>]`, recomputed when read, so the same composition is
-  the same mix. Versions before mixes skip them when reading and drop them once they save the benchmark list.
-  Loading fetches each ticker once per load; any component error makes the mix uncomputable with that error.
-- Maximum drawdown (`src/core/drawdown.ts`, rules in `reference/oracle.py`): on a time-weighted index, nominal,
-  so it is the same in the nominal and real view. An asset's index is its price relative to the price the
-  simulation first invested at (a single asset's time-weighted return is its price return, so it measures the
-  asset's risk, not the simulated position's: a position emptied by an uncovered withdrawal still follows the
-  price); cash never falls. The real portfolio chains Wealthfolio's daily valuations with its original bookings
-  (deposits at the start of the day, withdrawals at its end, not netted; Wealthfolio's own convention and
-  thresholds in `crates/portfolio-engine/src/measure.rs`). Only days on which every started account has its own
-  valuation count (`coveredDaily`: the total carries an account's older state forward otherwise, which would turn
-  into returns); a booking on any other day makes it unavailable (“history incomplete”). Wealthfolio stores a
-  valuation per account and calendar day, so that only happens with real gaps. A mix uses the strategy's index
-  (one unit from the first deposit, same rebalancing), not the simulated position's. Shown only as a column of
-  the comparison table (peak and trough dates on hover): it is the one time-weighted figure next to the
-  money-weighted rest. A recovery time was removed in 11/2026; it contradicted the value (deposits lift the value
-  above an old high long before the return recovers).
-- Period (`src/model/range.ts`, `analyze(input, window)`): a start after the first flow makes the real
-  portfolio's value at the end of the start day (Wealthfolio's daily valuations, latest on or before the day,
-  at most 10 days old, never negative, else the analysis blocks with `valuation_missing`) an opening deposit on
-  that day; flows up to that day are dropped. Alternatives buy it at the last price on or before the start
-  day (the real value is a close as well; a Sunday start uses Friday), else like any deposit. A custom end
-  before today uses the valuation of that day and drops later flows and prices. Money-weighted returns (XIRR)
-  are per year from a 365-day window on, below that over the window itself (`mwrPeriodDays`, label “MWR”
-  without “p.a.”), as on the host's Performance page. XIRR bisects in -99 %..+1000 % first and only widens
-  (up to -99.99 %..+1,000,000 %) when that bracket has no sign change, so ordinary results never depend on the
-  widening; beyond it the rate is “–”. Loading does not depend on the period: switching only
-  recomputes. Chart points: every day, as on the host's Performance page.
-- Currencies: any base currency. Prices in the ticker currency (`GBp`, `ZAc`, `ILA` into the main currency)
-  are converted via Yahoo pairs `<CCY><BASE>=X` (rate on or before the day, `src/sources/fx.ts`), as are
-  foreign-currency bookings without a usable `fxRate` and Wealthfolio prices in a foreign currency.
-- Inflation: OECD CPI (SDMX-CSV, `src/sources/oecd.ts`). Since 2026 most European countries publish their
-  current months only in the COICOP 2018 dataflow, others (DEU, USA) only in the old one: both are read and
-  the most recent series wins; if one fails (other than 404), the other counts and the result is not cached.
-  A month missing inside the series (USA 2025-10) takes the value of the last published month before it
-  (header warning `inflation_gap` with the months a flow falls into); a flow before the first month
-  (Australia: only from 2024-04) -> no real figures, warning with country and month. The country list is fixed
-  in `src/model/countries.ts` (lag at build time at most 12 months); the country always comes from the
-  Wealthfolio time zone, else the base currency (no setting since 11/2026). Real figures use the CPI of the
-  period's end month as “now”; CPI is monthly, so over short periods real figures are coarse.
-- Caches in the addon storage: `yahoo:v2:<ticker>` 12 h, `oecd:v1:<country>` 24 h; on a network error it falls
-  back with a warning, but only to an entry that covers the required start (otherwise a series that is too
-  short would look like a late start).
-- Account scope (`src/sources/portfolio.ts`): eligibility follows the host's Performance rule (not archived;
-  type SECURITIES, CASH or CRYPTOCURRENCY, so credit cards are out). The default selection (“All investment
-  accounts”) additionally needs `isActive` and no CASH type; uninvested balances inside a depot stay in. A stored
-  ID that is archived, unsupported or no longer returned by `accounts.getAll()` stays visible in the selector as
-  “Unavailable”, blocks the analysis with a notice and loads nothing until it is deselected. Changing the scope
-  drops the previous result at once (benchmark changes keep it while loading).
-- Settings, each saved immediately by its selector (no settings sheet): `settings:accounts` (account scope;
-  null = all investment accounts: active and eligible, without cash accounts of their own, which can still be
-  selected explicitly), `settings:benchmarks` (`{name, ticker, kind}`, added with “Add
-  benchmark”, removed with the badge's X; old entries with `taxClass` are still read), `settings:range`
-  (`{preset}` or `{from, to}`). `settings:inflation` and old tax keys are ignored.
-- UI (`src/ui/`) mirrors Insights > Performance of Wealthfolio 3.12: account scope selector and
-  `DateRangeSelector` in a right-aligned row at the content padding (not `PageHeader`: its padding and empty
-  title slot pushed the row inwards on phones), badge row with “Add benchmark” (badge click selects, X removes),
-  card with the host's metric strip (nominal only: gain, MWR, gain difference with the uncovered amount it includes as detail; value, deposits, withdrawals; original booking counts in the deposit/withdrawal tiles; help popover; info button per tile on phones) and the chart with every
-  computable asset in the host's `--series-1…8` colours, cycled. The host components themselves are not
-  exported to addons (`AccountScopeSelector`, `BenchmarkSymbolSelector`, the strip), so `AccountScope.tsx`,
-  `BenchmarkPicker.tsx`, `Badges.tsx` and `MetricStrip.tsx` are clones with the host's classes.
-  The comparison table below switches gain and MWR between nominal and real. The card
-  header carries no info buttons (they wrapped the switch onto its own line on phones, and the real-view note named
-  MWR, which phone rows do not label): the guide explains real figures and the gain difference, and the one case
-  where the gain difference departs from the end-value difference (an uncovered withdrawal) is a row warning. The
-  gain difference column keeps its definition in an info button. The strip stays
-  nominal. Real amounts use end-period purchasing power: the end value stays unchanged, earlier payments
-  are multiplied by CPI(end)/CPI(payment). Thus the gain gap also stays unchanged with identical executed
-  payments, but can change with uncovered withdrawals. A row click selects the line (strip and chart), a row with notes (uncovered withdrawal, late start)
-  has a warning button that opens them; there is no other detail row (everything else is in the strip).
-  `Report.deposits`/`withdrawals` are the executed flows (netted per day) behind `invested`. The chart's
-  round History button toggles the account detail chart's original `HistoryChartMarkerShape` via Recharts
-  `ReferenceDot` (vendored unchanged because the SDK does not export it; provenance and license in
-  `src/vendor/wealthfolio/`). D = deposit (green), W = withdrawal (red), 2 = both types on the same day,
-  as on the host. Booking dates are merged into sampled chart days and simulated paths, with a numeric UTC
-  time axis so unequal intervals stay proportional. Recharts automatically fits and rounds the Y-axis to
-  the visible series (including net-in), with 16 px vertical padding; it does not force a zero baseline.
-  Y ticks are whole currency units (`allowDecimals={false}`), formatted like the other amounts; compact
-  notation collapsed adjacent ticks in narrow windows. Keep `scale="auto"`: the host's Recharts 3.7
-  skips nice/whole-unit ticks with explicit `scale="linear"`. `width="auto"` measures the labels on each
-  range change: a fixed mobile width clipped German six-digit amounts and negative signs. Do not restore
-  a fixed width or compact tick labels.
-  Value is the default chart (`Analysis.chart`) with the dashed "Net in" reference, as in the tools that replay
-  the same cash flows into a benchmark (TradingView Portfolios, FinBodhi). A "Value/Difference" pill switch next
-  to the markers button toggles the chart. Difference (`Analysis.diffChart`) plots every line's gain so far
-  (`Analysis.gainChart`: the value minus the net of that line's own executed flows up to the day,
-  `DetailedRun.executed`, so deposits cause no jumps and an uncovered withdrawal never counts as taken out) minus
-  the real portfolio's on the same day, so the real portfolio is the zero line and today's point is the nominal
-  gain difference (uncovered withdrawals included); a day where either gain is missing has no point. A separate
-  gain chart and a logarithmic scale were removed in 11/2026: the gain chart only shifted the value chart by the
-  shared net-in line, and a log scale over a series that grows by deposits is hard to read.
-  Missing selected-line values use the net-in reference.
-  `depCount`/`depAmount`/`wdCount`/`wdAmount` describe original bookings on that day, not simulated execution.
-  Tile counts also mean original bookings. A period starting after the first deposit shows the opening value as
-  its own "Start value" tile and leaves it out of "Deposits" (the core still books it as the first deposit), so
-  the tiles add up as Value = Start value + Deposits - Withdrawals + Gain, as in Portfolio Performance's period
-  breakdown and broker statements. The help explains daily netting
-  and uncovered withdrawals. Badge minimum height is inline because the host CSS does not contain addon-only
-  Tailwind utilities. Mobile metric tiles use the host's label/value typography, padding and gaps, with its compact
-  16 px info trigger. Their backgrounds stretch to the carousel row's height (`h-full`); do not reserve
-  label/detail space or use the general 44 px touch info button here, which inflates the mobile strip.
-  Explanations stay short on purpose: only what is not obvious from the label (MWR, the opening value, the two
-  warnings, the assumptions dialog).
+## Cash flows
+
+- Deposits, withdrawals and transfers count when they cross the boundary of the selected accounts. A
+  transfer is internal when its counterpart (same `sourceGroupId`) is selected. Unlinked transfers between
+  selected accounts count as external and are flagged.
+- Asset transfers count at the booking's unit price × quantity, else at the nearest Wealthfolio price within
+  10 days. Without a value the analysis stops and lists the bookings.
+- Worthless asset transfers (no value now, never a positive price, e.g. spam tokens) are ignored. If such an
+  asset is sold later, the proceeds show up as gain of your portfolio.
+- Foreign-currency bookings without an exchange rate stop the analysis.
+
+## Simulation
+
+- Flows are netted per day. A deposit buys at the adjusted close of its day or the next trading day (within
+  10 days); if there is no later price yet, at the last price up to 10 days old.
+- Before an asset's first price the money stays cash and is invested on that day.
+- The position never goes negative: a withdrawal counts only up to the alternative's value. Gain and return
+  use the executed flows.
+- Gain difference = alternative's gain − your gain. Without uncovered withdrawals it equals the difference in
+  end values.
+
+## Mixes
+
+- 2–5 assets with weights in percent (up to two decimals, sum 100).
+- Deposits split by weight; withdrawals sell pro rata to current values.
+- Rebalancing only happens on days on which every started asset has a price, so no pending purchase is valued
+  at an old price.
+  - Monthly, quarterly, yearly: the first such day of each period.
+  - Threshold: any such day on which a share is more than the threshold (percentage points, default 5) off
+    its weight.
+  - Never: the weights drift.
+- A mix is identified by `mix:<TICKER*weight, sorted>|<rule>[:<threshold>]`, so equal compositions are the
+  same mix.
+
+## Returns
+
+- Money-weighted return (MWR) is the XIRR, annualised from 365 days on, otherwise over the period.
+- XIRR searches −99 %…+1000 % and widens to −99.99 %…+1,000,000 % only if needed; beyond that it shows “–”.
+
+## Max drawdown
+
+- Measured on a time-weighted index and always nominal.
+- Alternatives: the asset's price from the first purchase on, i.e. the asset's risk, not the position's.
+  Cash never falls. Mixes: the strategy with one unit invested at the first deposit.
+- Your portfolio: Wealthfolio's daily valuations chained with the original bookings (deposits at the start
+  of the day, withdrawals at its end), as on Wealthfolio's Performance page. Unavailable if a booking falls on
+  a day without a valuation of every selected account.
+
+## Periods
+
+- A start after the first flow turns your portfolio's value on the start day into an opening deposit (latest
+  valuation at most 10 days old). Alternatives buy it at the last price on or before that day.
+- A custom end uses that day's valuation and ignores later flows and prices.
+- Changing the period recalculates without reloading data.
+
+## Currencies
+
+Any base currency. Prices in minor units (`GBp`, `ZAc`, `ILA`) are converted to the main unit, foreign
+currencies via Yahoo pairs `<CCY><BASE>=X` at the rate on or before the day.
+
+## Inflation
+
+- Monthly OECD consumer price index, from the COICOP 2018 and the older dataflow; the more recent wins.
+- A missing month takes the last published value before it. If a flow predates the series, there are no
+  real figures.
+- The country follows Wealthfolio's time zone, else the base currency (`src/model/countries.ts`).
+- Real amounts keep the end value and scale earlier flows by CPI(end) / CPI(flow), so the gain difference
+  stays the same unless a withdrawal was uncovered.
+
+## Accounts
+
+- Eligible as on Wealthfolio's Performance page: not archived; securities, cash or crypto accounts.
+- “All investment accounts” takes the active, non-cash ones.
+- A stored account that is no longer available blocks the analysis until it is deselected.
+
+## Storage
+
+- Settings: `settings:accounts` (`null` = all investment accounts), `settings:benchmarks`, `settings:range`.
+- Cache: `yahoo:v2:<ticker>` for 12 h, `oecd:v1:<country>` for 24 h. After a network error, a cached series
+  is used only if it covers the required start.

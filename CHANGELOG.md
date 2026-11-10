@@ -2,74 +2,11 @@
 
 ## Unreleased
 
-- Charts have a point for every day, as on Wealthfolio's Performance page, instead of weekly points beyond
-  ~13 months and month ends beyond ~6 years, so the lines show the swings the max drawdown is measured on.
-- More rebalancing rules for mixes: monthly and quarterly next to yearly and never, and a threshold rule that
-  rebalances once a share drifts more than an adjustable number of percentage points (default 5) from its weight.
-  The dialog picks the rule from a list with a short description of each.
-- The source archive inside the ZIP follows the .gitignore in every shipped directory, so a local credential,
-  log or Python cache (e.g. `src/.env.local`, `reference/__pycache__/`) can no longer end up in it.
-- A failure to load the stored settings now shows as an error instead of an empty page, the date range is locked
-  until the settings are loaded, and the Difference chart highlights the selected line also when it is your
-  portfolio.
-- An asset transfer whose Wealthfolio price history cannot be read now blocks the analysis as unvalued instead of
-  being dropped as worthless.
-- MWR no longer shows “–” for annualised returns above +1000 % or below -99 % (e.g. a sharp move shortly after a
-  large deposit); the search widens up to -99.99 %..+1,000,000 %.
-- Robustness against the host: booking days no longer rely on the `en-CA` date pattern, activity paging keeps
-  reading when the host returns shorter pages than requested, and a `null` status counts as posted like a
-  missing one.
-- The comparison header has no info buttons any more, so switching to Real no longer wraps the switch onto a new
-  line on phones. Real figures and the gain difference are explained in “How Hindsight works”; an uncovered
-  withdrawal, the one case where the gain difference departs from the end-value difference, stays a warning on its
-  row.
-- A period starting after your first deposit shows the portfolio's value at its start as “Start value” next to
-  “Deposits”, which now count only the bookings in the period.
-- On phones the “How Hindsight works” and mix dialogs space their parts again (the bottom sheet ignored the
-  dialog's gap), and each heading in “How Hindsight works” sits closer to its list than to the previous one.
-- One description in three lengths: the addon listing, the README and the “How Hindsight works” dialog all start
-  from the question “would a simpler strategy have done better with your money?”. The dialog splits into “What you
-  see” (each figure and chart) and “Assumptions”.
-- Fewer views, each on one basis: the chart shows Value (default, with “Net in”) or Difference; the separate gain
-  chart and the logarithmic scale are gone. The metric strip leads with the gain difference for an alternative and
-  drops the Risk section; the max drawdown is a table column only (dates on hover), and the recovery time is gone,
-  because it followed the time-weighted return and contradicted the value. The drawdown explanation says why it can
-  differ from Wealthfolio's Performance page (other accounts, e.g. a cash account).
-- The “Gain difference” column no longer gets a “(real)” suffix: the difference is the same in both views.
+First public release.
 
-- Fixed mixes as alternatives: “Create a mix…” in “Add benchmark” combines 2 to 5 assets with weights, rebalanced
-  yearly (on the first trading day) or never. Deposits split by the weights, withdrawals sell pro rata; the mix
-  gets its line, row, metrics and drawdown like any alternative.
-
-- Maximum drawdown and recovery time per line, time-weighted so deposits and withdrawals do not count: a new
-  “Risk” section in the metrics and a “Max drawdown” column in the comparison. Alternatives use their price,
-  your portfolio Wealthfolio's daily valuations (with Wealthfolio's own day convention).
-
-- A third chart mode, “Difference”, shows each alternative's gain minus yours over time: your portfolio is the
-  zero line, and the end point is the gain difference in the table. It shows when a lead or gap arose and whether
-  it held.
-
-- The chart shows the gain so far by default (value minus each line's own executed flows); the value chart,
-  with the logarithmic scale, is one switch away.
-- One line under the title states the idea (same cash flows, different investments); the period sits where
-  Wealthfolio's Performance card shows its date range (right of the title, below it beside the metrics and on
-  phones). The info dialog names the method (Public Market Equivalent, Long–Nickels) and drops its extra heading.
-- The scale switch sits left of the Gain/Value switch; the real-view note is an info button next to the
-  Nominal/Real switch.
-- “vs. yours” is now “Gain difference”, with an explanation at the table column; for an alternative that could
-  not cover a withdrawal, the metric strip shows the uncovered amount the difference includes. Switching the table
-  to real figures explains that the end value stays the same.
-- “All accounts” is now “All investment accounts”. Account eligibility follows Wealthfolio's Performance rule, so
-  credit cards and archived accounts are excluded; stale selections are shown as unavailable and block the analysis
-  until removed. A changed account scope no longer shows the previous accounts' results while loading.
-
-## 0.3.0
-
-- Standalone Hindsight repository extracted from its former connector project.
-- Portfolio comparison with selectable accounts, benchmarks and date ranges.
-- Nominal and inflation-adjusted results, linear/logarithmic charts and flow markers.
-- English and German UI, synthetic test suite and independent Python oracle.
-- Reproducible installable ZIP with licenses, bundled dependency notices and source archive.
-
-The addon ID, stored settings and calculation behavior remain compatible with the previous
-0.3.0 build. Packaged versions include a content hash to distinguish builds.
+- Compare your portfolio with any Yahoo Finance ticker, cash or a fixed mix, using your own deposits and
+  withdrawals.
+- Gain difference, money-weighted return and max drawdown per line, nominal or real.
+- Value and difference charts with deposit and withdrawal markers.
+- Mixes of 2–5 assets with monthly, quarterly, yearly or threshold rebalancing.
+- English and German.

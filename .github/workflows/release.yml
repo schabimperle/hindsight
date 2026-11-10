@@ -1,0 +1,35 @@
+name: Release
+
+# Runs on a version tag pushed by `npm version` (see CONTRIBUTING.md).
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container: node:22-trixie-slim@sha256:2117f713a417f3aff682ac8f5bc2ebbdf1beed51f36e67ab1e0fd3866b6d2d8f
+    env:
+      TAG: ${{ github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends git python3 ca-certificates gh
+      - uses: actions/checkout@v7
+      - name: Verify tag, manifest and changelog
+        run: |
+          version="${TAG#v}"
+          test "$(node -p "require('./package.json').version")" = "$version"
+          test "$(node -p "require('./manifest.json').version")" = "$version"
+          awk -v h="## $version " 'index($0, h) == 1 {on = 1; next} /^## / {on = 0} on' CHANGELOG.md > notes.md
+          grep -q . notes.md
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run check
+      - run: npm run package
+      - name: Publish
+        run: |
+          cp build/hindsight.zip "hindsight-${TAG#v}.zip"
+          gh release create "$TAG" "hindsight-${TAG#v}.zip" --title "Hindsight ${TAG#v}" --notes-file notes.md --verify-tag

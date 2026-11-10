@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    # Pinned image: the ZIP must be byte-identical when rebuilt from the same commit.
+    container: node:22-trixie-slim@sha256:2117f713a417f3aff682ac8f5bc2ebbdf1beed51f36e67ab1e0fd3866b6d2d8f
+    steps:
+      - run: apt-get update && apt-get install -y --no-install-recommends git python3 ca-certificates
+      - uses: actions/checkout@v7
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run check
+      - run: npm run package
+      - name: Verify reproducible package
+        run: |
+          cp build/hindsight.zip /tmp/first.zip
+          npm run package
+          cmp /tmp/first.zip build/hindsight.zip

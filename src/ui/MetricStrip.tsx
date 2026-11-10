@@ -60,7 +60,8 @@ function HelpPopover({ sections }: { sections: MetricSection[] }) {
 }
 
 /** Desktop: sections side by side with the host's mono labels; phones: a carousel of small tiles with an info
- * button per label (as the host's mobile metrics). */
+ * button per label (as the host's mobile metrics). Tiles stretch to the row (`h-full`); reserving label space or
+ * using the 44 px info button inflates the strip. */
 export function MetricStrip({ sections, mobile }: { sections: MetricSection[]; mobile: boolean }) {
   if (mobile) {
     return (

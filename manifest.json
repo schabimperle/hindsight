@@ -2,7 +2,7 @@
   "id": "hindsight",
   "name": "Hindsight",
   "version": "0.3.0",
-  "description": "Would a simpler strategy have done better with your money? Replays your deposits and withdrawals in an index ETF, Bitcoin, any Yahoo Finance ticker or a fixed mix and shows how much more or less you would have gained.",
+  "description": "Would a simpler strategy have done better with your money? Replays your deposits and withdrawals in an index ETF, Bitcoin, any ticker or a fixed mix.",
   "sdkVersion": "3.12.0",
   "main": "dist/addon.js",
   "enabled": true,
@@ -119,7 +119,7 @@
       "purpose": "Fetch daily prices and exchange rates (Yahoo Finance) and consumer price indices (OECD)"
     }
   ],
-  "author": "schabimperle",
+  "author": "Malte Schababerle",
   "repository": "https://github.com/schabimperle/hindsight",
   "homepage": "https://github.com/schabimperle/hindsight"
 }

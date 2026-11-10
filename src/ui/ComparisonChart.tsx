@@ -90,6 +90,8 @@ export function ComparisonChart({
               interval="preserveStartEnd"
               minTickGap={isMobile ? 16 : 8}
             />
+            {/* Host Recharts 3.7: no explicit scale="linear" (loses nice ticks), whole-unit ticks to match the money
+                format, and width="auto" (a fixed width clips long amounts). */}
             <YAxis
               domain={['auto', 'auto']}
               padding={{ top: 16, bottom: 16 }}

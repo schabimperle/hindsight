@@ -97,11 +97,10 @@ export function packageAddon(root) {
   const manifest = JSON.parse(readFileSync(join(root, 'manifest.json'), 'utf8'));
   // Include only project sources, never ignored workspace data or credentials.
   const sourcePaths = [
-    'src', 'scripts', 'reference', 'test', 'docs', 'LICENSES', '.gitea',
+    'src', 'scripts', 'reference', 'test', 'docs', 'LICENSES', '.github',
     'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'CONTRIBUTING.md',
-    'CHANGELOG.md', 'AGENTS.md', 'package.json', 'package-lock.json',
-    'manifest.json', 'vite.config.ts', 'tsconfig.json', 'Dockerfile',
-    '.dockerignore', '.gitignore', '.node-version',
+    'CHANGELOG.md', 'package.json', 'package-lock.json', 'manifest.json',
+    'vite.config.ts', 'tsconfig.json', '.gitignore', '.node-version',
   ];
   if (existsSync(join(root, 'src'))) {
     // Inside the listed directories the .gitignore decides, so a local credential, log or cache that git would not
