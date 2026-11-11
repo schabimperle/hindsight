@@ -114,7 +114,9 @@ export function ComparisonChart({
               width="auto"
             />
             {mode === 'difference' && <ReferenceLine y={0} stroke="var(--muted-foreground)" strokeDasharray="5 4" strokeOpacity={0.6} ifOverflow="extendDomain" />}
+            {/* filterNull off: a kept booking day without any line value still gets its tooltip. */}
             <Tooltip
+              filterNull={false}
               cursor={{ stroke: 'var(--muted-foreground)', strokeWidth: 1 }}
               content={({ active, payload, label: day }) => {
                 if (!active || !payload?.length) return null;

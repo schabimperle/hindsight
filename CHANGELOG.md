@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- The difference chart keeps its start and the first deposit markers when valuations begin after the first
+  deposit.
+
 ## 0.4.0 (2026-11-11)
 
 First public release.

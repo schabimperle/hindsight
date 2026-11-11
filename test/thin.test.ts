@@ -40,4 +40,15 @@ describe('thinRows', () => {
     expect(marker.b).toBe(333 % 7);
     expect(out.every((r) => r.full === rows[r.time])).toBe(true);
   });
+
+  it('keeps the period ends and marker days where no line has a value yet', () => {
+    // Difference mode before the first valuation: every line is empty, but the deposit and the axis start remain.
+    const late = xs.map((x) => ({ time: x, a: x < 400 ? null : x, depCount: x === 100 ? 1 : 0 }));
+    const out = thinRows(late, ['a'], 50, (r) => r.depCount > 0);
+    expect(out[0].time).toBe(0);
+    expect(out.at(-1)!.time).toBe(999);
+    const marker = out.find((r) => r.time === 100)!;
+    expect(marker.a).toBeUndefined();
+    expect(out.filter((r) => typeof r.a === 'number').length).toBe(50);
+  });
 });

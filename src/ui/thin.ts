@@ -36,12 +36,17 @@ export type ChartRow = Record<string, number | string | null | undefined> & { ti
 /**
  * Chart rows with each line thinned to about `threshold` points by LTTB; `keep` rows stay on every line (marker
  * days). A row keeps only the values of the lines that use it, the others are left out and bridged by
- * `connectNulls`. `full` is the untouched row for the tooltip.
+ * `connectNulls`. The first, last and `keep` rows stay even where no line has a value yet, so the time axis and
+ * the markers keep their days. `full` is the untouched row for the tooltip.
  */
 export function thinRows<R extends ChartRow>(rows: R[], keys: string[], threshold: number, keep: (row: R) => boolean = () => false): (R & { full: R })[] {
   if (rows.length <= threshold) return rows.map((row) => ({ ...row, full: row }));
   const used = new Map<number, Set<string>>();
-  const mark = (i: number, key: string) => { if (!used.has(i)) used.set(i, new Set()); used.get(i)!.add(key); };
+  const row = (i: number): Set<string> => { if (!used.has(i)) used.set(i, new Set()); return used.get(i)!; };
+  const mark = (i: number, key: string) => { row(i).add(key); };
+  row(0);
+  row(rows.length - 1);
+  rows.forEach((r, i) => { if (keep(r)) row(i); });
   for (const key of keys) {
     const at = rows.flatMap((row, i) => (typeof row[key] === 'number' ? [i] : []));
     const picked = lttb(at.map((i) => rows[i].time), at.map((i) => rows[i][key] as number), threshold);
