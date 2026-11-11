@@ -25,7 +25,7 @@ Architecture and host quirks: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ## Releasing
 
-Add your changes under `## Unreleased` in `CHANGELOG.md`, then:
+Add your changes under `## Unreleased` in `CHANGELOG.md`, one line per entry (the release notes copy it verbatim), then:
 
 ```sh
 npm version <patch|minor|major>   # bumps package.json and manifest.json, dates the changelog, tags vX.Y.Z
