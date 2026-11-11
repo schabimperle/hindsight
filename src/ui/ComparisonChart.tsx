@@ -8,6 +8,7 @@ import { axisTicks } from './axis';
 import { rowName, useTexts } from './i18n';
 import { HistoryChartMarkerShape } from '../vendor/wealthfolio/history-chart-marker';
 import { bookingMarkers, dayFromTime, timeOfDay } from './markers';
+import { thinRows, type ChartRow } from './thin';
 
 interface Series {
   key: string;
@@ -21,6 +22,8 @@ export const NET_KEY = 'net';
 export type ChartMode = 'value' | 'difference';
 const DEPOSIT_COLOR = 'var(--success)';
 const WITHDRAWAL_COLOR = 'var(--destructive)';
+/** Points per line: about two pixels each, so years of daily values do not blur into a thick band. */
+const LINE_POINTS = { desktop: 400, mobile: 150 };
 
 /** Every computable row as a line in its badge colour (the host plots every added item); the selected line is
  * drawn last and thicker. Value mode plots the value with the dashed "Net in" reference; difference mode each gain
@@ -50,19 +53,27 @@ export function ComparisonChart({
     for (const r of a.rows) {
       const color = colors.get(r.key);
       if (isError(r.result) || !color) continue;
-      out.push({ key: r.key, name: rowName(t, r), color, width: r.kind === 'actual' ? 2.5 : 1.75 });
+      out.push({ key: r.key, name: rowName(t, r), color, width: r.kind === 'actual' ? 2 : 1.5 });
     }
     const sel = out.findIndex((s) => s.key === selected);
     // >= 0: in Difference mode there is no net-in series, so the real portfolio is at index 0.
     if (sel >= 0) {
       const [s] = out.splice(sel, 1);
-      out.push({ ...s, width: s.width + 1 });
+      out.push({ ...s, width: s.width + 0.5 });
     }
     return out;
   }, [a.rows, colors, selected, mode, t]);
 
   const chart = mode === 'difference' ? a.diffChart : a.chart;
-  const data = useMemo(() => chart.map((p) => ({ ...p, time: timeOfDay(String(p.date)) })), [chart]);
+  const data = useMemo(
+    () => thinRows(
+      chart.map((p): ChartRow => ({ ...p, time: timeOfDay(String(p.date)) })),
+      series.map((s) => s.key),
+      isMobile ? LINE_POINTS.mobile : LINE_POINTS.desktop,
+      (row) => Number(row.depCount ?? 0) > 0 || Number(row.wdCount ?? 0) > 0,
+    ),
+    [chart, series, isMobile],
+  );
   const points = useMemo(() => markers ? bookingMarkers(chart, selected) : [], [chart, selected, markers]);
   const dates = useMemo(() => a.chart.map((p) => String(p.date)), [a.chart]);
   const { ticks, label } = useMemo(() => axisTicks(dates, language), [dates, language]);
@@ -107,8 +118,9 @@ export function ComparisonChart({
               cursor={{ stroke: 'var(--muted-foreground)', strokeWidth: 1 }}
               content={({ active, payload, label: day }) => {
                 if (!active || !payload?.length) return null;
-                const rows = [...payload].sort((x, y) => Number(y.value) - Number(x.value));
-                const pt = payload[0].payload as Record<string, number | undefined>;
+                // The exact day, not the thinned line: every series' value from the untouched row.
+                const pt = (payload[0].payload as { full: Record<string, number | undefined> }).full;
+                const rows = series.map((s) => ({ ...s, value: pt[s.key] })).sort((x, y) => Number(y.value ?? -Infinity) - Number(x.value ?? -Infinity));
                 return (
                   <div className="bg-popover text-popover-foreground rounded-md border px-3 py-2 text-xs shadow-md">
                     <div className="text-muted-foreground mb-1">{fmt.date(dayFromTime(Number(day)))}</div>
@@ -132,8 +144,8 @@ export function ComparisonChart({
                     )}
                     <div className="space-y-1">
                       {rows.map((p) => (
-                        <div key={String(p.dataKey)} className="flex items-center gap-2">
-                          <span className="inline-block h-0.5 w-3 shrink-0" style={{ background: String(p.color) }} />
+                        <div key={p.key} className="flex items-center gap-2">
+                          <span className="inline-block h-0.5 w-3 shrink-0" style={{ background: p.color }} />
                           <span className="font-medium tabular-nums">
                             {typeof p.value !== 'number' ? '–' : mode === 'difference' ? fmt.moneySigned(p.value) : fmt.money(p.value)}
                           </span>
