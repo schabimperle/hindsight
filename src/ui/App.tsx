@@ -146,9 +146,11 @@ function Comparison() {
   const keys = useMemo(() => benchKeys(benchmarks), [benchmarks]);
   const colors = useMemo(() => {
     const m = new Map<string, string>([['actual', 'var(--foreground)']]);
-    keys.forEach((k, i) => m.set(k, seriesColor(i)));
+    // Cash is the zero-return baseline: neutral like the net-in line, leaving the palette to assets and mixes.
+    let n = 0;
+    keys.forEach((k, i) => m.set(k, benchmarks[i].kind === 'cash' ? 'var(--muted-foreground)' : seriesColor(n++)));
     return m;
-  }, [keys]);
+  }, [keys, benchmarks]);
   const rows = analysis && !analysis.fatal ? analysis.rows : [];
   const rowByKey = new Map(rows.map((r) => [r.key, r]));
   const selectedRow = rows.find((r) => r.key === selected && !isError(r.result)) ?? rows.find((r) => r.kind === 'actual');

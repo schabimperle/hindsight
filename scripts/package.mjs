@@ -112,7 +112,8 @@ export function packageAddon(root) {
       const full = join(root, rel);
       if (!existsSync(full)) return [];
       const names = statSync(full).isDirectory() ? listFiles(full).map((name) => `${rel}/${name}`) : [rel];
-      return names.filter((name) => !ignored.ignores(name)).map((name) => ({ name, data: readFileSync(join(root, name)) }));
+      // README images are not source; they would only bloat every install.
+      return names.filter((name) => !ignored.ignores(name) && !name.endsWith('.png')).map((name) => ({ name, data: readFileSync(join(root, name)) }));
     });
     sources.sort((a, b) => a.name.localeCompare(b.name, 'en'));
     writeFileSync(join(root, 'dist/hindsight-source.zip'), zip(sources));

@@ -12,6 +12,7 @@
     "compare": "tsx scripts/compare.ts",
     "check": "npm run typecheck && npm test && python3 -I scripts/check_oracle.py",
     "fixtures": "python3 -I scripts/check_oracle.py --write",
+    "screenshot": "npm run package && node scripts/screenshot.mjs",
     "version": "node scripts/version.mjs && git add manifest.json CHANGELOG.md"
   },
   "devDependencies": {
@@ -26,6 +27,7 @@
     "i18next": "^25.10.10",
     "ignore": "^7.0.14",
     "lucide-react": "^0.561.0",
+    "playwright-core": "^1.65.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "recharts": "3.7.0",

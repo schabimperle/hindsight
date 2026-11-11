@@ -5,7 +5,10 @@
 A [Wealthfolio](https://wealthfolio.app) addon that replays your actual deposits and withdrawals in an index
 ETF, Bitcoin, any Yahoo Finance ticker or a fixed mix, and shows how much more or less you would have gained.
 
-![Hindsight comparing a synthetic savings plan with the S&P 500, MSCI World, a 60/40 mix and cash](docs/screenshot.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
+  <img alt="Hindsight comparing a synthetic stock portfolio with the S&P 500, MSCI World, a 60/40 mix and cash" src="docs/screenshot-light.png">
+</picture>
 
 ## Features
 

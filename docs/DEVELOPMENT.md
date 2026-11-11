@@ -49,5 +49,12 @@ content hash, e.g. `0.4.0+1a2b3c4d5e6f`, so every build is distinguishable.
 - Install with `POST /api/v1/addons/install-zip` (`zipDataB64`, `enableAfterInstall`,
   `approvedNetworkHosts`); create synthetic data with `POST /api/v1/accounts` and
   `POST /api/v1/activities/bulk`.
-- The addon renders in a `srcdoc` iframe with its own scroll. Take screenshots with a tall viewport and reach
-  its content through `page.frame_locator('iframe')`.
+- The addon renders in a `srcdoc` iframe with its own scroll; reach its content through
+  `page.frameLocator('iframe')`.
+
+## Screenshots
+
+`docs/screenshot-{light,dark}.png` come from `scripts/screenshot.mjs`: it seeds a synthetic portfolio into a
+fresh instance, installs the addon and captures both themes. Run the Screenshots workflow (it opens a pull
+request), or locally `WEALTHFOLIO_URL=http://127.0.0.1:8088 npm run screenshot` against a disposable instance
+(the script adds data on every run).
