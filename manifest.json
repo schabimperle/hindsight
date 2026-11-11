@@ -2,7 +2,7 @@
   "id": "hindsight",
   "name": "Hindsight",
   "version": "0.3.0",
-  "description": "Would a simpler strategy have done better with your money? Replays your deposits and withdrawals in an index ETF, Bitcoin, any ticker or a fixed mix.",
+  "description": "Would a different investment have done better with your money? Replays your deposits and withdrawals in an index ETF, Bitcoin, any ticker or a fixed mix.",
   "sdkVersion": "3.12.0",
   "main": "dist/addon.js",
   "enabled": true,

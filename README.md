@@ -1,6 +1,6 @@
 # Hindsight
 
-**Would a simpler strategy have done better with your money?**
+**Would a different investment have done better with your money?**
 
 A [Wealthfolio](https://wealthfolio.app) addon that replays your actual deposits and withdrawals in an index
 ETF, Bitcoin, any Yahoo Finance ticker or a fixed mix, and shows how much more or less you would have gained.
