@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.1 (2026-11-11)
 
 - The difference chart keeps its start and the first deposit markers when valuations begin after the first deposit.
 
