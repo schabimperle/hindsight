@@ -19,6 +19,16 @@ const external = [
 
 export default defineConfig({
   plugins: [react(), {
+    name: 'compact-style-check',
+    writeBundle(_options, bundle) {
+      const hasCompactStyles = Object.values(bundle).some((file) => {
+        if (file.type !== 'asset' || !file.fileName.endsWith('.css')) return false;
+        const css = typeof file.source === 'string' ? file.source : new TextDecoder().decode(file.source);
+        return css.includes('.hindsight-compact-icon');
+      });
+      if (!hasCompactStyles) this.error('The build must include the compact control stylesheet.');
+    },
+  }, {
     name: 'addon-license-notices',
     generateBundle() {
       for (const [fileName, sourcePath] of [
