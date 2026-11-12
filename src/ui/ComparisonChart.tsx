@@ -1,32 +1,24 @@
 import { useIsMobile } from '@wealthfolio/ui';
 import { useMemo } from 'react';
 import { CartesianGrid, Line, LineChart, ReferenceDot, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { isError } from '../core/types';
 import type { Analysis } from '../model/analysis';
 import type { Fmt } from '../model/format';
 import { axisTicks } from './axis';
-import { rowName, useTexts } from './i18n';
+import { useTexts } from './i18n';
+import { chartSeries, type ChartMode } from './chartSeries';
 import { HistoryChartMarkerShape } from '../vendor/wealthfolio/history-chart-marker';
 import { bookingMarkers, dayFromTime, timeOfDay } from './markers';
 import { thinRows, type ChartRow } from './thin';
 
-interface Series {
-  key: string;
-  name: string;
-  color: string;
-  width: number;
-  dash?: string;
-}
+export { NET_KEY, type ChartMode } from './chartSeries';
 
-export const NET_KEY = 'net';
-export type ChartMode = 'value' | 'difference';
 const DEPOSIT_COLOR = 'var(--success)';
 const WITHDRAWAL_COLOR = 'var(--destructive)';
 /** Points per line: about two pixels each, so years of daily values do not blur into a thick band. */
 const LINE_POINTS = { desktop: 400, mobile: 150 };
 
 /** Every computable row as a line in its badge colour (the host plots every added item); the selected line is
- * drawn last and thicker. Value mode plots the value with the dashed "Net in" reference; difference mode each gain
+ * drawn last and thicker. Value mode merges cash with net deposits when equivalent; difference mode each gain
  * minus the real portfolio's, whose own line is then the zero line. */
 export function ComparisonChart({
   a,
@@ -47,22 +39,7 @@ export function ComparisonChart({
   const { t, language } = useTexts();
   const isMobile = useIsMobile();
 
-  const series = useMemo<Series[]>(() => {
-    const out: Series[] =
-      mode === 'value' ? [{ key: NET_KEY, name: t('chart.netDeposited'), color: 'var(--muted-foreground)', width: 1.5, dash: '5 4' }] : [];
-    for (const r of a.rows) {
-      const color = colors.get(r.key);
-      if (isError(r.result) || !color) continue;
-      out.push({ key: r.key, name: rowName(t, r), color, width: r.kind === 'actual' ? 2 : 1.5 });
-    }
-    const sel = out.findIndex((s) => s.key === selected);
-    // >= 0: in Difference mode there is no net-in series, so the real portfolio is at index 0.
-    if (sel >= 0) {
-      const [s] = out.splice(sel, 1);
-      out.push({ ...s, width: s.width + 0.5 });
-    }
-    return out;
-  }, [a.rows, colors, selected, mode, t]);
+  const series = useMemo(() => chartSeries(a.rows, colors, selected, mode, t), [a.rows, colors, selected, mode, t]);
 
   const chart = mode === 'difference' ? a.diffChart : a.chart;
   const data = useMemo(
@@ -147,7 +124,7 @@ export function ComparisonChart({
                     <div className="space-y-1">
                       {rows.map((p) => (
                         <div key={p.key} className="flex items-center gap-2">
-                          <span className="inline-block h-0.5 w-3 shrink-0" style={{ background: p.color }} />
+                          <span className="inline-block w-3 shrink-0" style={{ borderTop: `2px ${p.dash ? 'dashed' : 'solid'} ${p.color}` }} />
                           <span className="font-medium tabular-nums">
                             {typeof p.value !== 'number' ? '–' : mode === 'difference' ? fmt.moneySigned(p.value) : fmt.money(p.value)}
                           </span>

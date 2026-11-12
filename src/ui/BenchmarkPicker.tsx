@@ -22,6 +22,7 @@ import { useState } from 'react';
 import { DEFAULT_BENCHMARKS, type BenchmarkDef } from '../model/settings';
 import { useTexts } from './i18n';
 import { MixDialog } from './MixDialog';
+import { COMPACT_ICON_BUTTON } from './styles';
 import { useTickerSearch } from './useTickerSearch';
 
 const STICKY_HEADING =
@@ -166,7 +167,7 @@ export function BenchmarkPicker({ existing, onAdd }: { existing: BenchmarkDef[];
             <Button
               variant="outline"
               size="icon"
-              className="bg-secondary/30 hover:bg-muted/80 size-9 flex-shrink-0 rounded-md border-none"
+              className={`hindsight-row-icon hindsight-add-benchmark bg-secondary/30 hover:bg-muted/80 flex-shrink-0 rounded-md border-none ${COMPACT_ICON_BUTTON}`}
               aria-label={t('picker.add')}
             />
           }
@@ -195,7 +196,7 @@ export function BenchmarkPicker({ existing, onAdd }: { existing: BenchmarkDef[];
             aria-expanded={open}
             size="sm"
             className={cn(
-              'bg-secondary/30 hover:bg-muted/80 flex h-8 items-center gap-1.5 rounded-md border-dashed px-3 py-1 text-sm font-medium',
+              'hindsight-row-button hindsight-add-benchmark bg-secondary/30 hover:bg-muted/80 flex items-center gap-1.5 rounded-md border-dashed px-3 py-1 text-sm font-medium',
             )}
           />
         }

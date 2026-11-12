@@ -20,7 +20,42 @@
 }
 
 .hindsight-title-icon {
-  --hindsight-icon-size: 1.75rem;
+  --hindsight-icon-size: 1rem;
+}
+
+/* Match the 32px period items plus their container's 2px padding on each side. */
+.hindsight-row-icon,
+.hindsight-date-range > [data-no-swipe-drag] > button {
+  --hindsight-icon-size: 2.25rem;
+}
+
+.hindsight-add-benchmark {
+  --hindsight-icon-size: 34px;
+}
+
+.hindsight-row-button {
+  position: relative;
+  block-size: var(--hindsight-icon-size, 2.25rem);
+  min-block-size: 0;
+}
+
+/* DateRangeSelector does not expose trigger props. Scope to its direct calendar trigger,
+   leaving the host's preset buttons and portalled calendar controls untouched. */
+.hindsight-date-range > [data-no-swipe-drag] > button {
+  position: relative;
+  inline-size: var(--hindsight-icon-size);
+  block-size: var(--hindsight-icon-size);
+  min-inline-size: 0;
+  min-block-size: 0;
+  padding: 0;
+}
+
+.hindsight-date-range > [data-no-swipe-drag] > button[data-variant='ghost'] {
+  background: var(--secondary);
+}
+
+.hindsight-date-range > [data-no-swipe-drag] > button[data-variant='ghost']:hover {
+  background: var(--muted);
 }
 
 .hindsight-badge-remove {
@@ -43,7 +78,16 @@
     --hindsight-target-half-size: 22px;
   }
 
-  .hindsight-title-icon {
-    --hindsight-icon-size: 1rem;
+  .hindsight-row-button:not(.hindsight-compact-icon)::after {
+    content: '';
+    position: absolute;
+    inset-block: calc((var(--hindsight-icon-size, 2.25rem) - 44px) / 2);
+    inset-inline: 0;
+  }
+
+  .hindsight-date-range > [data-no-swipe-drag] > button::after {
+    content: '';
+    position: absolute;
+    inset: calc((var(--hindsight-icon-size) - 44px) / 2);
   }
 }

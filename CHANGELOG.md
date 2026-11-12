@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Align account, calendar and add-benchmark controls with their rows, give the calendar a button background, and tighten the heading's info-button spacing.
+- Merge equivalent cash and net-deposit chart lines into one dashed line, keeping both labels; retain separate lines when withdrawals exceed cash.
+- Replace the abbreviated “Net in” / “Netto ein” labels with “Net deposits” / “Netto-Einzahlungen”.
+
 ## 0.4.2 (2026-11-12)
 
 - Reload comparison data after Wealthfolio finishes updating, recovering from temporary holdings errors during startup.

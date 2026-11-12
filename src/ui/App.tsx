@@ -221,7 +221,7 @@ function Comparison() {
         onChange={(v: Scope) => update({ accounts: v })}
       />
       {/* The host's selector has no `disabled`; `inert` locks it until the settings are loaded, as `update` needs them. */}
-      <div style={{ display: 'contents' }} inert={!settings}>
+      <div className="hindsight-date-range hindsight-unclipped min-w-0" inert={!settings}>
         <DateRangeSelector
           asOf={asOfDate}
           value={rangeValue}
@@ -251,7 +251,7 @@ function Comparison() {
           <div className="mx-auto w-full space-y-4">
             {/* As the filter row of the host's Performance page: right-aligned at the content's padding, no title
                 beside it (PageHeader's own padding and empty title slot pushed it inwards on phones). */}
-            <div className="pt-safe flex items-center justify-end gap-2 md:pt-2">{filters}</div>
+            <div className="hindsight-unclipped pt-safe flex items-center justify-end gap-2 md:pt-2">{filters}</div>
             {loadError && (
               <Alert variant="destructive">
                 <CircleAlert />
@@ -290,8 +290,10 @@ function Comparison() {
                       <div className="flex min-w-0 flex-col gap-1 hindsight-unclipped">
                         <div className="flex items-center justify-between gap-4 hindsight-unclipped">
                           <div className="flex min-w-0 items-center gap-4 hindsight-unclipped">
-                            <CardTitle className={cn('min-w-0 text-lg sm:text-xl', isMobile && 'text-sm')}>{t('app.title')}</CardTitle>
-                            <HowItWorks />
+                            <div className="hindsight-unclipped flex min-w-0 items-center gap-1">
+                              <CardTitle className={cn('min-w-0 text-lg sm:text-xl', isMobile && 'text-sm')}>{t('app.title')}</CardTitle>
+                              <HowItWorks />
+                            </div>
                             <WarningsButton warnings={warnings} fmt={fmt} />
                           </div>
                           {period && (

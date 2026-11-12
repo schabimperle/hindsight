@@ -35,7 +35,7 @@ export function WarningsButton({ warnings, fmt }: { warnings: WarningItem[]; fmt
           <Button
             variant="ghost"
             size="icon-xs"
-            className={`hindsight-title-icon text-warning hover:text-warning shrink-0 gap-1 rounded-full text-xs tabular-nums ${COMPACT_ICON_BUTTON}`}
+            className={`hindsight-title-icon ms-3 text-warning hover:text-warning shrink-0 gap-1 rounded-full text-xs tabular-nums ${COMPACT_ICON_BUTTON}`}
             style={{ width: 'auto' }}
             aria-label={label}
           />

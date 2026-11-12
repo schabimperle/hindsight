@@ -22,6 +22,7 @@ import { Check, ChevronsUpDown, CreditCard, ListFilter, TriangleAlert, Wallet } 
 import { forwardRef, useState, type ComponentPropsWithoutRef } from 'react';
 import { accountSupported } from '../sources/portfolio';
 import { useTexts } from './i18n';
+import { COMPACT_ICON_BUTTON } from './styles';
 
 /** null = all investment accounts (the default selection: eligible, active, not of type cash). */
 export type Scope = string[] | null;
@@ -50,10 +51,10 @@ const Trigger = forwardRef<HTMLButtonElement, TriggerProps>(function Trigger({ l
       aria-expanded={open}
       size={compact ? 'sm' : 'default'}
       className={cn(
-        'flex items-center gap-2 font-medium',
+        'hindsight-row-button flex items-center gap-2 font-medium',
         compact
-          ? 'h-9 w-9 justify-center rounded-full p-0'
-          : 'bg-secondary/30 hover:bg-muted/80 h-10 min-w-55 justify-between rounded-full border-none px-4 text-sm',
+          ? `hindsight-row-icon hindsight-unclipped justify-center rounded-full ${COMPACT_ICON_BUTTON}`
+          : 'bg-secondary/30 hover:bg-muted/80 min-w-55 justify-between rounded-full border-none px-4 text-sm',
         className,
       )}
       {...props}
