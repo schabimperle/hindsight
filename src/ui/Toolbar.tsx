@@ -17,10 +17,10 @@ import type { Fmt } from '../model/format';
 import { messageText } from '../model/messages';
 import { BookingList } from './Notice';
 import { GUIDE_COUNTS, useTexts } from './i18n';
-import { DIALOG } from './styles';
+import { COMPACT_ICON_BUTTON, DIALOG } from './styles';
 
 /** Small round icon button next to the card title, as the host's metric help button. */
-const ICON_BUTTON = 'text-muted-foreground hover:text-foreground h-7 w-7 shrink-0 rounded-full';
+const ICON_BUTTON = `text-muted-foreground hover:text-foreground shrink-0 rounded-full ${COMPACT_ICON_BUTTON}`;
 const EYEBROW = 'text-muted-foreground text-2xs font-semibold tracking-wider uppercase';
 
 /** Non-blocking hints about the whole analysis; the button only exists when there are any. */
@@ -34,8 +34,9 @@ export function WarningsButton({ warnings, fmt }: { warnings: WarningItem[]; fmt
         render={
           <Button
             variant="ghost"
-            size="sm"
-            className="text-warning hover:text-warning h-7 shrink-0 gap-1 rounded-full px-2 tabular-nums"
+            size="icon-xs"
+            className={`text-warning hover:text-warning shrink-0 gap-1 rounded-full px-2 text-xs tabular-nums ${COMPACT_ICON_BUTTON}`}
+            style={{ width: 'auto' }}
             aria-label={label}
           />
         }
@@ -68,7 +69,7 @@ export function HowItWorks() {
     Array.from({ length: GUIDE_COUNTS[part] }, (_, i) => t(`guide.${part}${i + 1}`));
   return (
     <Dialog useIsMobile={useIsMobile}>
-      <DialogTrigger render={<Button variant="ghost" size="icon" className={ICON_BUTTON} aria-label={t('app.howItWorks')} />}>
+      <DialogTrigger render={<Button variant="ghost" size="icon-xs" className={ICON_BUTTON} aria-label={t('app.howItWorks')} />}>
         <Info className="h-3.5 w-3.5" aria-hidden />
       </DialogTrigger>
       <DialogContent {...DIALOG}>

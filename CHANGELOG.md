@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Keep mobile benchmark badges equally compact and align metric labels and values when an info button is present.
+- Keep the Hindsight heading compact by sizing its info and warning buttons without inflating the title row.
 
 ## 0.4.1 (2026-11-11)
 
