@@ -2,6 +2,7 @@ import { Badge, Button, Carousel, CarouselContent, CarouselItem, Separator, cn }
 import { X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTexts } from './i18n';
+import { COMPACT_ICON_BUTTON } from './styles';
 
 export interface BadgeItem {
   key: string;
@@ -65,7 +66,8 @@ function ItemBadge({
           variant="ghost"
           size="icon-xs"
           className={cn(
-            'relative ms-2 size-5 transition-all duration-150',
+            'relative ms-2 transition-all duration-150',
+            COMPACT_ICON_BUTTON,
             'hover:bg-destructive-subtle hover:text-destructive-subtle-foreground hover:scale-110',
             'focus-visible:ring-destructive/50 focus-visible:ring-2',
           )}

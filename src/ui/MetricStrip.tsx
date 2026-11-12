@@ -59,9 +59,8 @@ function HelpPopover({ sections }: { sections: MetricSection[] }) {
   );
 }
 
-/** Desktop: sections side by side with the host's mono labels; phones: a carousel of small tiles with an info
- * button per label (as the host's mobile metrics). Tiles stretch to the row (`h-full`); reserving label space or
- * using the 44 px info button inflates the strip. */
+/** Desktop: sections with mono labels; phones: content-sized tiles with compact info buttons.
+ * Keep flex boxes unclipped so the host's mobile overflow reset does not cut their touch targets. */
 export function MetricStrip({ sections, mobile }: { sections: MetricSection[]; mobile: boolean }) {
   if (mobile) {
     return (
@@ -69,9 +68,9 @@ export function MetricStrip({ sections, mobile }: { sections: MetricSection[]; m
         <CarouselContent className="-ms-2">
           {sections.flatMap((s) =>
             s.metrics.map((m) => (
-              <CarouselItem key={`${s.key}.${m.key}`} className="basis-[42%] ps-2">
-                <div className="bg-muted/30 flex h-full flex-col gap-1 rounded-lg px-3 py-2">
-                  <div className="text-muted-foreground flex items-center text-xs font-light">
+              <CarouselItem key={`${s.key}.${m.key}`} className="basis-auto ps-2">
+                <div className="bg-muted/30 flex h-full flex-col gap-1 overflow-visible! rounded-lg px-3 py-2">
+                  <div className="text-muted-foreground flex items-center overflow-visible! text-xs font-light whitespace-nowrap">
                     <span>{m.mobileLabel ?? m.label}</span>
                     {m.info && <InfoPopover title={m.mobileLabel ?? m.label} paragraphs={[m.info]} compact />}
                   </div>

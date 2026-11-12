@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Keep mobile benchmark badges equally compact and align metric labels and values when an info button is present.
+
 ## 0.4.1 (2026-11-11)
 
 - The difference chart keeps its start and the first deposit markers when valuations begin after the first deposit.

@@ -2,6 +2,7 @@ import { Button, CardTitle, Popover, PopoverContent, PopoverTrigger, cn } from '
 import { Info } from 'lucide-react';
 import type { Translate } from '../model/messages';
 import { useTexts } from './i18n';
+import { COMPACT_ICON_BUTTON } from './styles';
 
 /**
  * Explanation behind a small info button, built exactly like the host's `HighlightTitle` popover
@@ -15,10 +16,10 @@ export function InfoPopover({ title, paragraphs, compact = false }: { title: str
         render={
           <Button
             variant="ghost"
-            size="icon"
+            size={compact ? 'icon-xs' : 'icon'}
             className={cn(
               'shrink-0 rounded-full p-0',
-              compact ? 'ms-1 h-4 w-4' : 'text-muted-foreground/60 hover:text-foreground pointer-coarse:size-11 h-6 w-6',
+              compact ? cn('ms-1', COMPACT_ICON_BUTTON) : 'text-muted-foreground/60 hover:text-foreground pointer-coarse:size-11 h-6 w-6',
             )}
             aria-label={t('info.moreAbout', { label: title })}
             onClick={(e: React.MouseEvent) => e.stopPropagation()}
