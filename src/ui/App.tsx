@@ -24,6 +24,7 @@ import { codeText } from '../model/messages';
 import { isoOfLocal, localOfIso, presetFrom, rangeFromDays, windowOf, type RangeSetting } from '../model/range';
 import { DEFAULT_SETTINGS, type AddonSettings, type BenchmarkDef } from '../model/settings';
 import { loadAll } from '../sources/load';
+import { PORTFOLIO_DATA_KEY } from '../sources/portfolioUpdates';
 import { unavailableSelection } from '../sources/portfolio';
 import { loadSettings, saveSettings } from '../sources/settingsStore';
 import { AccountScope, type Scope } from './AccountScope';
@@ -103,7 +104,7 @@ function Comparison() {
   const scopeKey = settings ? JSON.stringify(settings.accounts) : null;
   const benchKey = settings ? JSON.stringify(settings.benchmarks) : null;
   const dataQ = useQuery({
-    queryKey: ['hindsight', 'data', scopeKey, benchKey],
+    queryKey: [...PORTFOLIO_DATA_KEY, scopeKey, benchKey],
     enabled: !!settings && !!accountsQ.data && blocked.length === 0,
     staleTime: 5 * 60 * 1000,
     retry: false,

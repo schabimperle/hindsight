@@ -32,6 +32,17 @@
   },
   "permissions": [
     {
+      "category": "events",
+      "functions": [
+        {
+          "name": "onUpdateComplete",
+          "isDeclared": true,
+          "isDetected": false
+        }
+      ],
+      "purpose": "Refresh comparison data when Wealthfolio finishes updating the portfolio"
+    },
+    {
       "category": "accounts",
       "functions": [
         {

@@ -43,8 +43,9 @@ content hash, e.g. `0.4.0+1a2b3c4d5e6f`, so every build is distinguishable.
   `sourceGroupId`, `searchTicker` returns `quoteMode`.
 - Wealthfolio 3.13's startup update can make `getHoldings` reject while projections are pending. The list
   endpoint reports `pending / PROJECTION_PENDING`, but the SDK's complete-holdings endpoint turns that into
-  HTTP 400 `internal_error`. Hindsight currently disables query retries and does not revalidate on
-  `events.portfolio.onUpdateComplete`, so this temporary state leaves its data query in error until refetched.
+  HTTP 400 `internal_error`. Subscribe to `events.portfolio.onUpdateComplete` before mounting the route and
+  cancel then invalidate Hindsight's data queries on completion. The sandbox has its own QueryClient; host
+  invalidation does not reach it. Cancel first: invalidation alone can reuse an initial in-flight request.
 - Storage keys allow only letters, digits and `_ . : -`.
 - Yahoo answers 429 through the network broker without a browser User-Agent.
 - Balance privacy does not reach the addon; `useBalancePrivacy` always reports “visible”.

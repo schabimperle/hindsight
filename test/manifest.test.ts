@@ -46,6 +46,8 @@ describe('manifest.json', () => {
     );
     // network.request goes through deps.net (ctx.api.network)
     used.add('network.request');
+    // Portfolio event methods go through the listener helper's `events` argument.
+    for (const m of src.matchAll(/\bevents\s*\.\s*(?:portfolio\s*\.\s*)?(on[A-Z]\w*)\(/g)) used.add(`events.${m[1]}`);
     expect([...declared].sort()).toEqual([...used].sort());
   });
 });
