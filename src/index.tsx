@@ -4,13 +4,19 @@ import de from './i18n/de.json';
 import en from './i18n/en.json';
 import { subscribePortfolioUpdates } from './sources/portfolioUpdates';
 import { App } from './ui/App';
+import './ui/compact.css';
 
 const ROUTE = '/addons/hindsight';
 
 export default async function enable(ctx: AddonContext) {
   registerTranslations({ en, de });
-  const listening = await subscribePortfolioUpdates(ctx.api.events.portfolio, ctx.api.query.getClient() as QueryClient, (cleanup) => ctx.onDisable(cleanup));
-  if (!listening) return;
+  const active = await subscribePortfolioUpdates(
+    ctx.api.events.portfolio,
+    ctx.api.query.getClient() as QueryClient,
+    (cleanup) => ctx.onDisable(cleanup),
+    () => ctx.api.logger.warn('Hindsight could not subscribe to portfolio updates; automatic refresh is unavailable.'),
+  );
+  if (!active) return;
   // Sidebar and route title stay English: they are created before any translation and belong to the host's navigation.
   ctx.router.add({
     id: 'hindsight',

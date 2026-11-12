@@ -280,16 +280,16 @@ function Comparison() {
             {analysis && !analysis.fatal && (
               <>
                 <Card className={cn('transition-opacity', dataQ.isFetching && 'opacity-60')}>
-                  <CardHeader className={cn('overflow-visible! pb-2', isMobile ? 'px-3 py-3' : 'px-6 pt-5 pb-2')}>
-                    <div className="flex flex-col gap-4 overflow-visible! 2xl:flex-row 2xl:items-start 2xl:justify-between">
+                  <CardHeader className={cn('hindsight-unclipped pb-2', isMobile ? 'px-3 py-3' : 'px-6 pt-5 pb-2')}>
+                    <div className="flex flex-col gap-4 hindsight-unclipped 2xl:flex-row 2xl:items-start 2xl:justify-between">
                       {/* The period sits where the host's Performance card puts its date range: right of the title
                           while the metrics are below (md to xl), under the title beside the metrics (2xl) and on
                           phones. The tagline says what the page compares and stays directly under the title. Even
                           gaps as the host's title grid (gap-y-1). Compact buttons let the title set the row height;
                           unclipped containers preserve their larger touch areas. */}
-                      <div className="flex min-w-0 flex-col gap-1 overflow-visible!">
-                        <div className="flex items-center justify-between gap-4 overflow-visible!">
-                          <div className="flex min-w-0 items-center gap-1 overflow-visible!">
+                      <div className="flex min-w-0 flex-col gap-1 hindsight-unclipped">
+                        <div className="flex items-center justify-between gap-4 hindsight-unclipped">
+                          <div className="flex min-w-0 items-center gap-4 hindsight-unclipped">
                             <CardTitle className={cn('min-w-0 text-lg sm:text-xl', isMobile && 'text-sm')}>{t('app.title')}</CardTitle>
                             <HowItWorks />
                             <WarningsButton warnings={warnings} fmt={fmt} />

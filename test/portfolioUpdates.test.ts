@@ -21,8 +21,9 @@ function fixture(registration?: Promise<void>) {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
   clients.push(client);
   let complete: () => unknown = () => { throw new Error('No listener'); };
-  let disable = () => {};
+  let disable: () => unknown = () => {};
   const unlisten = vi.fn();
+  const onSubscribeError = vi.fn();
   const events: Pick<AddonContext['api']['events']['portfolio'], 'onUpdateComplete'> = {
     onUpdateComplete: async (callback) => {
       complete = () => callback({ payload: null } as never);
@@ -30,8 +31,8 @@ function fixture(registration?: Promise<void>) {
       return unlisten;
     },
   };
-  const ready = subscribePortfolioUpdates(events, client, (cleanup) => { disable = cleanup; });
-  return { client, ready, complete: () => complete(), disable: () => disable(), unlisten };
+  const ready = subscribePortfolioUpdates(events, client, (cleanup) => { disable = cleanup; }, onSubscribeError);
+  return { client, ready, complete: () => complete(), disable: () => disable(), unlisten, onSubscribeError };
 }
 
 function observe(client: QueryClient, queryFn: () => Promise<string>) {
@@ -124,10 +125,34 @@ describe('portfolio update completion', () => {
     expect(invalidate).not.toHaveBeenCalled();
   });
 
-  it('propagates registration failures so the host reports addon initialization failure', async () => {
+  it('reports active registration failures without blocking the addon or leaking a subscription', async () => {
     const f = fixture(Promise.reject(new Error('Event permission denied')));
-    await expect(f.ready).rejects.toThrow('Event permission denied');
+    expect(await f.ready).toBe(true);
+    expect(f.onSubscribeError).toHaveBeenCalledTimes(1);
     f.disable();
     expect(f.unlisten).not.toHaveBeenCalled();
+  });
+
+  it('does not revive the addon if registration fails after disabling', async () => {
+    const registered = deferred<void>();
+    const f = fixture(registered.promise);
+    f.disable();
+    registered.reject(new Error('Bridge closed'));
+    expect(await f.ready).toBe(false);
+    expect(f.onSubscribeError).not.toHaveBeenCalled();
+  });
+
+  it('returns asynchronous unsubscription to the host for awaited cleanup', async () => {
+    const f = fixture();
+    await f.ready;
+    const unsubscribed = deferred<void>();
+    f.unlisten.mockReturnValue(unsubscribed.promise);
+    let finished = false;
+    const cleanup = Promise.resolve(f.disable()).then(() => { finished = true; });
+    await Promise.resolve();
+    expect(finished).toBe(false);
+    unsubscribed.resolve();
+    await cleanup;
+    expect(finished).toBe(true);
   });
 });

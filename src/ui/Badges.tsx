@@ -36,7 +36,7 @@ function ItemBadge({
       title={item.reason}
       className={cn(
         // The host does not compile addon-only Tailwind utilities.
-        'text-foreground group relative cursor-pointer rounded-md border px-2.5 py-1.5 shadow-sm transition-all sm:px-3',
+        'hindsight-unclipped text-foreground group relative cursor-pointer rounded-md border px-2.5 py-1.5 shadow-sm transition-all sm:px-3',
         'hover:bg-accent/80 hover:shadow-md',
         'has-[[data-badge-select]:focus-visible]:ring-ring has-[[data-badge-select]:focus-visible]:ring-2 has-[[data-badge-select]:focus-visible]:ring-offset-2',
         !plotted && 'text-muted-foreground bg-muted/30 hover:bg-muted/50 border-dashed shadow-none hover:shadow-sm',
@@ -66,7 +66,7 @@ function ItemBadge({
           variant="ghost"
           size="icon-xs"
           className={cn(
-            'relative ms-2 transition-all duration-150',
+            'hindsight-badge-remove relative ms-3 transition-all duration-150',
             COMPACT_ICON_BUTTON,
             'hover:bg-destructive-subtle hover:text-destructive-subtle-foreground hover:scale-110',
             'focus-visible:ring-destructive/50 focus-visible:ring-2',
@@ -99,7 +99,7 @@ export function BadgeRow({
   add: ReactNode;
 }) {
   const badges = (
-    <CarouselContent className="-ms-2">
+    <CarouselContent className="hindsight-unclipped -ms-2">
       {items.map((item) => (
         <CarouselItem key={item.key} className="basis-auto ps-2">
           <ItemBadge item={item} selected={selected === item.key} onSelect={() => onSelect(item.key)} onRemove={() => onRemove(item.key)} />
@@ -109,15 +109,15 @@ export function BadgeRow({
   );
   return (
     <>
-      <div className="flex items-center gap-2 md:hidden">
-        <Carousel opts={{ align: 'start', loop: false }} className="min-w-0 flex-1 touch-pan-x overscroll-x-contain" data-no-swipe-drag>
+      <div className="hindsight-unclipped flex items-center gap-2 md:hidden">
+        <Carousel opts={{ align: 'start', loop: false }} className="hindsight-carousel min-w-0 flex-1 touch-pan-x overscroll-x-contain" data-no-swipe-drag>
           {badges}
         </Carousel>
         {add}
       </div>
       <div className="hidden md:flex md:flex-row md:items-center">
-        <div className="flex min-w-0 items-center gap-3">
-          <Carousel opts={{ align: 'start', loop: false }} className="w-full max-w-[calc(100vw-24rem)] md:max-w-[calc(100vw-28rem)]">
+        <div className="hindsight-unclipped flex min-w-0 items-center gap-3">
+          <Carousel opts={{ align: 'start', loop: false }} className="hindsight-carousel w-full max-w-[calc(100vw-24rem)] md:max-w-[calc(100vw-28rem)]">
             {badges}
           </Carousel>
           <Separator orientation="vertical" className="h-6 flex-shrink-0" />

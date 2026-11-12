@@ -30,11 +30,12 @@ content hash, e.g. `0.4.0+1a2b3c4d5e6f`, so every build is distinguishable.
 
 - Recharts is provided by the host. The dev dependency is pinned to the host's version (3.7.0), whose axis
   behaviour differs from newer ones.
-- Only the host's compiled Tailwind applies inside the addon's iframe. Check each utility class there; e.g.
+- Tailwind utilities come from the host's compiled stylesheet. Check each utility class there; e.g.
   use `text-start`/`ms-auto` where `text-left`/`ml-auto` are missing.
-- Compact icon buttons must use `icon-xs` and the host's responsive size overrides (`COMPACT_ICON_BUTTON`):
-  `icon` enforces a 44px minimum on mobile, and `icon-xs` alone grows to 36px. Both inflate badges and metric
-  labels despite plain `h-*`/`size-*` classes. The host's compact pattern enlarges the touch area with `::after`.
+- The sandbox loads bundled CSS before enabling the addon (including on 3.12). `compact.css` owns compact
+  button dimensions and 44px touch targets across host versions; host `icon-xs` alone grows to 36px on 3.13.
+  Keep adjacent controls out of those touch targets. Carousels clip horizontally with `clip`, not `hidden`,
+  so the vertical touch area stays visible without enlarging the cards.
 - Host components such as the account and benchmark selectors are not exported; `AccountScope`,
   `BenchmarkPicker`, `Badges` and `MetricStrip` rebuild them with the host's classes.
 - `ctx.api.market.*` needs the permission category `market-data`. A wrong category passes validation, but

@@ -1,0 +1,49 @@
+/* Addon CSS is loaded by the sandbox on both 3.12 and 3.13. Host-only Tailwind classes are not portable. */
+.hindsight-compact-icon {
+  --hindsight-target-half-size: 12px;
+  position: relative;
+  inline-size: var(--hindsight-icon-size, 1rem);
+  block-size: var(--hindsight-icon-size, 1rem);
+  min-inline-size: 0;
+  min-block-size: 0;
+  padding: 0;
+}
+
+.hindsight-compact-icon::after {
+  content: '';
+  position: absolute;
+  inset: auto;
+  inset-block-start: calc(50% - var(--hindsight-target-half-size));
+  inset-inline-start: calc(50% - var(--hindsight-target-half-size));
+  inline-size: calc(2 * var(--hindsight-target-half-size));
+  block-size: calc(2 * var(--hindsight-target-half-size));
+}
+
+.hindsight-title-icon {
+  --hindsight-icon-size: 1.75rem;
+}
+
+.hindsight-badge-remove {
+  --hindsight-icon-size: 1.25rem;
+}
+
+.hindsight-unclipped {
+  /* The host's mobile .flex reset clips enlarged touch targets on both axes. */
+  overflow: visible !important;
+}
+
+.hindsight-carousel [data-slot='carousel-content'] {
+  /* Clip horizontal slides without turning the vertical axis into a scroll container. */
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+@media (max-width: 1023px), (pointer: coarse) {
+  .hindsight-compact-icon {
+    --hindsight-target-half-size: 22px;
+  }
+
+  .hindsight-title-icon {
+    --hindsight-icon-size: 1rem;
+  }
+}

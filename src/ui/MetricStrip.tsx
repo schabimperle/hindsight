@@ -64,13 +64,13 @@ function HelpPopover({ sections }: { sections: MetricSection[] }) {
 export function MetricStrip({ sections, mobile }: { sections: MetricSection[]; mobile: boolean }) {
   if (mobile) {
     return (
-      <Carousel opts={{ align: 'start', loop: false }} className="w-full touch-pan-x overscroll-x-contain" data-no-swipe-drag>
-        <CarouselContent className="-ms-2">
+      <Carousel opts={{ align: 'start', loop: false }} className="hindsight-carousel w-full touch-pan-x overscroll-x-contain" data-no-swipe-drag>
+        <CarouselContent className="hindsight-unclipped -ms-2">
           {sections.flatMap((s) =>
             s.metrics.map((m) => (
               <CarouselItem key={`${s.key}.${m.key}`} className="basis-auto ps-2">
-                <div className="bg-muted/30 flex h-full flex-col gap-1 overflow-visible! rounded-lg px-3 py-2">
-                  <div className="text-muted-foreground flex items-center overflow-visible! text-xs font-light whitespace-nowrap">
+                <div className="hindsight-unclipped bg-muted/30 flex h-full flex-col gap-1 rounded-lg px-3 py-2">
+                  <div className="hindsight-unclipped text-muted-foreground flex items-center text-xs font-light whitespace-nowrap">
                     <span>{m.mobileLabel ?? m.label}</span>
                     {m.info && <InfoPopover title={m.mobileLabel ?? m.label} paragraphs={[m.info]} compact />}
                   </div>

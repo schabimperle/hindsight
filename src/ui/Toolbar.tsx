@@ -20,7 +20,7 @@ import { GUIDE_COUNTS, useTexts } from './i18n';
 import { COMPACT_ICON_BUTTON, DIALOG } from './styles';
 
 /** Small round icon button next to the card title, as the host's metric help button. */
-const ICON_BUTTON = `text-muted-foreground hover:text-foreground shrink-0 rounded-full ${COMPACT_ICON_BUTTON}`;
+const ICON_BUTTON = `hindsight-title-icon text-muted-foreground hover:text-foreground shrink-0 rounded-full ${COMPACT_ICON_BUTTON}`;
 const EYEBROW = 'text-muted-foreground text-2xs font-semibold tracking-wider uppercase';
 
 /** Non-blocking hints about the whole analysis; the button only exists when there are any. */
@@ -35,7 +35,7 @@ export function WarningsButton({ warnings, fmt }: { warnings: WarningItem[]; fmt
           <Button
             variant="ghost"
             size="icon-xs"
-            className={`text-warning hover:text-warning shrink-0 gap-1 rounded-full px-2 text-xs tabular-nums ${COMPACT_ICON_BUTTON}`}
+            className={`hindsight-title-icon text-warning hover:text-warning shrink-0 gap-1 rounded-full text-xs tabular-nums ${COMPACT_ICON_BUTTON}`}
             style={{ width: 'auto' }}
             aria-label={label}
           />

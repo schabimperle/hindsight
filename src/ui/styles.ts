@@ -4,9 +4,8 @@ export const gainClass = (v: number | null): string => {
   return v > 0 ? 'text-success' : 'text-destructive';
 };
 
-/** Host's compact icon-xs pattern: 16px in the layout, 44px touch target via ::after. */
-export const COMPACT_ICON_BUTTON =
-  'size-4 max-lg:size-4 pointer-coarse:size-4 max-lg:after:-inset-[0.9375rem] pointer-coarse:after:-inset-[0.9375rem]';
+/** Layout size and 44px touch target are owned by compact.css, independently of host Tailwind versions. */
+export const COMPACT_ICON_BUTTON = 'hindsight-compact-icon';
 
 /** The host's chart series colours (theme variables, as Insights > Performance uses them). */
 const SERIES = ['--series-1', '--series-2', '--series-3', '--series-4', '--series-5', '--series-6', '--series-7', '--series-8'];

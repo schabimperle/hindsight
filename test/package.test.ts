@@ -34,6 +34,7 @@ describe('scripts/package.mjs', () => {
   mkdirSync(join(root, 'dist', 'assets'), { recursive: true });
   const js = 'export default function enable() {}\n';
   writeFileSync(join(root, 'dist', 'addon.js'), js);
+  writeFileSync(join(root, 'dist', 'compact.css'), '.synthetic-button { width: 16px; }');
   writeFileSync(join(root, 'dist', 'addon.js.map'), '{}');
   writeFileSync(join(root, 'dist', 'assets', 'logo.txt'), '\u00e4\u00f6\u00fc');
   writeFileSync(join(root, 'manifest.json'), JSON.stringify({ id: 'x-addon', name: 'X', version: '1.2.3', main: 'dist/addon.js' }));
@@ -47,9 +48,10 @@ describe('scripts/package.mjs', () => {
     expect(second.equals(first)).toBe(true);
 
     const files = readZip(first);
-    expect([...files.keys()]).toEqual(['dist/addon.js', 'dist/assets/logo.txt', 'manifest.json']);
+    expect([...files.keys()]).toEqual(['dist/addon.js', 'dist/assets/logo.txt', 'dist/compact.css', 'manifest.json']);
     expect(files.get('dist/addon.js')?.toString()).toBe(js);
     expect(files.get('dist/assets/logo.txt')?.toString()).toBe('\u00e4\u00f6\u00fc');
+    expect(files.get('dist/compact.css')?.toString()).toBe('.synthetic-button { width: 16px; }');
     const manifest = JSON.parse(files.get('manifest.json')?.toString() ?? '{}') as { version: string };
     expect(manifest.version).toMatch(/^1\.2\.3\+[0-9a-f]{12}$/);
   });
