@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Align the chart marker button with the mode switch and prevent scrollbars in the chart controls.
+
 ## 0.4.2 (2026-11-12)
 
 - Reload comparison data after Wealthfolio finishes updating, recovering from temporary holdings errors during startup.

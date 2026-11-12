@@ -23,6 +23,10 @@
   --hindsight-icon-size: 1.75rem;
 }
 
+.hindsight-marker-toggle {
+  --hindsight-icon-size: 2rem;
+}
+
 .hindsight-badge-remove {
   --hindsight-icon-size: 1.25rem;
 }
