@@ -311,7 +311,7 @@ function Comparison() {
                     </div>
                   </CardHeader>
                   <CardContent className={cn('min-h-0', isMobile ? 'p-2' : 'p-3 sm:p-6')}>
-                    <div className="mb-1 flex flex-wrap items-start justify-end gap-2">
+                    <div className="mb-1 flex flex-wrap items-center justify-end gap-2 hindsight-unclipped">
                       <MarkerToggle enabled={markers} onToggle={() => setMarkers((m) => !m)} />
                       <PillSwitch
                         label={t('chart.mode')}

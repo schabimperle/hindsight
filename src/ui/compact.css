@@ -58,11 +58,16 @@
   background: var(--muted);
 }
 
+.hindsight-marker-toggle {
+  --hindsight-icon-size: 2rem;
+}
+
 .hindsight-badge-remove {
   --hindsight-icon-size: 1.25rem;
 }
 
-.hindsight-unclipped {
+.hindsight-unclipped,
+.hindsight-date-range > [data-no-swipe-drag] {
   /* The host's mobile .flex reset clips enlarged touch targets on both axes. */
   overflow: visible !important;
 }

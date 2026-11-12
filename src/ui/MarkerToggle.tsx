@@ -12,7 +12,7 @@ export function MarkerToggle({ enabled, onToggle }: { enabled: boolean; onToggle
           <Button
             variant={enabled ? 'default' : 'secondary'}
             size="icon-xs"
-            className={cn('rounded-full', !enabled && 'bg-secondary/50')}
+            className={cn('hindsight-compact-icon hindsight-marker-toggle rounded-full', !enabled && 'bg-secondary/50')}
             onClick={onToggle}
             aria-label={label}
             aria-pressed={enabled}

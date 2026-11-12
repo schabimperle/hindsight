@@ -8,7 +8,7 @@ export function PillSwitch<T extends string>({ label, value, options, onChange }
   onChange: (value: T) => void;
 }) {
   return (
-    <div className="bg-muted/50 flex shrink-0 rounded-full p-1" role="group" aria-label={label}>
+    <div className="bg-muted/50 flex shrink-0 rounded-full p-1 hindsight-unclipped" role="group" aria-label={label}>
       {options.map((option) => (
         <button
           key={option.value}

@@ -25,3 +25,25 @@ jobs:
           cp build/hindsight.zip /tmp/first.zip
           npm run package
           cmp /tmp/first.zip build/hindsight.zip
+
+  layout:
+    name: Layout (Wealthfolio ${{ matrix.wealthfolio }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        wealthfolio: ['3.12.0', '3.13.0']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npx playwright-core install --with-deps chromium
+      - run: npm run package
+      - name: Start a fresh disposable host
+        run: |
+          docker run -d -p 127.0.0.1:8096:8088 -e WF_LISTEN_ADDR=0.0.0.0:8088 -e WF_AUTH_REQUIRED=false \
+            -e WF_SECRET_KEY="$(openssl rand -base64 32)" "wealthfolio/wealthfolio:${{ matrix.wealthfolio }}"
+          curl --silent --fail --retry 60 --retry-connrefused --retry-delay 1 --max-time 2 \
+            --output /dev/null http://127.0.0.1:8096/api/v1/accounts
+      - run: npm run test:layout

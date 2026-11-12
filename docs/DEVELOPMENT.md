@@ -58,6 +58,10 @@ content hash, e.g. `0.4.0+1a2b3c4d5e6f`, so every build is distinguishable.
 - Install with `POST /api/v1/addons/install-zip` (`zipDataB64`, `enableAfterInstall`,
   `approvedNetworkHosts`); create synthetic data with `POST /api/v1/accounts` and
   `POST /api/v1/activities/bulk`.
+- CI runs `npm run test:layout` against fresh Wealthfolio 3.12 and 3.13 instances. It checks control heights,
+  alignment and vertical scrollbars at 360/412/1240px, with touch and mouse, in both themes and marker states.
+  The script accepts only a loopback `WEALTHFOLIO_URL` with no existing accounts, and seeds synthetic cash
+  flows and CPI data; it does not need Yahoo or OECD responses. `CHROME_PATH` optionally selects Chromium.
 - The addon renders in a `srcdoc` iframe with its own scroll; reach its content through
   `page.frameLocator('iframe')`.
 
