@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.2 (2026-11-12)
 
 - Reload comparison data after Wealthfolio finishes updating, recovering from temporary holdings errors during startup.
 - Keep mobile benchmark badges equally compact and align metric labels and values when an info button is present.

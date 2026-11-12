@@ -1,7 +1,7 @@
 {
   "id": "hindsight",
   "name": "Hindsight",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Would a different investment have done better with your money? Replays your deposits and withdrawals in an index ETF, Bitcoin, any ticker or a fixed mix.",
   "sdkVersion": "3.12.0",
   "main": "dist/addon.js",
