@@ -1,6 +1,6 @@
 {
   "name": "wealthfolio-hindsight",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "private": true,
   "type": "module",
   "description": "Wealthfolio addon: would a different investment have done better with your money?",

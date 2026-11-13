@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.3 (2026-11-13)
 
 - Align account, calendar and add-benchmark controls with their rows, give the calendar a button background, and tighten the heading's info-button spacing.
 - Merge equivalent cash and net-deposit chart lines into one dashed line, keeping both labels; retain separate lines when withdrawals exceed cash.
