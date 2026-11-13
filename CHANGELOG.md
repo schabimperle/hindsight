@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Restore the host's gap before a benchmark's remove button on desktop, so five benchmarks fit the badge row again at common widths; touch screens keep the wider gap.
+
 ## 0.4.3 (2026-11-13)
 
 - Align account, calendar and add-benchmark controls with their rows, give the calendar a button background, and tighten the heading's info-button spacing.

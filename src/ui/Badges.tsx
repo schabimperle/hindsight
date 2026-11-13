@@ -66,7 +66,7 @@ function ItemBadge({
           variant="ghost"
           size="icon-xs"
           className={cn(
-            'hindsight-badge-remove relative ms-3 transition-all duration-150',
+            'hindsight-badge-remove relative transition-all duration-150',
             COMPACT_ICON_BUTTON,
             'hover:bg-destructive-subtle hover:text-destructive-subtle-foreground hover:scale-110',
             'focus-visible:ring-destructive/50 focus-visible:ring-2',

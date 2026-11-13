@@ -65,6 +65,9 @@
 
 .hindsight-badge-remove {
   --hindsight-icon-size: 1.25rem;
+  /* The host's gap. The enlarged touch target below needs more, or it would overlap the badge label; on desktop
+     that extra width would push the last badge out of the host's width-capped carousel. */
+  margin-inline-start: 0.5rem;
 }
 
 .hindsight-unclipped,
@@ -84,6 +87,11 @@
 @media (max-width: 1023px), (pointer: coarse) {
   .hindsight-compact-icon {
     --hindsight-target-half-size: 22px;
+  }
+
+  /* Half the 44px target minus half the 20px button: the target ends at the label. */
+  .hindsight-badge-remove {
+    margin-inline-start: 0.75rem;
   }
 
   /* Sized and centred like .hindsight-compact-icon: insets derived from the button size would lose its border,
