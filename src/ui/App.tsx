@@ -190,13 +190,14 @@ function Comparison() {
   const busy = settingsQ.isLoading || accountsQ.isLoading || (blocked.length === 0 && !loaded && dataQ.isFetching);
   // A failed background refresh (back to the tab during a network gap) keeps the last result on screen, as the
   // host's pages do; only a query with nothing to show reports its error. The next return to the tab, a
-  // reconnect or the retry button try the failed queries again.
+  // reconnect or the retry button try the failed queries again. A stale scope waits for fresh accounts: their
+  // failure is shown even with an old list, or nothing would explain the missing result.
   const failed = (q: { isError: boolean; data: unknown }): boolean => q.isError && q.data === undefined;
   const failure = failed(settingsQ)
     ? settingsQ.error
     : blocked.length === 0 && failed(dataQ) && !staleScope
       ? dataQ.error
-      : failed(accountsQ)
+      : failed(accountsQ) || (staleScope && accountsQ.isError)
         ? accountsQ.error
         : null;
   const retry = (): void => {
