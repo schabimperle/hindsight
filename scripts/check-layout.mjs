@@ -38,19 +38,6 @@ await store('oecd:v1:DEU', { f: Date.now(), from: '2024-12-01', d: {
   '2024-12': 100, [new Date().toISOString().slice(0, 7)]: 101,
 } });
 
-/** The host relayouts (phone stack vs sidebar layout) after a resize, on slow runners only after a while: wait
- * until the iframe element and the document inside it agree on the new width. */
-async function settledFrameWidth(page, frame, width) {
-  let seen;
-  for (const deadline = Date.now() + 15_000; Date.now() < deadline; await page.waitForTimeout(100)) {
-    const [outer, element] = await page.evaluate(() => [window.innerWidth, document.querySelector('iframe')?.clientWidth]);
-    const inner = await frame.locator('body').evaluate(() => window.innerWidth).catch(() => undefined);
-    seen = { outer, element, inner };
-    if (outer === width && inner !== undefined && inner === element) return inner;
-  }
-  throw new Error(`${width}px: iframe width did not settle: ${JSON.stringify(seen)}`);
-}
-
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || undefined });
 try {
   for (const hasTouch of [false, true]) {
@@ -63,16 +50,18 @@ try {
     try {
       for (const theme of ['light', 'dark']) {
         await api('PUT', '/settings', { theme });
-        await page.goto(`${base}/addons/hindsight`);
         const frame = page.frameLocator('iframe').first();
         const marker = frame.getByRole('button', { name: /^(Show|Hide) markers$/ });
-        await marker.waitFor({ timeout: 60_000 });
         // 1000px leaves an iframe of 768-1023px beside the sidebar: wide controls under the host's mobile CSS.
         for (const width of [360, 412, 1000, 1240]) {
+          // Load at the target width: after a resize the host switches between phone and sidebar layout only
+          // once its media hooks catch up, which on slow runners outlasts any check of the iframe itself.
           await page.setViewportSize({ width, height: 1000 });
-          const frameWidth = await settledFrameWidth(page, frame, width);
+          await page.goto(`${base}/addons/hindsight`);
+          await marker.waitFor({ timeout: 60_000 });
+          const frameWidth = await frame.locator('body').evaluate(() => window.innerWidth);
           if (width === 1000) assert(frameWidth >= 768 && frameWidth < 1024, `1000px: iframe is ${frameWidth}px, not tablet-sized`);
-          // Wait for the host's mobile hook and responsive components to settle after resizing.
+          // Wait for the host's mobile hook and responsive components to settle after loading.
           await frame.locator(frameWidth >= 768
             ? '.hindsight-row-button.hindsight-add-benchmark:visible'
             : '.hindsight-row-icon.hindsight-add-benchmark:visible').waitFor();
