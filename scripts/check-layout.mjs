@@ -88,21 +88,39 @@ try {
                 ...Object.fromEntries([...document.querySelectorAll('.hindsight-badge-remove')].filter(visible)
                   .map((el, i) => [`remove${i}`, el])),
               };
-              // Every control's touch target (its ::after, if any) must survive all clipping ancestors, wherever
-              // the host's mobile .flex reset or a future wrapper turns one into a scroll container.
+              // Every control's touch target (its ::after, if any) must survive all clipping boxes, the control's own
+              // included, wherever the host's mobile .flex reset or a future wrapper turns one into a scroll container.
+              // The pseudo-element is positioned against the padding box, so its used offsets and size give its rect.
               const clipped = [];
+              const fmt = (a, b) => `${a.toFixed(1)}-${b.toFixed(1)}`;
               for (const [name, el] of Object.entries(controls)) {
                 const r = el.getBoundingClientRect(), after = getComputedStyle(el, '::after');
-                const extra = after.content !== 'none' && after.position === 'absolute'
-                  ? Math.max(0, -parseFloat(after.top) || 0, -parseFloat(after.bottom) || 0) : 0;
-                const top = r.top - extra, bottom = r.bottom + extra;
-                if (['auto', 'scroll'].includes(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight) clipped.push(`${name} scrolls itself`);
-                for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
-                  const s = getComputedStyle(a);
-                  if (s.overflowY === 'visible') continue;
-                  const ar = a.getBoundingClientRect(), inner = ar.top + a.clientTop;
-                  if (top < inner - 0.5 || bottom > inner + a.clientHeight + 0.5) {
-                    clipped.push(`${name} (${top.toFixed(1)}-${bottom.toFixed(1)}) clipped by <${a.tagName.toLowerCase()} class="${a.className}"> (${inner.toFixed(1)}-${(inner + a.clientHeight).toFixed(1)}, overflow-y ${s.overflowY})`);
+                const target = { top: r.top, bottom: r.bottom, left: r.left, right: r.right };
+                if (after.content !== 'none' && after.position === 'absolute') {
+                  target.top = r.top + el.clientTop + parseFloat(after.top);
+                  target.bottom = target.top + parseFloat(after.height);
+                  target.left = r.left + el.clientLeft + parseFloat(after.left);
+                  target.right = target.left + parseFloat(after.width);
+                  if (!Object.values(target).every(Number.isFinite)) clipped.push(`${name}: unresolved ::after ${after.top}/${after.height}`);
+                  // Small or coarse screens enlarge targets to 44px (WCAG 2.5.5); a border must not eat into it.
+                  if (matchMedia('(max-width: 1023px), (pointer: coarse)').matches) {
+                    for (const size of [target.bottom - target.top, target.right - target.left]) {
+                      if (size < 43.5) clipped.push(`${name} target is ${size.toFixed(1)}px`);
+                    }
+                  }
+                }
+                for (let a = el; a && a !== document.body; a = a.parentElement) {
+                  const s = getComputedStyle(a), ar = a.getBoundingClientRect();
+                  const box = { top: ar.top + a.clientTop, left: ar.left + a.clientLeft };
+                  box.bottom = box.top + a.clientHeight; box.right = box.left + a.clientWidth;
+                  const where = `<${a.tagName.toLowerCase()} class="${a.className}">`;
+                  if (s.overflowY !== 'visible' && (target.top < box.top - 0.5 || target.bottom > box.bottom + 0.5)) {
+                    clipped.push(`${name} (${fmt(target.top, target.bottom)}) clipped vertically by ${where} (${fmt(box.top, box.bottom)}, ${s.overflowY})`);
+                  }
+                  // The badge carousel clips its slides horizontally on purpose; its edges are a scroll affordance.
+                  if (s.overflowX !== 'visible' && a.dataset.slot !== 'carousel-content'
+                    && (target.left < box.left - 0.5 || target.right > box.right + 0.5)) {
+                    clipped.push(`${name} (${fmt(target.left, target.right)}) clipped horizontally by ${where} (${fmt(box.left, box.right)}, ${s.overflowX})`);
                   }
                 }
               }

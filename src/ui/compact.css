@@ -55,7 +55,7 @@
   background: var(--secondary);
 }
 
-.hindsight-date-range > [data-no-swipe-drag] > button[data-variant='ghost']:hover {
+.hindsight-date-range > [data-no-swipe-drag] > button[data-variant='ghost']:not([aria-expanded='true']):hover {
   background: var(--muted);
 }
 
@@ -86,16 +86,24 @@
     --hindsight-target-half-size: 22px;
   }
 
+  /* Sized and centred like .hindsight-compact-icon: insets derived from the button size would lose its border,
+     because the pseudo-element is positioned against the padding box. */
   .hindsight-row-button:not(.hindsight-compact-icon)::after {
     content: '';
     position: absolute;
-    inset-block: calc((var(--hindsight-icon-size, 2.25rem) - 44px) / 2);
+    inset: auto;
+    inset-block-start: calc(50% - 22px);
     inset-inline: 0;
+    block-size: 44px;
   }
 
   .hindsight-date-range > [data-no-swipe-drag] > button::after {
     content: '';
     position: absolute;
-    inset: calc((var(--hindsight-icon-size) - 44px) / 2);
+    inset: auto;
+    inset-block-start: calc(50% - 22px);
+    inset-inline-start: calc(50% - 22px);
+    inline-size: 44px;
+    block-size: 44px;
   }
 }
