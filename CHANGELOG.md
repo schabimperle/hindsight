@@ -6,7 +6,7 @@
 - Merge equivalent cash and net-deposit chart lines into one dashed line, keeping both labels; retain separate lines when withdrawals exceed cash.
 - Replace the abbreviated “Net in” / “Netto ein” labels with “Net deposits” / “Netto-Einzahlungen”.
 - Keep the chart marker button aligned with the mode switch and prevent vertical scrollbars and clipped touch targets in the chart, date-range, account and add-benchmark controls, including tablet widths.
-- Stop reloading on every return to the tab, which could leave a “Failed to fetch” error after a brief network gap; portfolio updates still refresh the comparison.
+- Keep showing the last result when a refresh fails after returning to the page during a network gap, instead of a lingering “Failed to fetch” error; a load error now offers “Try again”.
 
 ## 0.4.2 (2026-11-12)
 

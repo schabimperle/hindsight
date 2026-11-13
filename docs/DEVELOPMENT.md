@@ -47,9 +47,10 @@ content hash, e.g. `0.4.0+1a2b3c4d5e6f`, so every build is distinguishable.
   HTTP 400 `internal_error`. Subscribe to `events.portfolio.onUpdateComplete` before mounting the route and
   cancel then invalidate Hindsight's data queries on completion. The sandbox has its own QueryClient; host
   invalidation does not reach it. Cancel first: invalidation alone can reuse an initial in-flight request.
-- That sandbox QueryClient uses TanStack defaults (refetch on window focus), the host's does not. `enable`
-  turns focus refetches off for `['hindsight', …]` keys; otherwise every return to the tab reloads, and one
-  request during a network gap leaves an error banner until the next return.
+- That sandbox QueryClient uses TanStack defaults (refetch on window focus and reconnect, three retries), the
+  host's does not. Hindsight keeps them: focus refetches keep accounts and settings current and retry failed
+  queries. A refetch during a network gap can fail, so `App` reports a load error only for a query without
+  data, with a retry button; a failed refresh keeps the last result.
 - Reloading an addon route shows the host's 404 page for about 1-2 seconds: the host registers addon routes
   only after its asynchronous addon discovery, and its catch-all route matches first. Not fixable in the addon.
 - Storage keys allow only letters, digits and `_ . : -`.

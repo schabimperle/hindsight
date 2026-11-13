@@ -10,14 +10,9 @@ const ROUTE = '/addons/hindsight';
 
 export default async function enable(ctx: AddonContext) {
   registerTranslations({ en, de });
-  const client = ctx.api.query.getClient() as QueryClient;
-  // The sandbox's client uses TanStack defaults, unlike the host's (no refetch on focus). Returning to the tab
-  // reloaded everything and turned one request during a network gap (resume, VPN, Wi-Fi) into an error banner
-  // that stayed after the network came back. As on the host, portfolio updates and the user's actions refresh.
-  client.setQueryDefaults(['hindsight'], { refetchOnWindowFocus: false });
   const active = await subscribePortfolioUpdates(
     ctx.api.events.portfolio,
-    client,
+    ctx.api.query.getClient() as QueryClient,
     (cleanup) => ctx.onDisable(cleanup),
     () => ctx.api.logger.warn('Hindsight could not subscribe to portfolio updates; automatic refresh is unavailable.'),
   );

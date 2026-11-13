@@ -3,6 +3,7 @@ import { QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-q
 import {
   Alert,
   AlertDescription,
+  Button,
   Card,
   CardContent,
   CardDescription,
@@ -187,13 +188,21 @@ function Comparison() {
   const addBench = (b: BenchmarkDef): void => update({ benchmarks: [...benchmarks, b] });
 
   const busy = settingsQ.isLoading || accountsQ.isLoading || (blocked.length === 0 && !loaded && dataQ.isFetching);
-  const failure = settingsQ.isError
+  // A failed background refresh (back to the tab during a network gap) keeps the last result on screen, as the
+  // host's pages do; only a query with nothing to show reports its error. The next return to the tab, a
+  // reconnect or the retry button try the failed queries again.
+  const failed = (q: { isError: boolean; data: unknown }): boolean => q.isError && q.data === undefined;
+  const failure = failed(settingsQ)
     ? settingsQ.error
-    : blocked.length === 0 && dataQ.isError && !staleScope
+    : blocked.length === 0 && failed(dataQ) && !staleScope
       ? dataQ.error
-      : accountsQ.isError
+      : failed(accountsQ)
         ? accountsQ.error
         : null;
+  const retry = (): void => {
+    // Observer refetches stay in the sandbox; client-wide calls are mirrored to the host's query client.
+    for (const q of [settingsQ, accountsQ, dataQ]) if (q.isError) void q.refetch();
+  };
   const loadError = failure ? (failure instanceof Error ? failure.message : String(failure)) : null;
   const realMissing = view === 'real' && analysis !== null && analysis.investedReal === null;
   const unavailable = realMissing ? t('app.realUnavailable') : null;
@@ -255,7 +264,12 @@ function Comparison() {
             {loadError && (
               <Alert variant="destructive">
                 <CircleAlert />
-                <AlertDescription>{t('app.loadFailed', { error: loadError })}</AlertDescription>
+                <AlertDescription className="flex flex-wrap items-center justify-between gap-2">
+                  <span>{t('app.loadFailed', { error: loadError })}</span>
+                  <Button variant="outline" size="sm" onClick={retry}>
+                    {t('app.retry')}
+                  </Button>
+                </AlertDescription>
               </Alert>
             )}
             {blocked.length > 0 && (

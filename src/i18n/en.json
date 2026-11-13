@@ -2,6 +2,7 @@
   "app": {
     "subtitle": "Would a different investment have done better with your money? Hindsight replays your deposits and withdrawals in an alternative, such as an index ETF, Bitcoin or a mix: each deposit buys it, each withdrawal sells some. The method is a Public Market Equivalent (Long–Nickels).",
     "loadFailed": "Loading failed: {{error}}",
+    "retry": "Try again",
     "loading": "Loading data",
     "settingsSaveFailed": "Settings could not be saved",
     "viewLabel": "View",
