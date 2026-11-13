@@ -90,6 +90,8 @@ async function seed() {
 async function shoot(browser, theme) {
   await api('PUT', '/settings', { theme });
   const page = await browser.newPage({ viewport: { width: 1240, height: 1600 }, deviceScaleFactor: 2, locale: 'en-US' });
+  // The host may offer an application update; its dialog would cover the controls being clicked.
+  await page.addLocatorHandler(page.getByRole('button', { name: 'Remind me later', exact: true }), (button) => button.click());
   await page.goto(BASE);
   await page.getByText('Hindsight', { exact: true }).first().click();
   const addon = page.frameLocator('iframe').first();
