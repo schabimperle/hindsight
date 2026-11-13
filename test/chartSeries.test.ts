@@ -34,7 +34,7 @@ describe('cash and net-deposit chart reference', () => {
     expect(series.at(-1)).toMatchObject({ name: 'Not invested / Net deposits', dash: '5 4', color: 'color-1', width: 2 });
   });
 
-  it('keeps different lines after an uncovered withdrawal, even when net deposits become positive again', () => {
+  it('keeps distinguishable lines after an uncovered withdrawal, even when net deposits become positive again', () => {
     const a = analysis([
       { date: '2025-01-01', amount: 1000 }, { date: '2025-06-01', amount: -1500 }, { date: '2025-08-01', amount: 1000 },
     ]);
@@ -42,7 +42,8 @@ describe('cash and net-deposit chart reference', () => {
     expect(a.chart.at(-1)).toMatchObject({ net: 500, [cash.key]: 1000 });
     const series = chartSeries(a.rows, colorsFor(a), 'actual', 'value', t);
     expect(series.find((s) => s.key === NET_KEY)).toMatchObject({ name: 'Net deposits', dash: '5 4' });
-    expect(series.find((s) => s.key === cash.key)).toMatchObject({ name: 'Not invested', dash: '5 4' });
+    expect(series.find((s) => s.key === cash.key)).toMatchObject({ name: 'Not invested' });
+    expect(series.find((s) => s.key === cash.key)?.dash).toBeUndefined();
   });
 
   it('keeps the reference when cash is removed or cannot be plotted', () => {
@@ -53,12 +54,13 @@ describe('cash and net-deposit chart reference', () => {
     expect(chartSeries(a.rows, new Map([['actual', 'blue']]), 'actual', 'value', t).map((s) => s.key)).toEqual([NET_KEY, 'actual']);
   });
 
-  it('keeps cash as its own comparison in difference mode without a net-deposit reference', () => {
+  it('keeps cash as its own solid comparison in difference mode without a net-deposit reference', () => {
     const a = analysis();
     const cash = a.rows.find((r) => r.variantKind === 'cash')!;
     const series = chartSeries(a.rows, colorsFor(a), 'actual', 'difference', t);
     expect(series.map((s) => s.key)).toEqual([cash.key, 'actual']);
-    expect(series[0]).toMatchObject({ name: 'Not invested', dash: '5 4' });
+    expect(series[0]).toMatchObject({ name: 'Not invested' });
+    expect(series[0].dash).toBeUndefined();
   });
 
   it('preserves a stored custom cash name in the combined label', () => {

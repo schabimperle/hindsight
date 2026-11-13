@@ -122,7 +122,7 @@ export function BadgeRow({
           </Carousel>
           <Separator orientation="vertical" className="h-6 flex-shrink-0" />
         </div>
-        <div className="ms-3 flex flex-shrink-0 items-center gap-2">{add}</div>
+        <div className="hindsight-unclipped ms-3 flex flex-shrink-0 items-center gap-2">{add}</div>
       </div>
     </>
   );

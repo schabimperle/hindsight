@@ -29,7 +29,10 @@ jobs:
   layout:
     name: Layout (Wealthfolio ${{ matrix.wealthfolio }})
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
+      # A layout failure on one host version must not hide the other's result.
+      fail-fast: false
       matrix:
         wealthfolio: ['3.12.0', '3.13.0']
     steps:

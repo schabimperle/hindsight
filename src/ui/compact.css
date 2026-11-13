@@ -50,7 +50,8 @@
   padding: 0;
 }
 
-.hindsight-date-range > [data-no-swipe-drag] > button[data-variant='ghost'] {
+/* Give the ghost trigger a button surface; while its popover is open the host's accent shows instead. */
+.hindsight-date-range > [data-no-swipe-drag] > button[data-variant='ghost']:not([aria-expanded='true']) {
   background: var(--secondary);
 }
 
@@ -67,8 +68,10 @@
 }
 
 .hindsight-unclipped,
+.hindsight-row-button,
 .hindsight-date-range > [data-no-swipe-drag] {
-  /* The host's mobile .flex reset clips enlarged touch targets on both axes. */
+  /* The host's mobile .flex reset (max-width 1024px) clips enlarged touch targets on both axes. Row buttons are
+     .flex themselves; their labels truncate in their own spans. */
   overflow: visible !important;
 }
 

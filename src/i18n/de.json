@@ -201,7 +201,7 @@
     "showsTitle": "Was du siehst",
     "shows1": "Gewinndifferenz: Gewinn der Alternative minus deinen. Über null hätte sie mit genau deinen Geldflüssen mehr verdient.",
     "shows2": "MWR p.a.: geldgewichtete Jahresrendite (XIRR) auf dieselben Geldflüsse; bei Zeiträumen unter einem Jahr über den Zeitraum.",
-    "shows3": "Chart „Wert“: der Wert jeder Linie über die Zeit. Netto-Einzahlungen sind Eingezahltes minus Ausgezahltes. Solange „Nicht angelegt“ alle Auszahlungen deckt, zeigt eine gemeinsame gestrichelte Linie beides; sonst bleiben sie getrennt.",
+    "shows3": "Chart „Wert“: der Wert jeder Linie über die Zeit. Netto-Einzahlungen sind Eingezahltes minus Ausgezahltes. Solange das nicht angelegte Geld jede Auszahlung deckt, entspricht es den Netto-Einzahlungen und eine gestrichelte Linie zeigt beides; sonst erscheinen sie getrennt.",
     "shows4": "Chart „Differenz“: Gewinn jeder Linie minus deinen an diesem Tag. Dein Portfolio ist die Nulllinie; der letzte Punkt ist die Gewinndifferenz.",
     "shows5": "Max. Drawdown: der größte Rückgang von einem Hoch, zeitgewichtet. Er zeigt, wie holprig der Weg war, nicht, was besser lief.",
     "shows6": "Real: Gewinn und MWR in Kaufkraft am Ende des Zeitraums (OECD-Verbraucherpreise deines Landes). Werte und Gewinndifferenz bleiben gleich.",

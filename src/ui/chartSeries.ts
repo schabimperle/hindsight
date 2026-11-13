@@ -32,7 +32,9 @@ export function chartSeries(rows: Row[], colors: Map<string, string>, selected: 
       name: r === combined ? t('chart.cashAndNetDeposited', { name, netDeposited: t('chart.netDeposited') }) : name,
       color,
       width: r.kind === 'actual' ? 2 : 1.5,
-      ...(r.variantKind === 'cash' ? { dash: '5 4' } : {}),
+      // Only the merged line takes the reference's dash: a separate cash line stays solid, so it is not mistaken
+      // for net deposits (value mode) or the zero line (difference mode), which share its colour and dash.
+      ...(r === combined ? { dash: '5 4' } : {}),
     });
   }
   const sel = out.findIndex((s) => s.key === selected);

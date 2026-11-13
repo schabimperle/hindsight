@@ -9,7 +9,12 @@ permissions:
   contents: write
 
 jobs:
+  # The tag is pushed together with main, so the release must not race ahead of the checks and layout tests.
+  ci:
+    uses: ./.github/workflows/ci.yml
+
   release:
+    needs: ci
     runs-on: ubuntu-latest
     container: node:22-trixie-slim@sha256:2117f713a417f3aff682ac8f5bc2ebbdf1beed51f36e67ab1e0fd3866b6d2d8f
     env:

@@ -201,7 +201,7 @@
     "showsTitle": "What you see",
     "shows1": "Gain difference: the alternative's gain minus yours. Above zero, it would have earned more with exactly your cash flows.",
     "shows2": "MWR p.a.: money-weighted yearly return (XIRR) on the same cash flows; for periods under a year, over the period.",
-    "shows3": "Value chart: each line's value over time. Net deposits are money paid in minus money taken out. While “Not invested” covers every withdrawal, one dashed line represents both; otherwise they stay separate.",
+    "shows3": "Value chart: each line's value over time. Net deposits are money paid in minus money taken out. As long as the money not invested covers every withdrawal, it equals net deposits and one dashed line shows both; otherwise they are drawn separately.",
     "shows4": "Difference chart: each line's gain minus yours on that day. Your portfolio is the zero line; the last point is the gain difference.",
     "shows5": "Max drawdown: the largest fall from a high, time-weighted. It shows how bumpy the ride was, not which did better.",
     "shows6": "Real: gain and MWR in end-of-period purchasing power (OECD consumer prices for your country). Values and the gain difference stay the same.",

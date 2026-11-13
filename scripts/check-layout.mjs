@@ -54,10 +54,13 @@ try {
         const frame = page.frameLocator('iframe').first();
         const marker = frame.getByRole('button', { name: /^(Show|Hide) markers$/ });
         await marker.waitFor({ timeout: 60_000 });
-        for (const width of [360, 412, 1240]) {
+        // 1000px leaves an iframe of 768-1023px beside the sidebar: wide controls under the host's mobile CSS.
+        for (const width of [360, 412, 1000, 1240]) {
           await page.setViewportSize({ width, height: 1000 });
+          const frameWidth = await frame.locator('body').evaluate(() => window.innerWidth);
+          if (width === 1000) assert(frameWidth >= 768 && frameWidth < 1024, `1000px: iframe is ${frameWidth}px, not tablet-sized`);
           // Wait for the host's mobile hook and responsive components to settle after resizing.
-          await frame.locator(width >= 1024
+          await frame.locator(frameWidth >= 768
             ? '.hindsight-row-button.hindsight-add-benchmark:visible'
             : '.hindsight-row-icon.hindsight-add-benchmark:visible').waitFor();
           for (const enabled of [false, true]) {
@@ -76,11 +79,40 @@ try {
                   clientHeight: el.clientHeight, scrollHeight: el.scrollHeight,
                   verticalScrollbar: ['auto', 'scroll'].includes(s.overflowY) && el.scrollHeight > el.clientHeight };
               };
+              const visible = (el) => el.getBoundingClientRect().width > 0;
+              const controls = {
+                marker: button, scope: document.querySelector('[role="combobox"]'),
+                calendar: dates.querySelector(':scope > button'),
+                add: [...document.querySelectorAll('.hindsight-add-benchmark')].find(visible),
+                help: document.querySelector('.hindsight-title-icon'),
+                ...Object.fromEntries([...document.querySelectorAll('.hindsight-badge-remove')].filter(visible)
+                  .map((el, i) => [`remove${i}`, el])),
+              };
+              // Every control's touch target (its ::after, if any) must survive all clipping ancestors, wherever
+              // the host's mobile .flex reset or a future wrapper turns one into a scroll container.
+              const clipped = [];
+              for (const [name, el] of Object.entries(controls)) {
+                const r = el.getBoundingClientRect(), after = getComputedStyle(el, '::after');
+                const extra = after.content !== 'none' && after.position === 'absolute'
+                  ? Math.max(0, -parseFloat(after.top) || 0, -parseFloat(after.bottom) || 0) : 0;
+                const top = r.top - extra, bottom = r.bottom + extra;
+                if (['auto', 'scroll'].includes(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight) clipped.push(`${name} scrolls itself`);
+                for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+                  const s = getComputedStyle(a);
+                  if (s.overflowY === 'visible') continue;
+                  const ar = a.getBoundingClientRect(), inner = ar.top + a.clientTop;
+                  if (top < inner - 0.5 || bottom > inner + a.clientHeight + 0.5) {
+                    clipped.push(`${name} (${top.toFixed(1)}-${bottom.toFixed(1)}) clipped by <${a.tagName.toLowerCase()} class="${a.className}"> (${inner.toFixed(1)}-${(inner + a.clientHeight).toFixed(1)}, overflow-y ${s.overflowY})`);
+                  }
+                }
+              }
+              const root = document.scrollingElement;
               return {
                 rows: Object.fromEntries(Object.entries(nodes).map(([name, el]) => [name, details(el)])),
-                marker: details(button), scope: details(document.querySelector('[role="combobox"]')),
-                calendar: details(dates.querySelector(':scope > button')),
-                add: details([...document.querySelectorAll('.hindsight-add-benchmark')].find((el) => el.getBoundingClientRect().width > 0)),
+                ...Object.fromEntries(Object.entries(controls).map(([name, el]) => [name, details(el)])),
+                clipped,
+                horizontalOverflow: root.scrollWidth - root.clientWidth,
+                calendarBackground: getComputedStyle(controls.calendar).backgroundColor,
               };
             });
             const where = `${theme}, touch=${hasTouch}, ${width}px, markers=${enabled}`;
@@ -88,6 +120,9 @@ try {
               assert(!row.verticalScrollbar, `${where}: ${name} scrolls vertically: ${JSON.stringify(row)}`);
               if (name !== 'presets') assert.equal(row.overflowY, 'visible', `${where}: ${name} clips touch targets`);
             }
+            assert.deepEqual(layout.clipped, [], `${where}: clipped touch targets`);
+            assert(layout.horizontalOverflow <= 0, `${where}: page overflows horizontally by ${layout.horizontalOverflow}px`);
+            assert(!/^(transparent|rgba\(.*, 0\))$/.test(layout.calendarBackground), `${where}: calendar has no background`);
             assert.equal(layout.marker.height, 32, `${where}: marker button height`);
             assert.equal(layout.rows.pill.height, 32, `${where}: mode switch height`);
             assert(Math.abs(layout.marker.center - layout.rows.pill.center) < 0.5, `${where}: chart controls are misaligned`);
@@ -102,7 +137,7 @@ try {
       await context.close();
     }
   }
-  console.log('Layout passed: 360/412/1240px, light/dark, touch/mouse, markers off/on.');
+  console.log('Layout passed: 360/412/1000/1240px, light/dark, touch/mouse, markers off/on.');
 } finally {
   await browser.close();
 }
