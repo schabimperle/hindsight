@@ -162,6 +162,18 @@ try {
           for (const part of parts) {
             assert(part.height >= part.content, `${theme}, touch=${hasTouch}, ${width}px: help dialog squeezes a part: ${JSON.stringify(parts)}`);
           }
+          // The close button floats over the header; no line of the title or description may run under it.
+          const covered = await dialog.evaluate((root) => {
+            const close = root.querySelector('[data-slot="sheet-close"], [data-slot="dialog-close"]').getBoundingClientRect();
+            return [...root.querySelectorAll('[data-slot="dialog-title"], [data-slot="dialog-description"]')].flatMap((el) => {
+              const range = document.createRange();
+              range.selectNodeContents(el);
+              return [...range.getClientRects()]
+                .filter((r) => r.right > close.left && r.left < close.right && r.bottom > close.top && r.top < close.bottom)
+                .map((r) => `${el.dataset.slot} line ${r.top.toFixed(1)}-${r.bottom.toFixed(1)}`);
+            });
+          });
+          assert.deepEqual(covered, [], `${theme}, touch=${hasTouch}, ${width}px: help dialog text under the close button`);
           await page.keyboard.press('Escape');
           await dialog.waitFor({ state: 'detached' });
         }

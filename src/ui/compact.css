@@ -78,6 +78,20 @@
   overflow: visible !important;
 }
 
+/* Phone dialogs are the host's bottom sheet, whose 44px close button floats 1rem below the top edge, over the header.
+   The title takes the button's row (same top and height, centred on it, clear of it at the end), so the description
+   starts below the button instead of running under it. */
+.hindsight-sheet {
+  padding-block-start: 1rem;
+}
+
+.hindsight-sheet > [data-slot='dialog-header'] > [data-slot='dialog-title'] {
+  display: flex;
+  align-items: center;
+  min-block-size: 2.75rem;
+  padding-inline-end: 3rem;
+}
+
 .hindsight-carousel [data-slot='carousel-content'] {
   /* Clip horizontal slides without turning the vertical axis into a scroll container. */
   overflow-x: clip;

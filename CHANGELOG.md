@@ -3,6 +3,7 @@
 ## Unreleased
 
 - On phones the “How Hindsight works” dialog no longer collapses its introduction, which overlapped “What you see” and its list.
+- On phones the titles of the “How Hindsight works” and mix dialogs line up with the close button, and the text below starts beneath it instead of running under it.
 
 ## 0.4.4 (2026-11-13)
 

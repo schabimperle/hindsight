@@ -19,8 +19,9 @@ export const seriesColor = (n: number): string => `var(${SERIES[n % SERIES.lengt
  * it. Not `flex flex-col`: when the content outgrows the sheet, flex items shrink, and the host's mobile `.flex`
  * reset (`overflow-x: clip`) removes the dialog header's content-based minimum height, so it collapses to zero
  * and its text overlaps the sections below. Grid rows keep their content height and the sheet scrolls.
+ * `hindsight-sheet` (compact.css) lines the title up with the sheet's close button.
  */
 export const DIALOG = {
   className: 'max-h-[85vh] overflow-y-auto sm:max-w-lg',
-  mobileClassName: 'grid max-h-[85vh] overflow-y-auto p-6',
+  mobileClassName: 'hindsight-sheet grid max-h-[85vh] overflow-y-auto p-6',
 };
