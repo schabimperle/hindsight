@@ -150,6 +150,20 @@ try {
             assert.equal(layout.rows.presets.height, 36, `${where}: period row height`);
             assert.equal(layout.add.height, 34, `${where}: add benchmark height`);
           }
+          // The help dialog is taller than its 85vh cap: phones get a scrolling bottom sheet, wider screens a dialog.
+          // No part may be squeezed below its content height, or its text runs into the next part. Layout sizes, not
+          // client rects: the desktop dialog zooms in while it opens.
+          await frame.getByRole('button', { name: 'How Hindsight works', exact: true }).click();
+          const dialog = frame.locator('[data-slot="sheet-content"], [data-slot="dialog-content"]');
+          const parts = await dialog.evaluate((root) => [...root.children]
+            .filter((el) => !['absolute', 'fixed'].includes(getComputedStyle(el).position) && getComputedStyle(el).display !== 'contents')
+            .map((el) => ({ tag: el.tagName.toLowerCase(), height: el.offsetHeight, content: el.scrollHeight })));
+          assert(parts.length >= 3, `${theme}, touch=${hasTouch}, ${width}px: help dialog has ${parts.length} parts`);
+          for (const part of parts) {
+            assert(part.height >= part.content, `${theme}, touch=${hasTouch}, ${width}px: help dialog squeezes a part: ${JSON.stringify(parts)}`);
+          }
+          await page.keyboard.press('Escape');
+          await dialog.waitFor({ state: 'detached' });
         }
       }
       assert.deepEqual(errors, [], 'Browser errors');

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- On phones the “How Hindsight works” dialog no longer collapses its introduction, which overlapped “What you see” and its list.
+
 ## 0.4.4 (2026-11-13)
 
 - Restore the host's gap before a benchmark's remove button on desktop, so five benchmarks fit the badge row again at common widths; touch screens keep the wider gap.
